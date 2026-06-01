@@ -39,7 +39,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install claude-agent-sdk requests
+        run: pip install anthropic requests
 
       # 5. Chạy Claude Agent review
       - name: Run Review Agent
