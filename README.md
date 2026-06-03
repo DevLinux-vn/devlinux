@@ -11,7 +11,7 @@ devlinux/
 ├── embedded-linux/
 │   └── K26.1/
 │       └── ten-hoc-vien/        ← giáo viên tạo sẵn
-│           ├── session-01/      ← học viên tự tạo
+│           ├── session-01/      ← giáo viên tạo sẵn
 │           │   ├── homework.md  ← học viên tạo, copy đề bài vào
 │           │   ├── Exercise_1/  ← học viên tự tạo
 │           │   │   ├── main.c
@@ -22,7 +22,7 @@ devlinux/
 │           │   └── Exercise_3/  ← học viên tự tạo
 │           │       ├── main.c
 │           │       └── Makefile
-│           └── session-02/      ← học viên tự tạo (buổi sau)
+│           └── session-02/      ← giáo viên tạo sẵn
 ├── rtos/
 ├── embedded-mcu/
 └── c-advance/
@@ -117,32 +117,31 @@ git checkout -b embedded-linux/K26.1/nguyen-van-a/session-01
 | Embedded MCU | `embedded-mcu` |
 | C Advance | `c-advance` |
 
-> ⚠️ Sai format branch → hệ thống không nhận diện được môn học, điểm sẽ không chính xác.
+> ⚠️ Sai format branch → PR sẽ bị từ chối tự động.
 
 ---
 
-### Bước 5 — Tạo thư mục và làm bài
+### Bước 5 — Làm bài
 
-Tạo thư mục session, file đề bài và thư mục cho từng bài:
+Thư mục `session-XX/` và file `homework.md` đã được giáo viên chuẩn bị sẵn. Vào đúng thư mục session của buổi học:
 
 ```bash
-# Tạo thư mục session
-mkdir -p embedded-linux/K26.1/nguyen-van-a/session-01
+cd embedded-linux/K26.1/nguyen-van-a/session-01/
+```
 
-# Tạo file homework.md rồi paste đề bài giáo viên gửi vào
-touch embedded-linux/K26.1/nguyen-van-a/session-01/homework.md
+Đọc đề bài trong `homework.md`, tạo thư mục cho từng bài:
 
-# Tạo thư mục cho từng bài
-mkdir -p embedded-linux/K26.1/nguyen-van-a/session-01/Exercise_1
-mkdir -p embedded-linux/K26.1/nguyen-van-a/session-01/Exercise_2
-mkdir -p embedded-linux/K26.1/nguyen-van-a/session-01/Exercise_3
+```bash
+mkdir -p Exercise_1
+mkdir -p Exercise_2
+mkdir -p Exercise_3
 ```
 
 Viết code vào từng thư mục Exercise:
 
 ```
 session-01/
-├── homework.md        ← paste đề bài vào đây
+├── homework.md        ← đề bài, giáo viên chuẩn bị sẵn — KHÔNG xoá
 ├── Exercise_1/
 │   ├── main.c
 │   └── Makefile
@@ -204,20 +203,19 @@ PR tự cập nhật và được review lại tự động.
 
 ## Buổi học tiếp theo (session-02, session-03...)
 
+Thư mục `session-02/`, `session-03/`... đã được tạo sẵn — không cần `mkdir`.
+
 ```bash
-# Quay về master, pull code mới nhất
+# Quay về master, pull code mới nhất (bao gồm homework.md mới từ giáo viên)
 git checkout master
 git pull upstream master
 
 # Tạo branch mới cho buổi mới
 git checkout -b embedded-linux/K26.1/nguyen-van-a/session-02
 
-# Tạo thư mục session, homework.md và các Exercise
-mkdir -p embedded-linux/K26.1/nguyen-van-a/session-02
-touch embedded-linux/K26.1/nguyen-van-a/session-02/homework.md
-mkdir -p embedded-linux/K26.1/nguyen-van-a/session-02/Exercise_1
-mkdir -p embedded-linux/K26.1/nguyen-van-a/session-02/Exercise_2
-mkdir -p embedded-linux/K26.1/nguyen-van-a/session-02/Exercise_3
+# Vào thư mục session, tạo các thư mục Exercise
+cd embedded-linux/K26.1/nguyen-van-a/session-02
+mkdir -p Exercise_1 Exercise_2 Exercise_3
 
 # Làm bài, commit, push, mở PR như bình thường
 ```
