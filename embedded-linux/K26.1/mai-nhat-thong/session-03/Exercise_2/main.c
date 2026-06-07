@@ -25,7 +25,7 @@ static void add_product(int fd) {
     memset(&p, 0, sizeof(Product));
 
     printf("Enter Product ID: ");
-    if (scanf("%d", &p.id) != 1) return;
+    if (scanf("%d", &p.id) != 1) { flush_stdin(); return; }
     flush_stdin();
 
     printf("Enter Product Name: ");
@@ -34,10 +34,10 @@ static void add_product(int fd) {
     }
 
     printf("Enter Quantity: ");
-    if (scanf("%d", &p.quantity) != 1) return;
+    if (scanf("%d", &p.quantity) != 1) { flush_stdin(); return; }
 
     printf("Enter Price: ");
-    if (scanf("%lf", &p.price) != 1) return;
+    if (scanf("%lf", &p.price) != 1) { flush_stdin(); return; }
     flush_stdin();
 
     if (lseek(fd, 0, SEEK_END) == (off_t)-1) {
@@ -45,7 +45,7 @@ static void add_product(int fd) {
         return;
     }
 
-    if (write(fd, &p, sizeof(Product)) != sizeof(Product)) {
+    if (write(fd, &p, sizeof(Product)) != (ssize_t)sizeof(Product)) {
         perror("Error saving product");
     } else {
         printf("Product appended successfully.\n");
@@ -78,7 +78,7 @@ static void show_product_by_index(int fd) {
         return;
     }
 
-    if (read(fd, &p, sizeof(Product)) == sizeof(Product)) {
+    if (read(fd, &p, sizeof(Product)) == (ssize_t)sizeof(Product)) {
         printf("\nProduct at index %d:\n", index);
         printf("ID: %d\nName: %s\nQuantity: %d\nPrice: %.2f\n", p.id, p.name, p.quantity, p.price);
     } else {
@@ -97,6 +97,7 @@ static void update_quantity_by_index(int fd) {
     flush_stdin();
 
     const off_t offset = (off_t)index * sizeof(Product);
+    
     const off_t file_size = lseek(fd, 0, SEEK_END);
     if (file_size == (off_t)-1) {
         perror("lseek file size check failed");
@@ -115,7 +116,7 @@ static void update_quantity_by_index(int fd) {
         return;
     }
 
-    if (write(fd, &new_qty, sizeof(int)) == sizeof(int)) {
+    if (write(fd, &new_qty, sizeof(int)) == (ssize_t)sizeof(int)) {
         printf("Quantity updated successfully via lseek.\n");
     } else {
         perror("Failed to update quantity");
@@ -133,15 +134,15 @@ static void list_all_products(int fd) {
     printf("\n--- Product List ---\n");
     printf("%-5s %-5s %-20s %-10s %-10s\n", "Idx", "ID", "Name", "Qty", "Price");
     while (1) {
-        ssize_t bytes_read = read(fd, &p, sizeof(Product));
+        const ssize_t bytes_read = read(fd, &p, sizeof(Product));
         if (bytes_read < 0) {
             perror("Error reading products");
             break;
         }
         if (bytes_read == 0) {
-            break;
+            break; /* EOF */
         }
-        if (bytes_read == sizeof(Product)) {
+        if (bytes_read == (ssize_t)sizeof(Product)) {
             printf("%-5d %-5d %-20s %-10d %-10.2f\n", idx++, p.id, p.name, p.quantity, p.price);
         }
     }
@@ -182,7 +183,7 @@ int main(void) {
     } while (choice != 5);
 
     if (close(fd) < 0) {
-        perror("Error closing file");
+        perror("Error closing file descriptor");
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

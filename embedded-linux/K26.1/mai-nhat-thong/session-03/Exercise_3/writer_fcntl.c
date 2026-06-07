@@ -15,7 +15,8 @@
 #include <string.h>
 
 #define LOG_FILE "system.log"
-#define SLEEP_DURATION_US 50000
+#define LOG_BUFFER_SIZE 512
+#define SIMULATED_DELAY_US 50000
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -38,7 +39,7 @@ int main(int argc, char *argv[]) {
 
     if (fcntl(fd, F_SETLKW, &fl) < 0) {
         perror("fcntl F_SETLKW");
-        close(fd);
+        (void)close(fd);
         return EXIT_FAILURE;
     }
 
@@ -51,35 +52,36 @@ int main(int argc, char *argv[]) {
     if (timeinfo == NULL) {
         perror("localtime");
         fl.l_type = F_UNLCK;
-        fcntl(fd, F_SETLK, &fl);
-        close(fd);
+        (void)fcntl(fd, F_SETLK, &fl);
+        (void)close(fd);
         return EXIT_FAILURE;
     }
     strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
 
-    char log_buffer[512];
+    char log_buffer[LOG_BUFFER_SIZE];
     int len = snprintf(log_buffer, sizeof(log_buffer), "[PID:%d] [%s] [%s] %s\n",
                        getpid(), time_buffer, "INFO", argv[1]);
 
-    usleep(SLEEP_DURATION_US);
+    usleep(SIMULATED_DELAY_US);
 
     if (write(fd, log_buffer, len) != len) {
         perror("write");
     }
 
-    /* Đảm bảo toàn bộ data thực sự ghi xuống đĩa trước khi unlock */
+    /* Đảm bảo toàn bộ data được ghi ổn định xuống đĩa lưu trữ (disk) */
     if (fsync(fd) < 0) {
-        perror("fsync failed");
+        perror("fsync");
     }
 
-    /* Check return value của việc UNLOCK */
+    /* Bổ sung kiểm tra lỗi khi gọi lệnh UNLOCK */
     fl.l_type = F_UNLCK;
     if (fcntl(fd, F_SETLK, &fl) < 0) {
-        perror("fcntl F_SETLK (unlock) failed");
+        perror("fcntl F_SETLK unlock failed");
     }
 
     if (close(fd) < 0) {
         perror("close fd failed");
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

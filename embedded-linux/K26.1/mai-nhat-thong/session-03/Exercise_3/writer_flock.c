@@ -16,7 +16,8 @@
 #include <string.h>
 
 #define LOG_FILE "system.log"
-#define SLEEP_DURATION_US 50000
+#define LOG_BUFFER_SIZE 512
+#define SIMULATED_DELAY_US 50000
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -32,7 +33,7 @@ int main(int argc, char *argv[]) {
 
     if (flock(fd, LOCK_EX) < 0) {
         perror("flock LOCK_EX");
-        close(fd);
+        (void)close(fd);
         return EXIT_FAILURE;
     }
 
@@ -44,25 +45,25 @@ int main(int argc, char *argv[]) {
     timeinfo = localtime(&rawtime);
     if (timeinfo == NULL) {
         perror("localtime");
-        flock(fd, LOCK_UN);
-        close(fd);
+        (void)flock(fd, LOCK_UN);
+        (void)close(fd);
         return EXIT_FAILURE;
     }
     strftime(time_buffer, sizeof(time_buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
 
-    char log_buffer[512];
+    char log_buffer[LOG_BUFFER_SIZE];
     int len = snprintf(log_buffer, sizeof(log_buffer), "[PID:%d] [%s] [%s] %s\n",
                        getpid(), time_buffer, "INFO", argv[1]);
 
-    usleep(SLEEP_DURATION_US);
+    usleep(SIMULATED_DELAY_US);
 
     if (write(fd, log_buffer, len) != len) {
         perror("write");
     }
 
-    /* Đảm bảo toàn bộ data được flush xuống ổ đĩa vật lý trước khi nhả khóa */
+    /* Đảm bảo dữ liệu ghi trực tiếp xuống đĩa lưu trữ vật lý trước khi nhả khóa */
     if (fsync(fd) < 0) {
-        perror("fsync failed");
+        perror("fsync");
     }
 
     if (flock(fd, LOCK_UN) < 0) {
@@ -71,6 +72,7 @@ int main(int argc, char *argv[]) {
 
     if (close(fd) < 0) {
         perror("close fd failed");
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

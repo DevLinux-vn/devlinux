@@ -25,7 +25,10 @@ static void add_student(int fd) {
     memset(&s, 0, sizeof(Student));
 
     printf("Enter Student ID: ");
-    if (scanf("%d", &s.id) != 1) return;
+    if (scanf("%d", &s.id) != 1) {
+        flush_stdin();
+        return;
+    }
     flush_stdin();
 
     printf("Enter Name: ");
@@ -34,10 +37,16 @@ static void add_student(int fd) {
     }
 
     printf("Enter Age: ");
-    if (scanf("%d", &s.age) != 1) return;
+    if (scanf("%d", &s.age) != 1) {
+        flush_stdin();
+        return;
+    }
 
     printf("Enter GPA: ");
-    if (scanf("%f", &s.gpa) != 1) return;
+    if (scanf("%f", &s.gpa) != 1) {
+        flush_stdin();
+        return;
+    }
     flush_stdin();
 
     if (lseek(fd, 0, SEEK_END) == (off_t)-1) {
@@ -45,7 +54,7 @@ static void add_student(int fd) {
         return;
     }
 
-    if (write(fd, &s, sizeof(Student)) != sizeof(Student)) {
+    if (write(fd, &s, sizeof(Student)) != (ssize_t)sizeof(Student)) {
         perror("Error writing student record");
     } else {
         printf("Student added successfully.\n");
@@ -63,7 +72,7 @@ static void list_students(int fd) {
     printf("%-5s %-20s %-5s %-5s\n", "ID", "Name", "Age", "GPA");
     
     while (1) {
-        ssize_t bytes_read = read(fd, &s, sizeof(Student));
+        const ssize_t bytes_read = read(fd, &s, sizeof(Student));
         if (bytes_read < 0) {
             perror("Error reading file");
             break;
@@ -71,7 +80,7 @@ static void list_students(int fd) {
         if (bytes_read == 0) {
             break; /* EOF */
         }
-        if (bytes_read == sizeof(Student)) {
+        if (bytes_read == (ssize_t)sizeof(Student)) {
             printf("%-5d %-20s %-5d %-5.2f\n", s.id, s.name, s.age, s.gpa);
         }
     }
@@ -95,15 +104,15 @@ static void find_student(int fd) {
     }
 
     while (1) {
-        ssize_t bytes_read = read(fd, &s, sizeof(Student));
+        const ssize_t bytes_read = read(fd, &s, sizeof(Student));
         if (bytes_read < 0) {
             perror("Error reading file");
             break;
         }
         if (bytes_read == 0) {
-            break;
+            break; /* EOF */
         }
-        if (bytes_read == sizeof(Student) && s.id == search_id) {
+        if (bytes_read == (ssize_t)sizeof(Student) && s.id == search_id) {
             printf("\nStudent Found:\n");
             printf("ID: %d\nName: %s\nAge: %d\nGPA: %.2f\n", s.id, s.name, s.age, s.gpa);
             found = 1;
@@ -148,7 +157,7 @@ int main(void) {
     } while (choice != 4);
 
     if (close(fd) < 0) {
-        perror("Error closing file");
+        perror("Error closing file descriptor");
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
