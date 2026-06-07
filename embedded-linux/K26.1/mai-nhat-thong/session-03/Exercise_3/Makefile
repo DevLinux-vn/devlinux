@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=gnu99 -O2
+CFLAGS = -Wall -Wextra -Werror -std=gnu99 -O2 -g
 TARGET_FLOCK = writer_flock
 TARGET_FCNTL = writer_fcntl
 

@@ -7,6 +7,7 @@
 #include <sys/types.h>
 
 #define FILE_NAME "students.dat"
+#define MENU_EXIT_CHOICE 4
 
 typedef struct {
     int   id;
@@ -154,7 +155,7 @@ int main(void) {
             case 4: printf("Exiting...\n"); break;
             default: printf("Invalid choice, try again.\n");
         }
-    } while (choice != 4);
+    } while (choice != MENU_EXIT_CHOICE);
 
     if (close(fd) < 0) {
         perror("Error closing file descriptor");
