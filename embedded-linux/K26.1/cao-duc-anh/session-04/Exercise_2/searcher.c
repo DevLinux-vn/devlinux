@@ -28,47 +28,46 @@ int main(int argc, char *argv[])
         exit(2);
     }
 
-    /* Read entire file into buffer using syscall */
-    char buf[4096];
-    ssize_t total = 0, n;
-    while ((n = read(fd, buf + total, sizeof(buf) - 1 - total)) > 0)
-        total += n;
-    close(fd);
-    buf[total] = '\0';
+    /* Block buffering: read 4KB at a time, accumulate one line at a time.
+     * Handles files of any size — RAM usage stays constant (blk + line). */
+    char    blk[4096];
+    char    line[256];
+    int     lpos = 0;
+    ssize_t n;
 
-    /* Parse line by line */
-    char *line = buf;
-    while (line && *line) {
-        char *next = strchr(line, '\n');
-        if (next) *next = '\0';
+    while ((n = read(fd, blk, sizeof(blk))) > 0) {
+        for (ssize_t i = 0; i < n; i++) {
+            if (blk[i] == '\n') {
+                line[lpos] = '\0';
+                lpos = 0;
 
-        /* Split fields by '|' */
-        char tmp[256];
-        strncpy(tmp, line, sizeof(tmp) - 1);
-        tmp[sizeof(tmp) - 1] = '\0';
+                /* Split fields by '|' */
+                char *fields[4] = {NULL};
+                int   nf = 0;
+                char *tok = strtok(line, "|");
+                while (tok && nf < 4) {
+                    fields[nf++] = tok;
+                    tok = strtok(NULL, "|");
+                }
 
-        char *fields[4] = {NULL};
-        int  nf = 0;
-        char *tok = strtok(tmp, "|");
-        while (tok && nf < 4) {
-            fields[nf++] = tok;
-            tok = strtok(NULL, "|");
+                if (nf == 4 && strcmp(fields[0], argv[1]) == 0) {
+                    float gpa = atof(fields[3]);
+                    close(fd);
+                    printf("========== SEARCH RESULT ==========\n");
+                    printf("  ID      : %s\n", fields[0]);
+                    printf("  Name    : %s\n", fields[1]);
+                    printf("  Class   : %s\n", fields[2]);
+                    printf("  GPA     : %.1f\n", gpa);
+                    printf("  Grade   : %s\n",  classify(gpa));
+                    printf("====================================\n\n");
+                    exit(0);
+                }
+            } else if (lpos < (int)sizeof(line) - 1) {
+                line[lpos++] = blk[i];
+            }
         }
-
-        if (nf == 4 && strcmp(fields[0], argv[1]) == 0) {
-            float gpa = atof(fields[3]);
-            printf("========== SEARCH RESULT ==========\n");
-            printf("  ID      : %s\n", fields[0]);
-            printf("  Name    : %s\n", fields[1]);
-            printf("  Class   : %s\n", fields[2]);
-            printf("  GPA     : %.1f\n", gpa);
-            printf("  Grade   : %s\n",  classify(gpa));
-            printf("====================================\n\n");
-            exit(0);
-        }
-
-        line = next ? next + 1 : NULL;
     }
+    close(fd);
 
     printf("[SEARCHER] No student found with ID: %s\n\n", argv[1]);
     exit(1);
