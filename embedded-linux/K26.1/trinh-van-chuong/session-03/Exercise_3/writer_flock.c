@@ -1,3 +1,13 @@
+/*
+| Đặc tính / Thuộc tính           | flock                                  | fcntl                                          |
+|---------------------------------|----------------------------------------|------------------------------------------------|
+| Phạm vi khóa (Granularity)       | Chỉ khóa toàn bộ file                  | Hỗ trợ khóa linh hoạt theo dải byte (Range)    |
+| Hoạt động qua mạng (NFS)        | Không hỗ trợ ổn định trên mạng NFS     | Hỗ trợ tốt qua môi trường mạng (NFS)           |
+| Kế thừa qua lệnh fork()         | Có (Tiến trình con sẽ nhận bản sao)     | Không (Khóa gắn liền với tiến trình gọi lệnh)  |
+| Tự động giải phóng khi crash    | Có (Khi tiến trình chết, khóa tự nhả)  | Có (Khi tiến trình chết, khóa tự nhả)          |
+| Trường hợp sử dụng tốt nhất     | Khóa file cục bộ đơn giản, ghi log     | Hệ thống file mạng, Database cần khóa phân vùng|
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
