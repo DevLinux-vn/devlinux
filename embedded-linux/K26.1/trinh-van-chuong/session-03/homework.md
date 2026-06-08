@@ -1,5 +1,25 @@
 # Assignment — session-03
+# Assignment — session-03
 
+## 📝 Kết quả chấm điểm tự động
+
+| Thuộc tính | Thông tin chi tiết |
+| :--- | :--- |
+| **👤 Học viên** | trinh-van-chuong |
+| **📚 Môn học** | EMBEDDED-LINUX |
+| **🎓 Khoá** | K26.1 |
+| **📅 Buổi** | session-03 |
+| **🌿 Branch** | embedded-linux/K26.1/trinh-van-chuong/session-03 |
+
+### 📊 Điểm: 0 / 100
+
+### 💬 Nhận xét tổng quan
+Chưa có nhận xét.
+
+### 🎯 Kết luận
+Chưa đánh giá.
+
+---
 ---
 
 ## Exercise_1 [build]
