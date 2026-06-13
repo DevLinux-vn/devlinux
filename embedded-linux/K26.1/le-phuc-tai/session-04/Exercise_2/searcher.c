@@ -97,4 +97,4 @@ void get_grade_classification(float gpa, char *grade_out) {
     } else {
         strcpy(grade_out, "Poor");
     }
-}
+} 

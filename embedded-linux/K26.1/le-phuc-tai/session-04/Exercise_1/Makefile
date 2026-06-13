@@ -12,4 +12,4 @@ $(TARGET): $(SRCS)
 clean:
 	rm -f $(TARGET)
 
-.PHONY: all clean
+.PHONY: all clean 

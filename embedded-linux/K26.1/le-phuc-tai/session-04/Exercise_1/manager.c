@@ -41,7 +41,7 @@ int main(void) {
         /* Tiêu chuẩn bắt buộc: Xóa bộ đệm stdout trước khi fork để tránh nhân bản log */
         fflush(stdout);
 
-        pid_t pid = fork();
+        pid_t pid = fork(); 
 
         if (pid < 0) {
             perror("[MANAGER] ERROR: fork() failed");

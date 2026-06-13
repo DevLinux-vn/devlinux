@@ -12,4 +12,4 @@ searcher: searcher.c
 clean:
 	rm -f manager searcher
 
-.PHONY: all clean
+.PHONY: all clean 
