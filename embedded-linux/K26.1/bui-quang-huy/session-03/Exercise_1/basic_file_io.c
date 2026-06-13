@@ -6,9 +6,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#define NAME_SIZE 64
+
 typedef struct {
     int   id;
-    char  name[64];
+    char  name[NAME_SIZE];
     int   age;
     float gpa;
 } Student;
@@ -30,7 +32,19 @@ void add_student(int fd) {
 
     lseek(fd, 0, SEEK_END);
     
-    if (write(fd, &s, sizeof(Student)) != sizeof(Student)) {
+    ssize_t written = 0, to_write = sizeof(Student);
+    while (written < to_write) {
+        ssize_t ret = write(fd, (char*)&s + written, to_write - written);
+        if (ret < 0) {
+            perror("write error");
+            return;
+        }
+        written += ret;
+    }
+
+    int ret = write(fd, &s, sizeof(Student));
+
+    if (ret != sizeof(Student)) {
         perror("Lỗi khi ghi dữ liệu sinh viên");
     } else {
         printf("Thêm sinh viên thành công!\n");
@@ -45,7 +59,12 @@ void list_students(int fd) {
     printf("\n=== Danh sách sinh viên ===\n");
     printf("%-5s %-30s %-5s %-5s\n", "ID", "Họ và Tên", "Tuổi", "GPA");
     
-    while (read(fd, &s, sizeof(Student)) == sizeof(Student)) {
+    ssize_t nread;
+    while ((nread = read(fd, &s, sizeof(Student))) > 0) {
+        if (nread != sizeof(Student)) {
+            fprintf(stderr, "partial read\n");
+            break;
+        }
         printf("%-5d %-30s %-5d %-5.2f\n", s.id, s.name, s.age, s.gpa);
     }
 }
