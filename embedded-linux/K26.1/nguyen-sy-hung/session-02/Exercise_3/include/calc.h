@@ -1,9 +1,9 @@
 #ifndef CALC_H
 #define CALC_H
 
-double add(double lhs, double rhs);
-double sub(double lhs, double rhs);
-double mul(double lhs, double rhs);
-double divf(double lhs, double rhs);
+float calc_add(float a, float b);
+float calc_sub(float a, float b);
+float calc_mul(float a, float b);
+float calc_div(float a, float b);
 
 #endif

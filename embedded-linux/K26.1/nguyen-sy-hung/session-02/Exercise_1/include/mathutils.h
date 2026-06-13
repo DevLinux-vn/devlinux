@@ -5,6 +5,6 @@ int add(int a, int b);
 
 int subtract(int a, int b);
 
-unsigned long long factorial(int n);
+int math_factorial(int n);
 
 #endif

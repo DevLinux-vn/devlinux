@@ -1,10 +1,8 @@
 #ifndef STRINGUTILS_H
 #define STRINGUTILS_H
 
-void to_uppercase(char *str);
-
-int string_length(const char *str);
-
-void reverse_string(char *str);
+void str_to_upper(char *s);
+int  str_count(const char *s);
+void str_reverse(char *s);
 
 #endif

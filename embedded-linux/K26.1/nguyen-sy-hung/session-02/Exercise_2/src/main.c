@@ -1,30 +1,23 @@
 #include <stdio.h>
-#include <string.h>
-
 #include "stringutils.h"
 
 int main(int argc, char *argv[])
 {
     if (argc != 2)
     {
-        printf("Usage: %s <string>\n", argv[0]);
+        printf("Usage: ./main <string>\n");
         return 1;
     }
 
-    char buffer[256];
+    printf("Original string: %s\n", argv[1]);
 
-    strncpy(buffer, argv[1], sizeof(buffer) - 1);
-    buffer[sizeof(buffer) - 1] = '\0';
+    printf("Character count: %d\n", str_count(argv[1]));
 
-    printf("Original : %s\n", buffer);
+    str_to_upper(argv[1]);
+    printf("Uppercase: %s\n", argv[1]);
 
-    printf("Length   : %d\n", string_length(buffer));
-
-    to_uppercase(buffer);
-    printf("Uppercase: %s\n", buffer);
-
-    reverse_string(buffer);
-    printf("Reverse  : %s\n", buffer);
+    str_reverse(argv[1]);
+    printf("Reverse: %s\n", argv[1]);
 
     return 0;
 }

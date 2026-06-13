@@ -1,10 +1,27 @@
-#include "calc.h" 
-double add(double lhs, double rhs) { return lhs + rhs; } 
-double sub(double lhs, double rhs) { return lhs - rhs; } 
-double mul(double lhs, double rhs) { return lhs * rhs; } 
-double divf(double lhs, double rhs) 
+#include "calc.h"
+#include <math.h>
+
+float calc_add(float a, float b)
 {
-     if (rhs == 0.0) 
-     { return 0.0; } 
-     return lhs / rhs; 
+    return a + b;
+}
+
+float calc_sub(float a, float b)
+{
+    return a - b;
+}
+
+float calc_mul(float a, float b)
+{
+    return a * b;
+}
+
+float calc_div(float a, float b)
+{
+    if (b == 0)
+    {
+        return NAN;
+    }
+
+    return a / b;
 }

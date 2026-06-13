@@ -1,39 +1,42 @@
 #include <stdio.h>
+#include <math.h>
 #include "calc.h"
 #include "logger.h"
 
-int main(void) {
-    double a = 20.0;
-    double b = 4.0;
-    double sum;
-    double diff;
-    double product;
-    double quotient;
+int main()
+{
+    float a = 10;
+    float b = 5;
+    float result;
 
-    logger_log("Application started");
+    result = calc_add(a, b);
+    printf("Add: %.2f\n", result);
+    log_timestamp();
+    log_write("Addition completed");
 
-    sum = add(a, b);
-    diff = sub(a, b);
-    product = mul(a, b);
-    quotient = divf(a, b);
 
-    logger_log("Addition completed");
-    logger_log("Subtraction completed");
-    logger_log("Multiplication completed");
-    logger_log("Division completed");
+    result = calc_sub(a, b);
+    printf("Sub: %.2f\n", result);
+    log_write("Subtraction completed");
 
-    printf("==== CALCULATION SUMMARY ====\n");
-    printf("Add : %.2f\n", sum);
-    printf("Subtract : %.2f\n", diff);
-    printf("Multiply : %.2f\n", product);
-    printf("Divide : %.2f\n", quotient);
 
-    if (divf(a, 0.0) == 0.0) {
-        logger_error("Division by zero attempted");
+    result = calc_mul(a, b);
+    printf("Mul: %.2f\n", result);
+    log_write("Multiplication completed");
+
+
+    result = calc_div(a, 0);
+
+    if (isnan(result))
+    {
+        printf("Division by zero error\n");
+        log_error("Division by zero");
     }
-
-    logger_print_timestamp();
-    logger_log("Application finished");
+    else
+    {
+        printf("Div: %.2f\n", result);
+        log_write("Division completed");
+    }
 
     return 0;
 }

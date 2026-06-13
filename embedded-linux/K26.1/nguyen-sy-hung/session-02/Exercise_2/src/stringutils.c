@@ -1,41 +1,40 @@
 #include "stringutils.h"
-
 #include <ctype.h>
 
-void to_uppercase(char *str)
+void str_to_upper(char *s)
 {
-    while (*str)
+    int i = 0;
+
+    while (s[i] != '\0')
     {
-        *str = toupper(*str);
-        str++;
+        s[i] = toupper(s[i]);
+        i++;
     }
 }
 
-int string_length(const char *str)
+int str_count(const char *s)
 {
-    int len = 0;
+    int count = 0;
 
-    while (*str++)
+    while (s[count] != '\0')
     {
-        len++;
+        count++;
     }
 
-    return len;
+    return count;
 }
 
-void reverse_string(char *str)
+void str_reverse(char *s)
 {
-    int len = string_length(str);
-
     int left = 0;
-    int right = len - 1;
+    int right = str_count(s) - 1;
+    char temp;
 
     while (left < right)
     {
-        char temp = str[left];
-
-        str[left] = str[right];
-        str[right] = temp;
+        temp = s[left];
+        s[left] = s[right];
+        s[right] = temp;
 
         left++;
         right--;

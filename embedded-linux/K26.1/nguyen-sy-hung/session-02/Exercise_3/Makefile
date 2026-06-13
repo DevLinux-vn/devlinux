@@ -1,78 +1,43 @@
-CC      := gcc
+CC = gcc
 
-CFLAGS  := -Wall -Wextra -Werror -std=c11 -Iinclude
-PICFLAG := -fPIC
+CFLAGS = -Iinclude
 
-AR      := ar
-ARFLAGS := rcs
+SRC = $(wildcard src/*.c)
 
-OBJ_DIR := obj
-LIB_DIR := lib
-BIN_DIR := bin
+OBJ = $(patsubst src/%.c,obj/%.o,$(filter-out src/main.c,$(SRC)))
 
-STATIC_LIB := $(LIB_DIR)/libcalc.a
-SHARED_LIB := $(LIB_DIR)/liblogger.so
+all: libs bin/main
 
-TARGET := $(BIN_DIR)/main
-
-SRC_FILES := $(wildcard src/*.c)
-
-CALC_SRC   := src/calc.c
-LOGGER_SRC := src/logger.c
-MAIN_SRC   := src/main.c
-
-CALC_OBJ   := $(OBJ_DIR)/calc.o
-LOGGER_OBJ := $(OBJ_DIR)/logger.o
-MAIN_OBJ   := $(OBJ_DIR)/main.o
-
-all: libs $(TARGET)
 
 libs: static shared
 
-static: $(STATIC_LIB)
 
-shared: $(SHARED_LIB)
+static: obj/calc.o
+	mkdir -p lib
+	ar rcs lib/libcalc.a obj/calc.o
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
 
-$(LIB_DIR):
-	mkdir -p $(LIB_DIR)
+shared: obj/logger.o
+	mkdir -p lib
+	$(CC) -shared -o lib/liblogger.so obj/logger.o
 
-$(BIN_DIR):
-	mkdir -p $(BIN_DIR)
 
-$(OBJ_DIR)/%.o: src/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+obj/%.o: src/%.c
+	mkdir -p obj
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
 
-$(OBJ_DIR)/logger.o: src/logger.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(PICFLAG) -c $< -o $@
 
-$(STATIC_LIB): $(CALC_OBJ) | $(LIB_DIR)
-	$(AR) $(ARFLAGS) $@ $^
+bin/main: src/main.c libs
+	mkdir -p bin
+	$(CC) src/main.c $(CFLAGS) -Llib -lcalc -llogger -o bin/main
 
-$(SHARED_LIB): $(LOGGER_OBJ) | $(LIB_DIR)
-	$(CC) -shared -o $@ $^
-
-$(TARGET): $(MAIN_OBJ) $(STATIC_LIB) $(SHARED_LIB) | $(BIN_DIR)
-	$(CC) \
-	$(MAIN_OBJ) \
-	-L$(LIB_DIR) \
-	-lcalc \
-	-llogger \
-	-Wl,-rpath,'$$ORIGIN/../lib' \
-	-o $@
 
 run: all
-	./$(TARGET)
+	LD_LIBRARY_PATH=./lib ./bin/main
+
 
 clean:
-	rm -rf $(OBJ_DIR)
-	rm -rf $(LIB_DIR)
-	rm -rf $(BIN_DIR)
-	rm -f app.log
+	rm -rf obj lib bin app.log
+
 
 rebuild: clean all
-
-.PHONY: all libs static shared run clean rebuild
-
