@@ -1,64 +1,119 @@
-
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/file.h>
-#include <time.h>
 #include <string.h>
+#include <time.h>
 
 #define LOG_FILE "system.log"
+#define LOG_LEVEL "INFO"
+#define BUFFER_SIZE 256
+
+
+static int write_all(int fd, const char *buf, size_t len)
+{
+    size_t total = 0;
+
+    while (total < len)
+    {
+        ssize_t ret = write(fd, buf + total, len - total);
+
+        if (ret == -1)
+        {
+            return -1;
+        }
+
+        total += ret;
+    }
+
+    return 0;
+}
 
 
 int main(int argc, char *argv[])
 {
     int fd;
-    char buffer[256];
+    int length;
+
+    char log_buffer[BUFFER_SIZE];
+    char time_buffer[32];
+
     time_t now;
-    struct tm *time_info;
+    struct tm *tm_info;
+
+
+    struct flock lock =
+    {
+        .l_type = F_WRLCK,
+        .l_whence = SEEK_SET,
+        .l_start = 0,
+        .l_len = 0
+    };
 
 
     if (argc != 2)
     {
-        printf("Usage: ./writer_flock \"message\"\n");
-        return 1;
+        fprintf(stderr, "Usage: %s \"message\"\n",
+                argv[0]);
+
+        return EXIT_FAILURE;
     }
 
 
-    fd = open(LOG_FILE, O_WRONLY | O_APPEND | O_CREAT, 0644);
+    fd = open(LOG_FILE,
+              O_WRONLY | O_APPEND | O_CREAT,
+              0644);
 
-    if (fd < 0)
+
+    if (fd == -1)
     {
-        printf("Cannot open log file\n");
-        return 1;
+        perror("open");
+        return EXIT_FAILURE;
     }
 
 
-    flock(fd, LOCK_EX);
+    if (fcntl(fd, F_SETLKW, &lock) == -1)
+    {
+        perror("fcntl lock");
+        close(fd);
+        return EXIT_FAILURE;
+    }
 
 
     now = time(NULL);
-    time_info = localtime(&now);
+
+    tm_info = localtime(&now);
+
+    strftime(time_buffer,
+             sizeof(time_buffer),
+             "%Y-%m-%d %H:%M:%S",
+             tm_info);
 
 
-    snprintf(buffer, sizeof(buffer),
-             "[PID:%d] [%04d-%02d-%02d %02d:%02d:%02d] [INFO] %s\n",
-             getpid(),
-             time_info->tm_year + 1900,
-             time_info->tm_mon + 1,
-             time_info->tm_mday,
-             time_info->tm_hour,
-             time_info->tm_min,
-             time_info->tm_sec,
-             argv[1]);
+    length = snprintf(log_buffer,
+                      sizeof(log_buffer),
+                      "[PID:%d] [%s] [%s] %s\n",
+                      getpid(),
+                      time_buffer,
+                      LOG_LEVEL,
+                      argv[1]);
 
 
-    write(fd, buffer, strlen(buffer));
+    if (write_all(fd, log_buffer, length) == -1)
+    {
+        perror("write");
+    }
 
 
-    flock(fd, LOCK_UN);
+    lock.l_type = F_UNLCK;
+
+    if (fcntl(fd, F_SETLK, &lock) == -1)
+    {
+        perror("fcntl unlock");
+    }
 
 
     close(fd);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
