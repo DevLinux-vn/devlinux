@@ -3,278 +3,260 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
-#include <stddef.h>
 
-#define FILE_NAME "products.dat"
+#define FILE_NAME        "students.dat"
+#define NAME_LENGTH      64
 
 
-typedef struct
+typedef struct {
+	int id;
+	char name[NAME_LENGTH];
+	int age;
+	float gpa;
+} Student;
+
+
+static int write_full(int fd, const void *buf, size_t size)
 {
-    int id;
-    char name[64];
-    int quantity;
-    double price;
+	const char *ptr = buf;
+	size_t total = 0;
 
-} Product;
+	while (total < size) {
+		ssize_t bytes;
 
+		bytes = write(fd, ptr + total, size - total);
 
+		if (bytes == -1)
+			return -1;
 
-static void add_product(int fd)
-{
-    Product product;
+		total += bytes;
+	}
 
-    printf("Enter ID: ");
-    scanf("%d", &product.id);
-
-    getchar();
-
-    printf("Enter name: ");
-    fgets(product.name,
-          sizeof(product.name),
-          stdin);
-
-    product.name[strcspn(product.name, "\n")] = '\0';
-
-
-    printf("Enter quantity: ");
-    scanf("%d", &product.quantity);
-
-
-    printf("Enter price: ");
-    scanf("%lf", &product.price);
-
-
-    if (lseek(fd, 0, SEEK_END) == -1)
-    {
-        perror("lseek");
-        return;
-    }
-
-
-    ssize_t bytes = write(fd,
-                          &product,
-                          sizeof(Product));
-
-
-    if (bytes != sizeof(Product))
-    {
-        perror("write");
-        return;
-    }
-
-
-    printf("Product added successfully\n");
+	return 0;
 }
 
 
-static void show_product_by_index(int fd)
+static ssize_t read_full(int fd, void *buf, size_t size)
 {
-    int index;
-    Product product;
+	char *ptr = buf;
+	size_t total = 0;
 
+	while (total < size) {
+		ssize_t bytes;
 
-    printf("Enter index: ");
-    scanf("%d", &index);
+		bytes = read(fd, ptr + total, size - total);
 
+		if (bytes == 0)
+			return total;
 
-    off_t offset = (off_t) index * sizeof(Product);
+		if (bytes == -1)
+			return -1;
 
+		total += bytes;
+	}
 
-    if (lseek(fd, offset, SEEK_SET) == -1)
-    {
-        perror("lseek");
-        return;
-    }
-
-
-    ssize_t bytes = read(fd,
-                         &product,
-                         sizeof(Product));
-
-
-    if (bytes == 0)
-    {
-        printf("Product index not found\n");
-        return;
-    }
-
-
-    if (bytes != sizeof(Product))
-    {
-        perror("read");
-        return;
-    }
-
-
-    printf("\nProduct information\n");
-    printf("-------------------\n");
-    printf("ID       : %d\n", product.id);
-    printf("Name     : %s\n", product.name);
-    printf("Quantity : %d\n", product.quantity);
-    printf("Price    : %.2lf\n", product.price);
+	return total;
 }
 
 
-static void update_quantity(int fd)
+static void add_student(int fd)
 {
-    int index;
-    int new_quantity;
+	Student student;
+
+	printf("Enter ID: ");
+	scanf("%d", &student.id);
+
+	getchar();
+
+	printf("Enter name: ");
+	fgets(student.name, sizeof(student.name), stdin);
+	student.name[strcspn(student.name, "\n")] = '\0';
+
+	printf("Enter age: ");
+	scanf("%d", &student.age);
+
+	printf("Enter GPA: ");
+	scanf("%f", &student.gpa);
 
 
-    printf("Enter product index: ");
-    scanf("%d", &index);
+	if (lseek(fd, 0, SEEK_END) == -1) {
+		perror("lseek");
+		return;
+	}
 
 
-    printf("Enter new quantity: ");
-    scanf("%d", &new_quantity);
+	if (write_full(fd, &student, sizeof(Student)) == -1) {
+		perror("write");
+		return;
+	}
 
-
-    off_t offset = (off_t) index * sizeof(Product)
-                 + offsetof(Product, quantity);
-
-
-    if (lseek(fd, offset, SEEK_SET) == -1)
-    {
-        perror("lseek");
-        return;
-    }
-
-
-    ssize_t bytes = write(fd,
-                          &new_quantity,
-                          sizeof(int));
-
-
-    if (bytes != sizeof(int))
-    {
-        perror("write");
-        return;
-    }
-
-
-    printf("Quantity updated successfully\n");
+	printf("Student added successfully\n");
 }
 
 
-static void list_all_products(int fd)
+static void print_student(const Student *student)
 {
-    Product product;
+	printf("ID   : %d\n", student->id);
+	printf("Name : %s\n", student->name);
+	printf("Age  : %d\n", student->age);
+	printf("GPA  : %.2f\n", student->gpa);
+}
 
 
-    if (lseek(fd, 0, SEEK_SET) == -1)
-    {
-        perror("lseek");
-        return;
-    }
+static void list_students(int fd)
+{
+	Student student;
+	ssize_t ret;
 
 
-    printf("\n======= PRODUCT LIST =======\n");
+	if (lseek(fd, 0, SEEK_SET) == -1) {
+		perror("lseek");
+		return;
+	}
 
 
-    while (1)
-    {
-        ssize_t bytes = read(fd,
-                             &product,
-                             sizeof(Product));
+	printf("\n===== STUDENT LIST =====\n");
 
 
-        if (bytes == 0)
-        {
-            break;
-        }
+	while (1) {
+		ret = read_full(fd, &student, sizeof(Student));
+
+		if (ret == 0)
+			break;
+
+		if (ret == -1) {
+			perror("read");
+			return;
+		}
+
+		if (ret != sizeof(Student)) {
+			fprintf(stderr,
+				"Error: corrupted student record\n");
+			return;
+		}
+
+		print_student(&student);
+		printf("------------------------\n");
+	}
+}
 
 
-        if (bytes != sizeof(Product))
-        {
-            perror("read");
-            return;
-        }
+static void find_student(int fd)
+{
+	int id;
+	int found = 0;
+	Student student;
+	ssize_t ret;
 
 
-        printf("ID       : %d\n", product.id);
-        printf("Name     : %s\n", product.name);
-        printf("Quantity : %d\n", product.quantity);
-        printf("Price    : %.2lf\n", product.price);
+	printf("Enter student ID: ");
+	scanf("%d", &id);
 
-        printf("----------------------------\n");
-    }
+
+	if (lseek(fd, 0, SEEK_SET) == -1) {
+		perror("lseek");
+		return;
+	}
+
+
+	while (1) {
+		ret = read_full(fd, &student, sizeof(Student));
+
+		if (ret == 0)
+			break;
+
+		if (ret == -1) {
+			perror("read");
+			return;
+		}
+
+		if (ret != sizeof(Student)) {
+			fprintf(stderr,
+				"Error: corrupted student record\n");
+			return;
+		}
+
+		if (student.id == id) {
+			printf("\nStudent found\n");
+			print_student(&student);
+			found = 1;
+			break;
+		}
+	}
+
+
+	if (!found)
+		printf("Student not found\n");
 }
 
 
 static void print_menu(void)
 {
-    printf("\n========== MENU ==========\n");
-    printf("1. Add product\n");
-    printf("2. Show product by index\n");
-    printf("3. Update quantity by index\n");
-    printf("4. List all products\n");
-    printf("5. Exit\n");
-    printf("==========================\n");
-    printf("Choose: ");
+	printf("\n========== MENU ==========\n");
+	printf("1. Add student\n");
+	printf("2. List all students\n");
+	printf("3. Find student by ID\n");
+	printf("4. Exit\n");
+	printf("==========================\n");
+	printf("Choose: ");
 }
 
 
 int main(void)
 {
-    int choice;
+	int fd;
+	int choice;
 
 
-    int fd = open(FILE_NAME,
-                  O_RDWR | O_CREAT,
-                  0644);
+	fd = open(FILE_NAME,
+		  O_RDWR | O_CREAT,
+		  0644);
+
+	if (fd == -1) {
+		perror("open");
+		return EXIT_FAILURE;
+	}
 
 
-    if (fd == -1)
-    {
-        perror("open");
-        return EXIT_FAILURE;
-    }
+	while (1) {
+		print_menu();
+
+		if (scanf("%d", &choice) != 1) {
+			fprintf(stderr,
+				"Invalid input\n");
+
+			if (close(fd) == -1)
+				perror("close");
+
+			return EXIT_FAILURE;
+		}
 
 
-    while (1)
-    {
-        print_menu();
+		switch (choice) {
+		case 1:
+			add_student(fd);
+			break;
 
+		case 2:
+			list_students(fd);
+			break;
 
-        scanf("%d", &choice);
+		case 3:
+			find_student(fd);
+			break;
 
+		case 4:
+			if (close(fd) == -1) {
+				perror("close");
+				return EXIT_FAILURE;
+			}
 
-        switch (choice)
-        {
-            case 1:
-                add_product(fd);
-                break;
+			printf("Exit program\n");
+			return EXIT_SUCCESS;
 
-
-            case 2:
-                show_product_by_index(fd);
-                break;
-
-
-            case 3:
-                update_quantity(fd);
-                break;
-
-
-            case 4:
-                list_all_products(fd);
-                break;
-
-
-            case 5:
-                if (close(fd) == -1)
-                {
-                    perror("close");
-                    return EXIT_FAILURE;
-                }
-
-                printf("Exit program\n");
-                return EXIT_SUCCESS;
-
-
-            default:
-                printf("Invalid choice\n");
-                break;
-        }
-    }
+		default:
+			printf("Invalid option\n");
+			break;
+		}
+	}
 }
