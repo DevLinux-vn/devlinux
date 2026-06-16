@@ -49,6 +49,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_REPO: ${{ github.repository }}
+          DEVLINUX_PATH: devlinux
         run: python reviewer-core/scripts/generate_attendance_report.py
 
       # Configure git
