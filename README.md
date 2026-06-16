@@ -252,15 +252,40 @@ head repository: nguyen-van-a/devlinux  ←  compare: embedded-linux/K26.1/nguye
 
 Hệ thống sẽ **tự động close PR và báo lý do** nếu vi phạm một trong các điều sau:
 
+### **1️⃣ Kiểm tra Format Branch**
+
 | Lý do bị reject | Cách khắc phục |
 |---|---|
-| Branch sai format (thiếu phần, sai tên môn, sai khoá, sai session) | Tạo lại branch đúng format `tên-môn/KXX.X/tên-của-bạn/session-XX` |
-| Tên học viên trong branch không khớp thư mục giáo viên đã tạo | Dùng đúng tên thư mục — hỏi giáo viên nếu không biết |
-| Tài khoản GitHub không khớp danh sách lớp | Đảm bảo đang dùng đúng tài khoản GitHub đã đăng ký với giáo viên |
-| Nộp thiếu bài tập so với đề bài | Hoàn thành đủ tất cả Exercise trong `homework.md` rồi push lại, sau đó reopen PR |
-| Nộp từ branch `master` | Tạo branch mới đúng format, không làm bài trực tiếp trên master |
+| Branch thiếu 4 phần (môn/khoá/tên/session) | Format: `tên-môn/KXX.X/tên-của-bạn/session-XX` |
+| Môn không hợp lệ | Dùng một trong: `embedded-linux`, `rtos`, `embedded-mcu`, `c-advance` |
+| Thư mục môn không tồn tại | Kiểm tra tên môn đúng, liên hệ giáo viên |
+| Khoá sai format (không phải KXX.X) | Ví dụ: `K26.1`, `K27.2` |
+| Thư mục khoá không tồn tại | Kiểm tra tên khoá, liên hệ giáo viên |
+| Session sai format (không phải session-XX) | Ví dụ: `session-01`, `session-03` (không `session-1`) |
+| Thư mục session không tồn tại | Dùng đúng tên session giáo viên đã tạo |
+| Tên học viên trong branch không khớp thư mục | Dùng đúng tên thư mục (hỏi giáo viên nếu không biết) |
+| Học viên không trong danh sách lớp (class.json) | Liên hệ giáo viên để được thêm vào danh sách |
+| Tài khoản GitHub không khớp class.json | Dùng tài khoản GitHub được đăng ký với giáo viên |
 
-> ⚠️ Sau khi bị reject: **không mở PR mới** — push thêm code lên branch cũ rồi **reopen PR cũ** là đủ (trừ trường hợp sai tên branch thì phải tạo branch mới).
+### **2️⃣ Kiểm tra File Nộp**
+
+| Lý do bị reject | Cách khắc phục |
+|---|---|
+| Nộp file từ nhiều session cùng lúc (vd: session-01 + session-03) | Mỗi PR chỉ nộp **1 session duy nhất**. Tạo PR riêng cho mỗi session |
+| Sửa file ngoài thư mục session (vd: `README.md`, `class.json` ở root) | Chỉ được tạo/sửa file bên trong thư mục session của bạn |
+| Sửa file không phải Exercise folders (vd: sửa `homework.md`) | Chỉ được tạo/sửa file **trong** `Exercise_N/` folders |
+
+### **3️⃣ Kiểm tra Bài Tập**
+
+| Lý do bị reject | Cách khắc phục |
+|---|---|
+| Nộp thiếu bài tập so với đề bài | Hoàn thành tất cả Exercise được định nghĩa trong `homework.md` |
+
+---
+
+> ⚠️ **Sau khi bị reject:**
+> - **Trường hợp sai tên branch/môn/khoá:** Tạo branch mới đúng format → mở PR mới
+> - **Trường hợp khác (thiếu bài, sửa file sai, v.v.):** Push thêm code lên branch cũ → **reopen PR cũ** (không tạo PR mới)
 
 ---
 
