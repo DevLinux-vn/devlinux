@@ -59,10 +59,6 @@ int main(void) {
         else if (pid == 0) {
             char *args[] = {"./searcher", input_id, "students.txt", NULL};
 
-            /*
-             * Hệ thống nhúng nâng cao: execve() sẽ thay thế toàn bộ không gian 
-             * địa chỉ (Code, Data, Stack, Heap) của tiến trình con hiện tại bằng binary mới.
-             */
             execve(args[0], args, environ);
 
             /* * DÒNG DƯỚI ĐÂY CHỈ ĐƯỢC CHẠY KHI EXECVE THẤT BẠI.
