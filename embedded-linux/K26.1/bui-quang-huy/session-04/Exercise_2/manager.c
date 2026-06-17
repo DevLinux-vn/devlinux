@@ -57,7 +57,6 @@ int main(void) {
             continue;
         } 
         else if (pid == 0) {
-            /* Nhánh tiến trình con: Thiết lập mảng đối số để gọi execve */
             char *args[] = {"./searcher", input_id, "students.txt", NULL};
 
             /*
