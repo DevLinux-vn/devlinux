@@ -10,6 +10,11 @@
 devlinux/
 ├── embedded-linux/
 │   └── K26.1/
+│       ├── class.json           ← danh sách học viên + GitHub usernames
+│       ├── homeworks/           ← chứa deadline + báo cáo
+│       │   ├── session-01.md    ← chứa deadline (dòng 2)
+│       │   ├── session-02.md
+│       │   └── homework_report.csv  ← báo cáo tự động (mỗi chủ nhật)
 │       └── ten-hoc-vien/        ← giáo viên tạo sẵn
 │           ├── session-01/      ← giáo viên tạo sẵn
 │           │   ├── homework.md  ← giáo viên chuẩn bị sẵn — KHÔNG xoá
@@ -27,6 +32,128 @@ devlinux/
 ├── embedded-mcu/
 └── c-advance/
 ```
+
+---
+
+## 📅 Xem Deadline Bài Tập
+
+**Deadline của mỗi buổi học được giáo viên đặt trong file `homeworks/session-XX.md`**
+
+### Cách xem deadline:
+
+1. **Trên GitHub web:**
+   - Vào thư mục `{môn}/{Khoá}/homeworks/`
+   - Click file `session-XX.md`
+   - Xem dòng thứ 2 chứa: `**Deadline: YYYY-MM-DD HH:MM:SS**`
+
+2. **Trên máy (sau khi pull code):**
+   ```bash
+   # Ví dụ: xem deadline session-01
+   cat embedded-linux/K26.1/homeworks/session-01.md | head -3
+   
+   # Output:
+   # # Assignment — session-01
+   # **Deadline: 2026-06-14 23:59:00**
+   # ---
+   ```
+
+3. **Hoặc đơn giản nhất:**
+   - Vào folder `{môn}/{Khoá}/homeworks/`
+   - Mở file `session-XX.md` với text editor
+   - Dòng thứ 2 là deadline
+
+### Format deadline:
+
+```
+**Deadline: YYYY-MM-DD HH:MM:SS**
+```
+
+Ví dụ:
+- `2026-06-14 23:59:00` = 14/6/2026 lúc 23:59
+- `2026-06-21 18:00:00` = 21/6/2026 lúc 18:00
+
+> ⏰ **Lưu ý:** Deadline tính theo **UTC timezone**. Nộp bài trước thời gian deadline = `✅ On time`, sau deadline = `⏰ Late`
+
+---
+
+## 📊 Xem Báo Cáo Nộp Bài (Attendance Report)
+
+Hàng tuần, hệ thống tự động **kiểm tra xem mỗi học viên đã nộp bài hay chưa**, so sánh với deadline, và tạo file báo cáo CSV.
+
+### Vị trí file báo cáo:
+
+```
+{môn}/{Khoá}/homeworks/homework_report.csv
+```
+
+**Ví dụ:**
+- `embedded-linux/K26.1/homeworks/homework_report.csv`
+- `rtos/K26.2/homeworks/homework_report.csv`
+
+### Nội dung file CSV:
+
+File được cập nhật định kỳ theo lịch của lớp học:
+
+| Student | Session-01 | Session-02 | Session-03 | Session-04 | ... | Session-20 | Submission % |
+|---------|-----------|-----------|-----------|-----------|-----|-----------|---|
+| nguyen-quoc-viet | ✅ On time | ⏰ Late | ❌ Not yet | ⚪ N/A | ... | ⚪ N/A | 65.0% |
+| tran-anh-tu | ✅ On time | ✅ On time | ⏰ Late | ✅ On time | ... | ⚪ N/A | 72.5% |
+| le-van-c | ⏰ Late | ⏰ Late | ⏰ Late | ❌ Not yet | ... | ⚪ N/A | 37.5% |
+
+**Giải thích Status cho từng buổi:**
+- `✅ On time` — **nộp bài trước deadline + bài tập đạt yêu cầu**
+- `⏰ Late` — **nộp bài sau deadline + bài tập đạt yêu cầu**
+- `❌ Not yet` — chưa nộp bài HOẶC nộp bài nhưng chưa đạt yêu cầu
+- `⚪ N/A` — không có bài tập giao cho buổi này
+- Nếu GitHub username = "none" trong class.json → luôn `❌ Not yet`
+
+### ⚠️ Điều kiện để bài tập được tính vào báo cáo
+
+**Bài tập chỉ được tính khi:**
+1. ✅ **Được nộp trước deadline** HOẶC **sau deadline** (miễn nộp trước khi báo cáo chạy)
+2. **VÀ** bài tập được hệ thống chấp nhận (có label `✅ passed`)
+
+**Nếu bài tập chưa đạt yêu cầu:**
+- Dù nộp trước deadline, vẫn hiện `❌ Not yet` trên báo cáo
+- **Phải sửa lại theo nhận xét của hệ thống để đạt label `✅ passed`**
+- **Deadline của bài tập là deadline để NỘP + CÓ SẴN LABEL `✅ passed`**
+- Nộp muộn nhưng chưa có `✅ passed` → vẫn tính là `❌ Not yet`
+
+### Cách tính Submission %
+
+```
+Submission % = (Tổng điểm từ bài tập đạt / Tổng bài tập đã qua deadline) × 100%
+```
+
+**Scoring cho từng bài tập:**
+- `✅ On time` + `✅ passed` → **1 điểm**
+- `⏰ Late` + `✅ passed` → **0.5 điểm**
+- `❌ Not yet` (chưa nộp hoặc chưa đạt) → **0 điểm**
+
+**Ví dụ:**
+- 10 buổi giao bài tập (chỉ tính những buổi đã qua deadline)
+- 6 buổi nộp đúng hạn + đạt = 6 điểm
+- 2 buổi nộp muộn + đạt = 1 điểm
+- 2 buổi chưa nộp hoặc chưa đạt = 0 điểm
+- **Kết quả: (6 + 1) / 10 × 100% = 70%**
+
+### Cách xem báo cáo:
+
+1. **Trên GitHub web:**
+   - Vào thư mục `{môn}/{Khoá}/homeworks/`
+   - Tìm file `homework_report.csv`
+   - GitHub tự động render thành bảng (dễ nhìn)
+
+2. **Tải về máy:**
+   ```bash
+   git pull
+   cat embedded-linux/K26.1/homeworks/homework_report.csv
+   ```
+
+> 💡 **Lưu ý:** 
+> - Báo cáo được tạo dựa trên PR của học viên, không phải merge PR. Nộp bài = tạo PR, không cần merge để được tính là đã nộp.
+> - **Chỉ bài tập có label `✅ passed` từ hệ thống mới được tính vào báo cáo và submission %**
+> - Nộp bài sớm nhưng chưa đạt `✅ passed` → phải sửa trước deadline để được tính vào submission %
 
 ---
 
@@ -252,15 +379,40 @@ head repository: nguyen-van-a/devlinux  ←  compare: embedded-linux/K26.1/nguye
 
 Hệ thống sẽ **tự động close PR và báo lý do** nếu vi phạm một trong các điều sau:
 
+### **1️⃣ Kiểm tra Format Branch**
+
 | Lý do bị reject | Cách khắc phục |
 |---|---|
-| Branch sai format (thiếu phần, sai tên môn, sai khoá, sai session) | Tạo lại branch đúng format `tên-môn/KXX.X/tên-của-bạn/session-XX` |
-| Tên học viên trong branch không khớp thư mục giáo viên đã tạo | Dùng đúng tên thư mục — hỏi giáo viên nếu không biết |
-| Tài khoản GitHub không khớp danh sách lớp | Đảm bảo đang dùng đúng tài khoản GitHub đã đăng ký với giáo viên |
-| Nộp thiếu bài tập so với đề bài | Hoàn thành đủ tất cả Exercise trong `homework.md` rồi push lại, sau đó reopen PR |
-| Nộp từ branch `master` | Tạo branch mới đúng format, không làm bài trực tiếp trên master |
+| Branch thiếu 4 phần (môn/khoá/tên/session) | Format: `tên-môn/KXX.X/tên-của-bạn/session-XX` |
+| Môn không hợp lệ | Dùng một trong: `embedded-linux`, `rtos`, `embedded-mcu`, `c-advance` |
+| Thư mục môn không tồn tại | Kiểm tra tên môn đúng, liên hệ giáo viên |
+| Khoá sai format (không phải KXX.X) | Ví dụ: `K26.1`, `K27.2` |
+| Thư mục khoá không tồn tại | Kiểm tra tên khoá, liên hệ giáo viên |
+| Session sai format (không phải session-XX) | Ví dụ: `session-01`, `session-03` (không `session-1`) |
+| Thư mục session không tồn tại | Dùng đúng tên session giáo viên đã tạo |
+| Tên học viên trong branch không khớp thư mục | Dùng đúng tên thư mục (hỏi giáo viên nếu không biết) |
+| Học viên không trong danh sách lớp (class.json) | Liên hệ giáo viên để được thêm vào danh sách |
+| Tài khoản GitHub không khớp class.json | Dùng tài khoản GitHub được đăng ký với giáo viên |
 
-> ⚠️ Sau khi bị reject: **không mở PR mới** — push thêm code lên branch cũ rồi **reopen PR cũ** là đủ (trừ trường hợp sai tên branch thì phải tạo branch mới).
+### **2️⃣ Kiểm tra File Nộp**
+
+| Lý do bị reject | Cách khắc phục |
+|---|---|
+| Nộp file từ nhiều session cùng lúc (vd: session-01 + session-03) | Mỗi PR chỉ nộp **1 session duy nhất**. Tạo PR riêng cho mỗi session |
+| Sửa file ngoài thư mục session (vd: `README.md`, `class.json` ở root) | Chỉ được tạo/sửa file bên trong thư mục session của bạn |
+| Sửa file không phải Exercise folders (vd: sửa `homework.md`) | Chỉ được tạo/sửa file **trong** `Exercise_N/` folders |
+
+### **3️⃣ Kiểm tra Bài Tập**
+
+| Lý do bị reject | Cách khắc phục |
+|---|---|
+| Nộp thiếu bài tập so với đề bài | Hoàn thành tất cả Exercise được định nghĩa trong `homework.md` |
+
+---
+
+> ⚠️ **Sau khi bị reject:**
+> - **Trường hợp sai tên branch/môn/khoá:** Tạo branch mới đúng format → mở PR mới
+> - **Trường hợp khác (thiếu bài, sửa file sai, v.v.):** Push thêm code lên branch cũ → **reopen PR cũ** (không tạo PR mới)
 
 ---
 
