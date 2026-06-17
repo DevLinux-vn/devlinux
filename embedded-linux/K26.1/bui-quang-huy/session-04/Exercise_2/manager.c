@@ -10,6 +10,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 87869413a4788ea02445d77956ecb09037590d10
 #define INPUT_MAX_LEN 100
 extern char **environ; /* Biến môi trường hệ thống bắt buộc cho execve */
 
@@ -56,6 +60,7 @@ int main(void) {
             continue;
         } 
         else if (pid == 0) {
+<<<<<<< HEAD
             /* Nhánh tiến trình con: Thiết lập mảng đối số để gọi execve */
             char *args[] = {"./searcher", input_id, "students.txt", NULL};
 
@@ -63,6 +68,11 @@ int main(void) {
              * Hệ thống nhúng nâng cao: execve() sẽ thay thế toàn bộ không gian 
              * địa chỉ (Code, Data, Stack, Heap) của tiến trình con hiện tại bằng binary mới.
              */
+=======
+            char *args[] = {"./searcher", input_id, "students.txt", NULL};
+
+           
+>>>>>>> 87869413a4788ea02445d77956ecb09037590d10
             execve(args[0], args, environ);
 
             /* * DÒNG DƯỚI ĐÂY CHỈ ĐƯỢC CHẠY KHI EXECVE THẤT BẠI.

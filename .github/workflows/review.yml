@@ -22,6 +22,33 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           path: student-code
 
+      # 1b. Checkout master branch (để đọc class.json mới nhất từ teacher)
+      - name: Checkout base repo at master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          path: base-code
+
+      # 1c. Extract subject and course from branch name for labeling
+      - name: Extract subject and course from branch
+        id: branch_info
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          # Branch format: embedded-linux/K26.1/student-name/session-XX
+          SUBJECT=$(echo $BRANCH | cut -d'/' -f1)
+          COURSE=$(echo $BRANCH | cut -d'/' -f2)
+          echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
+          echo "course=$COURSE" >> $GITHUB_OUTPUT
+
+      # 1d. Add labels to PR (subject and course)
+      - name: Add labels to PR
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} \
+            --add-label "${{ steps.branch_info.outputs.subject }}" \
+            --add-label "${{ steps.branch_info.outputs.course }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # 2. Setup SSH để clone private repo
       - name: Setup SSH Deploy Key
         uses: webfactory/ssh-agent@v0.9.0
@@ -52,4 +79,5 @@ jobs:
           PR_AUTHOR:         ${{ github.event.pull_request.user.login }}
           PR_TITLE:          ${{ github.event.pull_request.title }}
           STUDENT_CODE_PATH: student-code
+          BASE_CODE_PATH:    base-code
         run: python reviewer-core/reviewer/review_pr.py

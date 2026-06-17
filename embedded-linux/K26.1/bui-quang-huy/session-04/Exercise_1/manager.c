@@ -1,7 +1,11 @@
 /**
  * @file manager.c
  * @brief Multi-process order processing system simulation.
+<<<<<<< HEAD
  * @author Bùi Quang Huy 
+=======
+ * @author Bùi Quang Huy (Senior Embedded Software Engineer)
+>>>>>>> 87869413a4788ea02445d77956ecb09037590d10
  * @date 2026-06-13
  */
 
@@ -55,10 +59,14 @@ int main(void) {
 
     /* LOOP 1: Khởi tạo các tiến trình con xử lý song song (Concurrency) */
     for (int i = 0; i < NUM_ORDERS; i++) {
+<<<<<<< HEAD
         /* * CRITICAL embedded note: Xóa bộ đệm stdout trước khi fork.
          * Nếu không, dữ liệu trong buffer của cha sẽ bị copy sang con, 
          * dẫn đến việc in trùng lặp dữ liệu log.
          */
+=======
+        
+>>>>>>> 87869413a4788ea02445d77956ecb09037590d10
         fflush(stdout); 
 
         pid_t pid = fork();
