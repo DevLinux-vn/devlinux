@@ -55,10 +55,7 @@ int main(void) {
 
     /* LOOP 1: Khởi tạo các tiến trình con xử lý song song (Concurrency) */
     for (int i = 0; i < NUM_ORDERS; i++) {
-        /* * CRITICAL embedded note: Xóa bộ đệm stdout trước khi fork.
-         * Nếu không, dữ liệu trong buffer của cha sẽ bị copy sang con, 
-         * dẫn đến việc in trùng lặp dữ liệu log.
-         */
+        
         fflush(stdout); 
 
         pid_t pid = fork();
