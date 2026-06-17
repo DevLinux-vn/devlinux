@@ -59,6 +59,7 @@ int main(void) {
         else if (pid == 0) {
             char *args[] = {"./searcher", input_id, "students.txt", NULL};
 
+           
             execve(args[0], args, environ);
 
             /* * DÒNG DƯỚI ĐÂY CHỈ ĐƯỢC CHẠY KHI EXECVE THẤT BẠI.
