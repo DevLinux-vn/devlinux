@@ -1,0 +1,285 @@
+=== 1. Full service log ===
+Jun 17 21:10:33 syhung-VMware-Virtual-Platform systemd[1]: Started logger.service - Embedded Linux Logger Service.
+Jun 17 21:10:33 syhung-VMware-Virtual-Platform logger[9484]: Logger service started
+Jun 17 21:10:33 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 0
+Jun 17 21:10:33 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 93%
+Jun 17 21:10:33 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 0
+Jun 17 21:10:35 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 1
+Jun 17 21:10:35 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 81%
+Jun 17 21:10:35 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 1
+Jun 17 21:10:37 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 2
+Jun 17 21:10:37 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 92%
+Jun 17 21:10:37 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 2
+Jun 17 21:10:39 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 3
+Jun 17 21:10:39 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 90%
+Jun 17 21:10:39 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 3
+Jun 17 21:10:41 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 4
+Jun 17 21:10:41 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 88%
+Jun 17 21:10:41 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 4
+Jun 17 21:10:43 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 5
+Jun 17 21:10:43 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 90%
+Jun 17 21:10:43 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 5
+Jun 17 21:10:45 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 6
+Jun 17 21:10:45 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 81%
+Jun 17 21:10:45 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 6
+Jun 17 21:10:47 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 7
+Jun 17 21:10:47 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 92%
+Jun 17 21:10:47 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 7
+Jun 17 21:10:49 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 8
+Jun 17 21:10:49 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 89%
+Jun 17 21:10:49 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 8
+Jun 17 21:10:51 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 9
+Jun 17 21:10:51 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 81%
+Jun 17 21:10:51 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 9
+Jun 17 21:10:53 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 10
+Jun 17 21:10:53 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 82%
+Jun 17 21:10:53 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 10
+Jun 17 21:10:55 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 11
+Jun 17 21:10:55 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 87%
+Jun 17 21:10:55 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 11
+Jun 17 21:10:57 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 12
+Jun 17 21:10:57 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 85%
+Jun 17 21:10:57 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 12
+Jun 17 21:10:59 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 13
+Jun 17 21:10:59 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 84%
+Jun 17 21:10:59 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 13
+Jun 17 21:11:01 syhung-VMware-Virtual-Platform logger[9484]: Service running normally, cycle 14
+Jun 17 21:11:01 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 88%
+Jun 17 21:11:01 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 14
+Jun 17 21:11:03 syhung-VMware-Virtual-Platform logger[9484]: Fatal error detected, aborting service
+Jun 17 21:11:03 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 17 21:11:03 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Failed with result 'core-dump'.
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform systemd[1]: Started logger.service - Embedded Linux Logger Service.
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Logger service started
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 0
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 93%
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 0
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 1
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 81%
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 1
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 2
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 92%
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 2
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 3
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 90%
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 3
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 4
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 88%
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 4
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 5
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 90%
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 5
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 6
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 81%
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 6
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 7
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 92%
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 7
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 8
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 89%
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 8
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 9
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 81%
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 9
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 10
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 82%
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 10
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 11
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 87%
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 11
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 12
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 85%
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 12
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 13
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 84%
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 13
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 14
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 88%
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 14
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform logger[10387]: Fatal error detected, aborting service
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 2. Warning level and above ===
+Jun 17 21:10:33 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 93%
+Jun 17 21:10:33 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 0
+Jun 17 21:10:35 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 81%
+Jun 17 21:10:35 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 1
+Jun 17 21:10:37 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 92%
+Jun 17 21:10:37 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 2
+Jun 17 21:10:39 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 90%
+Jun 17 21:10:39 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 3
+Jun 17 21:10:41 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 88%
+Jun 17 21:10:41 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 4
+Jun 17 21:10:43 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 90%
+Jun 17 21:10:43 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 5
+Jun 17 21:10:45 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 81%
+Jun 17 21:10:45 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 6
+Jun 17 21:10:47 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 92%
+Jun 17 21:10:47 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 7
+Jun 17 21:10:49 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 89%
+Jun 17 21:10:49 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 8
+Jun 17 21:10:51 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 81%
+Jun 17 21:10:51 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 9
+Jun 17 21:10:53 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 82%
+Jun 17 21:10:53 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 10
+Jun 17 21:10:55 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 87%
+Jun 17 21:10:55 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 11
+Jun 17 21:10:57 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 85%
+Jun 17 21:10:57 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 12
+Jun 17 21:10:59 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 84%
+Jun 17 21:10:59 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 13
+Jun 17 21:11:01 syhung-VMware-Virtual-Platform logger[9484]: Memory usage high: 88%
+Jun 17 21:11:01 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 14
+Jun 17 21:11:03 syhung-VMware-Virtual-Platform logger[9484]: Fatal error detected, aborting service
+Jun 17 21:11:03 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 17 21:11:03 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Failed with result 'core-dump'.
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 93%
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 0
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 81%
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 1
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 92%
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 2
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 90%
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 3
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 88%
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 4
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 90%
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 5
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 81%
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 6
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 92%
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 7
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 89%
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 8
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 81%
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 9
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 82%
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 10
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 87%
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 11
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 85%
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 12
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 84%
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 13
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 88%
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 14
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform logger[10387]: Fatal error detected, aborting service
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 3. Error level and above ===
+Jun 17 21:10:33 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 0
+Jun 17 21:10:35 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 1
+Jun 17 21:10:37 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 2
+Jun 17 21:10:39 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 3
+Jun 17 21:10:41 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 4
+Jun 17 21:10:43 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 5
+Jun 17 21:10:45 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 6
+Jun 17 21:10:47 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 7
+Jun 17 21:10:49 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 8
+Jun 17 21:10:51 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 9
+Jun 17 21:10:53 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 10
+Jun 17 21:10:55 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 11
+Jun 17 21:10:57 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 12
+Jun 17 21:10:59 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 13
+Jun 17 21:11:01 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 14
+Jun 17 21:11:03 syhung-VMware-Virtual-Platform logger[9484]: Fatal error detected, aborting service
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 0
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 1
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 2
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 3
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 4
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 5
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 6
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 7
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 8
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 9
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 10
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 11
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 12
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 13
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 14
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform logger[10387]: Fatal error detected, aborting service
+=== 4. Log from the last 1 minute ===
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform systemd[1]: Started logger.service - Embedded Linux Logger Service.
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Logger service started
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 0
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 93%
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 0
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 1
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 81%
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 1
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 2
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 92%
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 2
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 3
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 90%
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 3
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 4
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 88%
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 4
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 5
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 90%
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 5
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 6
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 81%
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 6
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 7
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 92%
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 7
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 8
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 89%
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 8
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 9
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 81%
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 9
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 10
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 82%
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 10
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 11
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 87%
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 11
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 12
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 85%
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 12
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 13
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 84%
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 13
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Service running normally, cycle 14
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Memory usage high: 88%
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 14
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform logger[10387]: Fatal error detected, aborting service
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 5. Crash point ===
+Jun 17 21:10:33 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 0
+Jun 17 21:10:35 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 1
+Jun 17 21:10:37 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 2
+Jun 17 21:10:39 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 3
+Jun 17 21:10:41 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 4
+Jun 17 21:10:43 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 5
+Jun 17 21:10:45 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 6
+Jun 17 21:10:47 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 7
+Jun 17 21:10:49 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 8
+Jun 17 21:10:51 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 9
+Jun 17 21:10:53 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 10
+Jun 17 21:10:55 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 11
+Jun 17 21:10:57 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 12
+Jun 17 21:10:59 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 13
+Jun 17 21:11:01 syhung-VMware-Virtual-Platform logger[9484]: Failed to connect to database, retry 14
+Jun 17 21:11:03 syhung-VMware-Virtual-Platform logger[9484]: Fatal error detected, aborting service
+Jun 17 21:14:21 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 0
+Jun 17 21:14:23 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 1
+Jun 17 21:14:25 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 2
+Jun 17 21:14:27 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 3
+Jun 17 21:14:29 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 4
+Jun 17 21:14:31 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 5
+Jun 17 21:14:33 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 6
+Jun 17 21:14:35 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 7
+Jun 17 21:14:37 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 8
+Jun 17 21:14:39 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 9
+Jun 17 21:14:41 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 10
+Jun 17 21:14:43 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 11
+Jun 17 21:14:45 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 12
+Jun 17 21:14:47 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 13
+Jun 17 21:14:49 syhung-VMware-Virtual-Platform logger[10387]: Failed to connect to database, retry 14
+Jun 17 21:14:51 syhung-VMware-Virtual-Platform logger[10387]: Fatal error detected, aborting service
