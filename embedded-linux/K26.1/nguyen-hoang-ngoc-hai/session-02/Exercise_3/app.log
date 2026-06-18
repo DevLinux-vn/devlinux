@@ -1,0 +1,8 @@
+2026-06-12 19:33:09 Application started
+2026-06-12 19:33:09
+2026-06-12 19:33:09 Add result: 10.00 + 5.00 = 15.00
+2026-06-12 19:33:09 Sub result: 10.00 - 5.00 = 5.00
+2026-06-12 19:33:09 Mul result: 10.00 * 5.00 = 50.00
+2026-06-12 19:33:09 Div result: 10.00 / 5.00 = 2.00
+2026-06-12 19:33:09 [ERROR] Division by zero detected
+2026-06-12 19:33:09 Application finished
