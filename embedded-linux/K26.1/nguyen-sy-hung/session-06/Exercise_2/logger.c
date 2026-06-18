@@ -9,17 +9,30 @@
 #define LOG_INFO    "<6>"
 
 
+static void cleanup(void)
+{
+    fprintf(stderr, LOG_INFO "Cleaning up resources before crash\n");
+}
+
+
 int main(void)
 {
     int cycle = 0;
     time_t start_time;
+    time_t current_time;
 
-    /* Disable buffering */
+
     setbuf(stdout, NULL);
     setbuf(stderr, NULL);
 
 
     start_time = time(NULL);
+
+    if (start_time == (time_t)-1)
+    {
+        fprintf(stderr, LOG_ERR "Failed to get start time\n");
+        return EXIT_FAILURE;
+    }
 
 
     fprintf(stderr, LOG_INFO "Logger service started\n");
@@ -45,18 +58,33 @@ int main(void)
         sleep(2);
 
 
-        cycle++;
+        current_time = time(NULL);
 
-
-        if ((time(NULL) - start_time) >= 30)
+        if (current_time == (time_t)-1)
         {
             fprintf(stderr,
-                    LOG_ERR "Fatal error detected, aborting service\n");
+                    LOG_ERR "Failed to get current time\n");
+
+            return EXIT_FAILURE;
+        }
+
+
+        if ((current_time - start_time) >= 30)
+        {
+            fprintf(stderr,
+                    LOG_ERR "Fatal error detected\n");
+
+
+            cleanup();
+
 
             abort();
         }
+
+
+        cycle++;
     }
 
 
-    return 0;
+    return EXIT_SUCCESS;
 }

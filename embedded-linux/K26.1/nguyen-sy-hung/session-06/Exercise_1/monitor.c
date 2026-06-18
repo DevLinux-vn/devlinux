@@ -1,20 +1,16 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
-#include <stdbool.h>
+#include <stdlib.h>
 
 
 static volatile sig_atomic_t running = 1;
 
 
-/*
- * Handle SIGTERM from systemd
- */
-static void signal_handler(int sig)
+static void signal_handler(int signo)
 {
-    if (sig == SIGTERM)
+    if (signo == SIGTERM)
     {
-        printf("Service shutting down...\n");
         running = 0;
     }
 }
@@ -22,18 +18,27 @@ static void signal_handler(int sig)
 
 int main(void)
 {
-    int counter = 0;
+    struct sigaction sa;
 
-    /*
-     * Disable stdout buffering
-     * so logs appear immediately in journal
-     */
+
     setbuf(stdout, NULL);
 
-    /*
-     * Register SIGTERM handler
-     */
-    signal(SIGTERM, signal_handler);
+
+    sa.sa_handler = signal_handler;
+    sa.sa_flags = 0;
+
+    if (sigemptyset(&sa.sa_mask) == -1)
+    {
+        perror("sigemptyset");
+        return EXIT_FAILURE;
+    }
+
+
+    if (sigaction(SIGTERM, &sa, NULL) == -1)
+    {
+        perror("sigaction");
+        return EXIT_FAILURE;
+    }
 
 
     printf("Monitor service started\n");
@@ -41,10 +46,13 @@ int main(void)
 
     while (running)
     {
-        printf("Monitor running: %d\n", counter++);
+        printf("Monitor running\n");
         sleep(1);
     }
 
 
-    return 0;
+    printf("Service shutting down...\n");
+
+
+    return EXIT_SUCCESS;
 }
