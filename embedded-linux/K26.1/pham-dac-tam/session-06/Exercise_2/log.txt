@@ -1,0 +1,15 @@
+=== 1. Full service log ===
+[Logs from logger service would appear here with timestamps]
+[Each log line includes cycle information and error/warning/info messages]
+
+=== 2. Warning level and above ===
+[Filtered logs showing only WARNING (<4>) and ERROR (<3>) level messages]
+
+=== 3. Error level and above ===
+[Filtered logs showing only ERROR (<3>) level messages]
+
+=== 4. Log from the last 1 minute ===
+[Logs from the last 1 minute of operation]
+
+=== 5. Crash point ===
+[Error logs including the critical error before abort()]
