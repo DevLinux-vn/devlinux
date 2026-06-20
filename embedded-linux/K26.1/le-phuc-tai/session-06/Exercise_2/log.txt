@@ -1,0 +1,470 @@
+=== 1. Full service log ===
+Thg 6 20 12:01:34 tai-computer systemd[1]: Started Systemd Log Level and Crash Simulation Service.
+Thg 6 20 12:01:34 tai-computer logger[6044]: Service running normally, cycle 1
+Thg 6 20 12:01:34 tai-computer logger[6044]: Memory usage high: 94%
+Thg 6 20 12:01:34 tai-computer logger[6044]: Failed to connect to database, retry 1
+Thg 6 20 12:01:36 tai-computer logger[6044]: Service running normally, cycle 2
+Thg 6 20 12:01:36 tai-computer logger[6044]: Memory usage high: 85%
+Thg 6 20 12:01:36 tai-computer logger[6044]: Failed to connect to database, retry 2
+Thg 6 20 12:01:38 tai-computer logger[6044]: Service running normally, cycle 3
+Thg 6 20 12:01:38 tai-computer logger[6044]: Memory usage high: 85%
+Thg 6 20 12:01:38 tai-computer logger[6044]: Failed to connect to database, retry 3
+Thg 6 20 12:01:40 tai-computer logger[6044]: Service running normally, cycle 4
+Thg 6 20 12:01:40 tai-computer logger[6044]: Memory usage high: 89%
+Thg 6 20 12:01:40 tai-computer logger[6044]: Failed to connect to database, retry 4
+Thg 6 20 12:01:42 tai-computer logger[6044]: Service running normally, cycle 5
+Thg 6 20 12:01:42 tai-computer logger[6044]: Memory usage high: 93%
+Thg 6 20 12:01:42 tai-computer logger[6044]: Failed to connect to database, retry 5
+Thg 6 20 12:01:44 tai-computer logger[6044]: Service running normally, cycle 6
+Thg 6 20 12:01:44 tai-computer logger[6044]: Memory usage high: 90%
+Thg 6 20 12:01:44 tai-computer logger[6044]: Failed to connect to database, retry 6
+Thg 6 20 12:01:46 tai-computer logger[6044]: Service running normally, cycle 7
+Thg 6 20 12:01:46 tai-computer logger[6044]: Memory usage high: 94%
+Thg 6 20 12:01:46 tai-computer logger[6044]: Failed to connect to database, retry 7
+Thg 6 20 12:01:48 tai-computer logger[6044]: Service running normally, cycle 8
+Thg 6 20 12:01:48 tai-computer logger[6044]: Memory usage high: 87%
+Thg 6 20 12:01:48 tai-computer logger[6044]: Failed to connect to database, retry 8
+Thg 6 20 12:01:50 tai-computer logger[6044]: Service running normally, cycle 9
+Thg 6 20 12:01:50 tai-computer logger[6044]: Memory usage high: 86%
+Thg 6 20 12:01:50 tai-computer logger[6044]: Failed to connect to database, retry 9
+Thg 6 20 12:01:52 tai-computer logger[6044]: Service running normally, cycle 10
+Thg 6 20 12:01:52 tai-computer logger[6044]: Memory usage high: 87%
+Thg 6 20 12:01:52 tai-computer logger[6044]: Failed to connect to database, retry 10
+Thg 6 20 12:01:54 tai-computer logger[6044]: Service running normally, cycle 11
+Thg 6 20 12:01:54 tai-computer logger[6044]: Memory usage high: 86%
+Thg 6 20 12:01:54 tai-computer logger[6044]: Failed to connect to database, retry 11
+Thg 6 20 12:01:56 tai-computer logger[6044]: Service running normally, cycle 12
+Thg 6 20 12:01:56 tai-computer logger[6044]: Memory usage high: 85%
+Thg 6 20 12:01:56 tai-computer logger[6044]: Failed to connect to database, retry 12
+Thg 6 20 12:01:58 tai-computer logger[6044]: Service running normally, cycle 13
+Thg 6 20 12:01:58 tai-computer logger[6044]: Memory usage high: 94%
+Thg 6 20 12:01:58 tai-computer logger[6044]: Failed to connect to database, retry 13
+Thg 6 20 12:02:00 tai-computer logger[6044]: Service running normally, cycle 14
+Thg 6 20 12:02:00 tai-computer logger[6044]: Memory usage high: 83%
+Thg 6 20 12:02:00 tai-computer logger[6044]: Failed to connect to database, retry 14
+Thg 6 20 12:02:02 tai-computer logger[6044]: Service running normally, cycle 15
+Thg 6 20 12:02:02 tai-computer logger[6044]: Memory usage high: 83%
+Thg 6 20 12:02:02 tai-computer logger[6044]: Failed to connect to database, retry 15
+Thg 6 20 12:02:04 tai-computer logger[6044]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:02:04 tai-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 20 12:02:04 tai-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+Thg 6 20 12:08:45 tai-computer systemd[1]: Started Systemd Log Level and Crash Simulation Service.
+Thg 6 20 12:08:45 tai-computer logger[6821]: Service running normally, cycle 1
+Thg 6 20 12:08:45 tai-computer logger[6821]: Memory usage high: 93%
+Thg 6 20 12:08:45 tai-computer logger[6821]: Failed to connect to database, retry 1
+Thg 6 20 12:08:47 tai-computer logger[6821]: Service running normally, cycle 2
+Thg 6 20 12:08:47 tai-computer logger[6821]: Memory usage high: 92%
+Thg 6 20 12:08:47 tai-computer logger[6821]: Failed to connect to database, retry 2
+Thg 6 20 12:08:49 tai-computer logger[6821]: Service running normally, cycle 3
+Thg 6 20 12:08:49 tai-computer logger[6821]: Memory usage high: 81%
+Thg 6 20 12:08:49 tai-computer logger[6821]: Failed to connect to database, retry 3
+Thg 6 20 12:08:51 tai-computer logger[6821]: Service running normally, cycle 4
+Thg 6 20 12:08:51 tai-computer logger[6821]: Memory usage high: 86%
+Thg 6 20 12:08:51 tai-computer logger[6821]: Failed to connect to database, retry 4
+Thg 6 20 12:08:53 tai-computer logger[6821]: Service running normally, cycle 5
+Thg 6 20 12:08:53 tai-computer logger[6821]: Memory usage high: 84%
+Thg 6 20 12:08:53 tai-computer logger[6821]: Failed to connect to database, retry 5
+Thg 6 20 12:08:55 tai-computer logger[6821]: Service running normally, cycle 6
+Thg 6 20 12:08:55 tai-computer logger[6821]: Memory usage high: 92%
+Thg 6 20 12:08:55 tai-computer logger[6821]: Failed to connect to database, retry 6
+Thg 6 20 12:08:57 tai-computer logger[6821]: Service running normally, cycle 7
+Thg 6 20 12:08:57 tai-computer logger[6821]: Memory usage high: 86%
+Thg 6 20 12:08:57 tai-computer logger[6821]: Failed to connect to database, retry 7
+Thg 6 20 12:08:59 tai-computer logger[6821]: Service running normally, cycle 8
+Thg 6 20 12:08:59 tai-computer logger[6821]: Memory usage high: 90%
+Thg 6 20 12:08:59 tai-computer logger[6821]: Failed to connect to database, retry 8
+Thg 6 20 12:09:01 tai-computer logger[6821]: Service running normally, cycle 9
+Thg 6 20 12:09:01 tai-computer logger[6821]: Memory usage high: 80%
+Thg 6 20 12:09:01 tai-computer logger[6821]: Failed to connect to database, retry 9
+Thg 6 20 12:09:03 tai-computer logger[6821]: Service running normally, cycle 10
+Thg 6 20 12:09:03 tai-computer logger[6821]: Memory usage high: 89%
+Thg 6 20 12:09:03 tai-computer logger[6821]: Failed to connect to database, retry 10
+Thg 6 20 12:09:05 tai-computer logger[6821]: Service running normally, cycle 11
+Thg 6 20 12:09:05 tai-computer logger[6821]: Memory usage high: 85%
+Thg 6 20 12:09:05 tai-computer logger[6821]: Failed to connect to database, retry 11
+Thg 6 20 12:09:07 tai-computer logger[6821]: Service running normally, cycle 12
+Thg 6 20 12:09:07 tai-computer logger[6821]: Memory usage high: 81%
+Thg 6 20 12:09:07 tai-computer logger[6821]: Failed to connect to database, retry 12
+Thg 6 20 12:09:09 tai-computer logger[6821]: Service running normally, cycle 13
+Thg 6 20 12:09:09 tai-computer logger[6821]: Memory usage high: 92%
+Thg 6 20 12:09:09 tai-computer logger[6821]: Failed to connect to database, retry 13
+Thg 6 20 12:09:11 tai-computer logger[6821]: Service running normally, cycle 14
+Thg 6 20 12:09:11 tai-computer logger[6821]: Memory usage high: 80%
+Thg 6 20 12:09:11 tai-computer logger[6821]: Failed to connect to database, retry 14
+Thg 6 20 12:09:13 tai-computer logger[6821]: Service running normally, cycle 15
+Thg 6 20 12:09:13 tai-computer logger[6821]: Memory usage high: 90%
+Thg 6 20 12:09:13 tai-computer logger[6821]: Failed to connect to database, retry 15
+Thg 6 20 12:09:15 tai-computer logger[6821]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:09:15 tai-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 20 12:09:15 tai-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+Thg 6 20 12:12:12 tai-computer systemd[1]: Started Systemd Log Level and Crash Simulation Service.
+Thg 6 20 12:12:12 tai-computer logger[7476]: Service running normally, cycle 1
+Thg 6 20 12:12:12 tai-computer logger[7476]: Memory usage high: 90%
+Thg 6 20 12:12:12 tai-computer logger[7476]: Failed to connect to database, retry 1
+Thg 6 20 12:12:14 tai-computer logger[7476]: Service running normally, cycle 2
+Thg 6 20 12:12:14 tai-computer logger[7476]: Memory usage high: 87%
+Thg 6 20 12:12:14 tai-computer logger[7476]: Failed to connect to database, retry 2
+Thg 6 20 12:12:16 tai-computer logger[7476]: Service running normally, cycle 3
+Thg 6 20 12:12:16 tai-computer logger[7476]: Memory usage high: 94%
+Thg 6 20 12:12:16 tai-computer logger[7476]: Failed to connect to database, retry 3
+Thg 6 20 12:12:18 tai-computer logger[7476]: Service running normally, cycle 4
+Thg 6 20 12:12:18 tai-computer logger[7476]: Memory usage high: 91%
+Thg 6 20 12:12:18 tai-computer logger[7476]: Failed to connect to database, retry 4
+Thg 6 20 12:12:20 tai-computer logger[7476]: Service running normally, cycle 5
+Thg 6 20 12:12:20 tai-computer logger[7476]: Memory usage high: 84%
+Thg 6 20 12:12:20 tai-computer logger[7476]: Failed to connect to database, retry 5
+Thg 6 20 12:12:22 tai-computer logger[7476]: Service running normally, cycle 6
+Thg 6 20 12:12:22 tai-computer logger[7476]: Memory usage high: 83%
+Thg 6 20 12:12:22 tai-computer logger[7476]: Failed to connect to database, retry 6
+Thg 6 20 12:12:24 tai-computer logger[7476]: Service running normally, cycle 7
+Thg 6 20 12:12:24 tai-computer logger[7476]: Memory usage high: 92%
+Thg 6 20 12:12:24 tai-computer logger[7476]: Failed to connect to database, retry 7
+Thg 6 20 12:12:26 tai-computer logger[7476]: Service running normally, cycle 8
+Thg 6 20 12:12:26 tai-computer logger[7476]: Memory usage high: 92%
+Thg 6 20 12:12:26 tai-computer logger[7476]: Failed to connect to database, retry 8
+Thg 6 20 12:12:28 tai-computer logger[7476]: Service running normally, cycle 9
+Thg 6 20 12:12:28 tai-computer logger[7476]: Memory usage high: 87%
+Thg 6 20 12:12:28 tai-computer logger[7476]: Failed to connect to database, retry 9
+Thg 6 20 12:12:30 tai-computer logger[7476]: Service running normally, cycle 10
+Thg 6 20 12:12:30 tai-computer logger[7476]: Memory usage high: 85%
+Thg 6 20 12:12:30 tai-computer logger[7476]: Failed to connect to database, retry 10
+Thg 6 20 12:12:32 tai-computer logger[7476]: Service running normally, cycle 11
+Thg 6 20 12:12:32 tai-computer logger[7476]: Memory usage high: 93%
+Thg 6 20 12:12:32 tai-computer logger[7476]: Failed to connect to database, retry 11
+Thg 6 20 12:12:34 tai-computer logger[7476]: Service running normally, cycle 12
+Thg 6 20 12:12:34 tai-computer logger[7476]: Memory usage high: 94%
+Thg 6 20 12:12:34 tai-computer logger[7476]: Failed to connect to database, retry 12
+Thg 6 20 12:12:36 tai-computer logger[7476]: Service running normally, cycle 13
+Thg 6 20 12:12:36 tai-computer logger[7476]: Memory usage high: 89%
+Thg 6 20 12:12:36 tai-computer logger[7476]: Failed to connect to database, retry 13
+Thg 6 20 12:12:38 tai-computer logger[7476]: Service running normally, cycle 14
+Thg 6 20 12:12:38 tai-computer logger[7476]: Memory usage high: 94%
+Thg 6 20 12:12:38 tai-computer logger[7476]: Failed to connect to database, retry 14
+Thg 6 20 12:12:40 tai-computer logger[7476]: Service running normally, cycle 15
+Thg 6 20 12:12:40 tai-computer logger[7476]: Memory usage high: 81%
+Thg 6 20 12:12:40 tai-computer logger[7476]: Failed to connect to database, retry 15
+Thg 6 20 12:12:42 tai-computer logger[7476]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:12:42 tai-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 20 12:12:42 tai-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+Thg 6 20 12:15:26 tai-computer systemd[1]: Started Systemd Log Level and Crash Simulation Service.
+Thg 6 20 12:15:26 tai-computer logger[7769]: Service running normally, cycle 1
+Thg 6 20 12:15:26 tai-computer logger[7769]: Memory usage high: 83%
+Thg 6 20 12:15:26 tai-computer logger[7769]: Failed to connect to database, retry 1
+Thg 6 20 12:15:28 tai-computer logger[7769]: Service running normally, cycle 2
+Thg 6 20 12:15:28 tai-computer logger[7769]: Memory usage high: 85%
+Thg 6 20 12:15:28 tai-computer logger[7769]: Failed to connect to database, retry 2
+Thg 6 20 12:15:30 tai-computer logger[7769]: Service running normally, cycle 3
+Thg 6 20 12:15:30 tai-computer logger[7769]: Memory usage high: 90%
+Thg 6 20 12:15:30 tai-computer logger[7769]: Failed to connect to database, retry 3
+Thg 6 20 12:15:32 tai-computer logger[7769]: Service running normally, cycle 4
+Thg 6 20 12:15:32 tai-computer logger[7769]: Memory usage high: 82%
+Thg 6 20 12:15:32 tai-computer logger[7769]: Failed to connect to database, retry 4
+Thg 6 20 12:15:34 tai-computer logger[7769]: Service running normally, cycle 5
+Thg 6 20 12:15:34 tai-computer logger[7769]: Memory usage high: 82%
+Thg 6 20 12:15:34 tai-computer logger[7769]: Failed to connect to database, retry 5
+Thg 6 20 12:15:36 tai-computer logger[7769]: Service running normally, cycle 6
+Thg 6 20 12:15:36 tai-computer logger[7769]: Memory usage high: 81%
+Thg 6 20 12:15:36 tai-computer logger[7769]: Failed to connect to database, retry 6
+Thg 6 20 12:15:38 tai-computer logger[7769]: Service running normally, cycle 7
+Thg 6 20 12:15:38 tai-computer logger[7769]: Memory usage high: 93%
+Thg 6 20 12:15:38 tai-computer logger[7769]: Failed to connect to database, retry 7
+Thg 6 20 12:15:40 tai-computer logger[7769]: Service running normally, cycle 8
+Thg 6 20 12:15:40 tai-computer logger[7769]: Memory usage high: 93%
+Thg 6 20 12:15:40 tai-computer logger[7769]: Failed to connect to database, retry 8
+Thg 6 20 12:15:42 tai-computer logger[7769]: Service running normally, cycle 9
+Thg 6 20 12:15:42 tai-computer logger[7769]: Memory usage high: 85%
+Thg 6 20 12:15:42 tai-computer logger[7769]: Failed to connect to database, retry 9
+Thg 6 20 12:15:44 tai-computer logger[7769]: Service running normally, cycle 10
+Thg 6 20 12:15:44 tai-computer logger[7769]: Memory usage high: 83%
+Thg 6 20 12:15:44 tai-computer logger[7769]: Failed to connect to database, retry 10
+Thg 6 20 12:15:46 tai-computer logger[7769]: Service running normally, cycle 11
+Thg 6 20 12:15:46 tai-computer logger[7769]: Memory usage high: 94%
+Thg 6 20 12:15:46 tai-computer logger[7769]: Failed to connect to database, retry 11
+Thg 6 20 12:15:48 tai-computer logger[7769]: Service running normally, cycle 12
+Thg 6 20 12:15:48 tai-computer logger[7769]: Memory usage high: 94%
+Thg 6 20 12:15:48 tai-computer logger[7769]: Failed to connect to database, retry 12
+Thg 6 20 12:15:50 tai-computer logger[7769]: Service running normally, cycle 13
+Thg 6 20 12:15:50 tai-computer logger[7769]: Memory usage high: 92%
+Thg 6 20 12:15:50 tai-computer logger[7769]: Failed to connect to database, retry 13
+Thg 6 20 12:15:52 tai-computer logger[7769]: Service running normally, cycle 14
+Thg 6 20 12:15:52 tai-computer logger[7769]: Memory usage high: 89%
+Thg 6 20 12:15:52 tai-computer logger[7769]: Failed to connect to database, retry 14
+Thg 6 20 12:15:54 tai-computer logger[7769]: Service running normally, cycle 15
+Thg 6 20 12:15:54 tai-computer logger[7769]: Memory usage high: 91%
+Thg 6 20 12:15:54 tai-computer logger[7769]: Failed to connect to database, retry 15
+Thg 6 20 12:15:56 tai-computer logger[7769]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:15:56 tai-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 20 12:15:56 tai-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 2. Warning level and above ===
+Thg 6 20 12:01:34 tai-computer logger[6044]: Memory usage high: 94%
+Thg 6 20 12:01:34 tai-computer logger[6044]: Failed to connect to database, retry 1
+Thg 6 20 12:01:36 tai-computer logger[6044]: Memory usage high: 85%
+Thg 6 20 12:01:36 tai-computer logger[6044]: Failed to connect to database, retry 2
+Thg 6 20 12:01:38 tai-computer logger[6044]: Memory usage high: 85%
+Thg 6 20 12:01:38 tai-computer logger[6044]: Failed to connect to database, retry 3
+Thg 6 20 12:01:40 tai-computer logger[6044]: Memory usage high: 89%
+Thg 6 20 12:01:40 tai-computer logger[6044]: Failed to connect to database, retry 4
+Thg 6 20 12:01:42 tai-computer logger[6044]: Memory usage high: 93%
+Thg 6 20 12:01:42 tai-computer logger[6044]: Failed to connect to database, retry 5
+Thg 6 20 12:01:44 tai-computer logger[6044]: Memory usage high: 90%
+Thg 6 20 12:01:44 tai-computer logger[6044]: Failed to connect to database, retry 6
+Thg 6 20 12:01:46 tai-computer logger[6044]: Memory usage high: 94%
+Thg 6 20 12:01:46 tai-computer logger[6044]: Failed to connect to database, retry 7
+Thg 6 20 12:01:48 tai-computer logger[6044]: Memory usage high: 87%
+Thg 6 20 12:01:48 tai-computer logger[6044]: Failed to connect to database, retry 8
+Thg 6 20 12:01:50 tai-computer logger[6044]: Memory usage high: 86%
+Thg 6 20 12:01:50 tai-computer logger[6044]: Failed to connect to database, retry 9
+Thg 6 20 12:01:52 tai-computer logger[6044]: Memory usage high: 87%
+Thg 6 20 12:01:52 tai-computer logger[6044]: Failed to connect to database, retry 10
+Thg 6 20 12:01:54 tai-computer logger[6044]: Memory usage high: 86%
+Thg 6 20 12:01:54 tai-computer logger[6044]: Failed to connect to database, retry 11
+Thg 6 20 12:01:56 tai-computer logger[6044]: Memory usage high: 85%
+Thg 6 20 12:01:56 tai-computer logger[6044]: Failed to connect to database, retry 12
+Thg 6 20 12:01:58 tai-computer logger[6044]: Memory usage high: 94%
+Thg 6 20 12:01:58 tai-computer logger[6044]: Failed to connect to database, retry 13
+Thg 6 20 12:02:00 tai-computer logger[6044]: Memory usage high: 83%
+Thg 6 20 12:02:00 tai-computer logger[6044]: Failed to connect to database, retry 14
+Thg 6 20 12:02:02 tai-computer logger[6044]: Memory usage high: 83%
+Thg 6 20 12:02:02 tai-computer logger[6044]: Failed to connect to database, retry 15
+Thg 6 20 12:02:04 tai-computer logger[6044]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:02:04 tai-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 20 12:02:04 tai-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+Thg 6 20 12:08:45 tai-computer logger[6821]: Memory usage high: 93%
+Thg 6 20 12:08:45 tai-computer logger[6821]: Failed to connect to database, retry 1
+Thg 6 20 12:08:47 tai-computer logger[6821]: Memory usage high: 92%
+Thg 6 20 12:08:47 tai-computer logger[6821]: Failed to connect to database, retry 2
+Thg 6 20 12:08:49 tai-computer logger[6821]: Memory usage high: 81%
+Thg 6 20 12:08:49 tai-computer logger[6821]: Failed to connect to database, retry 3
+Thg 6 20 12:08:51 tai-computer logger[6821]: Memory usage high: 86%
+Thg 6 20 12:08:51 tai-computer logger[6821]: Failed to connect to database, retry 4
+Thg 6 20 12:08:53 tai-computer logger[6821]: Memory usage high: 84%
+Thg 6 20 12:08:53 tai-computer logger[6821]: Failed to connect to database, retry 5
+Thg 6 20 12:08:55 tai-computer logger[6821]: Memory usage high: 92%
+Thg 6 20 12:08:55 tai-computer logger[6821]: Failed to connect to database, retry 6
+Thg 6 20 12:08:57 tai-computer logger[6821]: Memory usage high: 86%
+Thg 6 20 12:08:57 tai-computer logger[6821]: Failed to connect to database, retry 7
+Thg 6 20 12:08:59 tai-computer logger[6821]: Memory usage high: 90%
+Thg 6 20 12:08:59 tai-computer logger[6821]: Failed to connect to database, retry 8
+Thg 6 20 12:09:01 tai-computer logger[6821]: Memory usage high: 80%
+Thg 6 20 12:09:01 tai-computer logger[6821]: Failed to connect to database, retry 9
+Thg 6 20 12:09:03 tai-computer logger[6821]: Memory usage high: 89%
+Thg 6 20 12:09:03 tai-computer logger[6821]: Failed to connect to database, retry 10
+Thg 6 20 12:09:05 tai-computer logger[6821]: Memory usage high: 85%
+Thg 6 20 12:09:05 tai-computer logger[6821]: Failed to connect to database, retry 11
+Thg 6 20 12:09:07 tai-computer logger[6821]: Memory usage high: 81%
+Thg 6 20 12:09:07 tai-computer logger[6821]: Failed to connect to database, retry 12
+Thg 6 20 12:09:09 tai-computer logger[6821]: Memory usage high: 92%
+Thg 6 20 12:09:09 tai-computer logger[6821]: Failed to connect to database, retry 13
+Thg 6 20 12:09:11 tai-computer logger[6821]: Memory usage high: 80%
+Thg 6 20 12:09:11 tai-computer logger[6821]: Failed to connect to database, retry 14
+Thg 6 20 12:09:13 tai-computer logger[6821]: Memory usage high: 90%
+Thg 6 20 12:09:13 tai-computer logger[6821]: Failed to connect to database, retry 15
+Thg 6 20 12:09:15 tai-computer logger[6821]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:09:15 tai-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 20 12:09:15 tai-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+Thg 6 20 12:12:12 tai-computer logger[7476]: Memory usage high: 90%
+Thg 6 20 12:12:12 tai-computer logger[7476]: Failed to connect to database, retry 1
+Thg 6 20 12:12:14 tai-computer logger[7476]: Memory usage high: 87%
+Thg 6 20 12:12:14 tai-computer logger[7476]: Failed to connect to database, retry 2
+Thg 6 20 12:12:16 tai-computer logger[7476]: Memory usage high: 94%
+Thg 6 20 12:12:16 tai-computer logger[7476]: Failed to connect to database, retry 3
+Thg 6 20 12:12:18 tai-computer logger[7476]: Memory usage high: 91%
+Thg 6 20 12:12:18 tai-computer logger[7476]: Failed to connect to database, retry 4
+Thg 6 20 12:12:20 tai-computer logger[7476]: Memory usage high: 84%
+Thg 6 20 12:12:20 tai-computer logger[7476]: Failed to connect to database, retry 5
+Thg 6 20 12:12:22 tai-computer logger[7476]: Memory usage high: 83%
+Thg 6 20 12:12:22 tai-computer logger[7476]: Failed to connect to database, retry 6
+Thg 6 20 12:12:24 tai-computer logger[7476]: Memory usage high: 92%
+Thg 6 20 12:12:24 tai-computer logger[7476]: Failed to connect to database, retry 7
+Thg 6 20 12:12:26 tai-computer logger[7476]: Memory usage high: 92%
+Thg 6 20 12:12:26 tai-computer logger[7476]: Failed to connect to database, retry 8
+Thg 6 20 12:12:28 tai-computer logger[7476]: Memory usage high: 87%
+Thg 6 20 12:12:28 tai-computer logger[7476]: Failed to connect to database, retry 9
+Thg 6 20 12:12:30 tai-computer logger[7476]: Memory usage high: 85%
+Thg 6 20 12:12:30 tai-computer logger[7476]: Failed to connect to database, retry 10
+Thg 6 20 12:12:32 tai-computer logger[7476]: Memory usage high: 93%
+Thg 6 20 12:12:32 tai-computer logger[7476]: Failed to connect to database, retry 11
+Thg 6 20 12:12:34 tai-computer logger[7476]: Memory usage high: 94%
+Thg 6 20 12:12:34 tai-computer logger[7476]: Failed to connect to database, retry 12
+Thg 6 20 12:12:36 tai-computer logger[7476]: Memory usage high: 89%
+Thg 6 20 12:12:36 tai-computer logger[7476]: Failed to connect to database, retry 13
+Thg 6 20 12:12:38 tai-computer logger[7476]: Memory usage high: 94%
+Thg 6 20 12:12:38 tai-computer logger[7476]: Failed to connect to database, retry 14
+Thg 6 20 12:12:40 tai-computer logger[7476]: Memory usage high: 81%
+Thg 6 20 12:12:40 tai-computer logger[7476]: Failed to connect to database, retry 15
+Thg 6 20 12:12:42 tai-computer logger[7476]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:12:42 tai-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 20 12:12:42 tai-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+Thg 6 20 12:15:26 tai-computer logger[7769]: Memory usage high: 83%
+Thg 6 20 12:15:26 tai-computer logger[7769]: Failed to connect to database, retry 1
+Thg 6 20 12:15:28 tai-computer logger[7769]: Memory usage high: 85%
+Thg 6 20 12:15:28 tai-computer logger[7769]: Failed to connect to database, retry 2
+Thg 6 20 12:15:30 tai-computer logger[7769]: Memory usage high: 90%
+Thg 6 20 12:15:30 tai-computer logger[7769]: Failed to connect to database, retry 3
+Thg 6 20 12:15:32 tai-computer logger[7769]: Memory usage high: 82%
+Thg 6 20 12:15:32 tai-computer logger[7769]: Failed to connect to database, retry 4
+Thg 6 20 12:15:34 tai-computer logger[7769]: Memory usage high: 82%
+Thg 6 20 12:15:34 tai-computer logger[7769]: Failed to connect to database, retry 5
+Thg 6 20 12:15:36 tai-computer logger[7769]: Memory usage high: 81%
+Thg 6 20 12:15:36 tai-computer logger[7769]: Failed to connect to database, retry 6
+Thg 6 20 12:15:38 tai-computer logger[7769]: Memory usage high: 93%
+Thg 6 20 12:15:38 tai-computer logger[7769]: Failed to connect to database, retry 7
+Thg 6 20 12:15:40 tai-computer logger[7769]: Memory usage high: 93%
+Thg 6 20 12:15:40 tai-computer logger[7769]: Failed to connect to database, retry 8
+Thg 6 20 12:15:42 tai-computer logger[7769]: Memory usage high: 85%
+Thg 6 20 12:15:42 tai-computer logger[7769]: Failed to connect to database, retry 9
+Thg 6 20 12:15:44 tai-computer logger[7769]: Memory usage high: 83%
+Thg 6 20 12:15:44 tai-computer logger[7769]: Failed to connect to database, retry 10
+Thg 6 20 12:15:46 tai-computer logger[7769]: Memory usage high: 94%
+Thg 6 20 12:15:46 tai-computer logger[7769]: Failed to connect to database, retry 11
+Thg 6 20 12:15:48 tai-computer logger[7769]: Memory usage high: 94%
+Thg 6 20 12:15:48 tai-computer logger[7769]: Failed to connect to database, retry 12
+Thg 6 20 12:15:50 tai-computer logger[7769]: Memory usage high: 92%
+Thg 6 20 12:15:50 tai-computer logger[7769]: Failed to connect to database, retry 13
+Thg 6 20 12:15:52 tai-computer logger[7769]: Memory usage high: 89%
+Thg 6 20 12:15:52 tai-computer logger[7769]: Failed to connect to database, retry 14
+Thg 6 20 12:15:54 tai-computer logger[7769]: Memory usage high: 91%
+Thg 6 20 12:15:54 tai-computer logger[7769]: Failed to connect to database, retry 15
+Thg 6 20 12:15:56 tai-computer logger[7769]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:15:56 tai-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 20 12:15:56 tai-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 3. Error level and above ===
+Thg 6 20 12:01:34 tai-computer logger[6044]: Failed to connect to database, retry 1
+Thg 6 20 12:01:36 tai-computer logger[6044]: Failed to connect to database, retry 2
+Thg 6 20 12:01:38 tai-computer logger[6044]: Failed to connect to database, retry 3
+Thg 6 20 12:01:40 tai-computer logger[6044]: Failed to connect to database, retry 4
+Thg 6 20 12:01:42 tai-computer logger[6044]: Failed to connect to database, retry 5
+Thg 6 20 12:01:44 tai-computer logger[6044]: Failed to connect to database, retry 6
+Thg 6 20 12:01:46 tai-computer logger[6044]: Failed to connect to database, retry 7
+Thg 6 20 12:01:48 tai-computer logger[6044]: Failed to connect to database, retry 8
+Thg 6 20 12:01:50 tai-computer logger[6044]: Failed to connect to database, retry 9
+Thg 6 20 12:01:52 tai-computer logger[6044]: Failed to connect to database, retry 10
+Thg 6 20 12:01:54 tai-computer logger[6044]: Failed to connect to database, retry 11
+Thg 6 20 12:01:56 tai-computer logger[6044]: Failed to connect to database, retry 12
+Thg 6 20 12:01:58 tai-computer logger[6044]: Failed to connect to database, retry 13
+Thg 6 20 12:02:00 tai-computer logger[6044]: Failed to connect to database, retry 14
+Thg 6 20 12:02:02 tai-computer logger[6044]: Failed to connect to database, retry 15
+Thg 6 20 12:02:04 tai-computer logger[6044]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:08:45 tai-computer logger[6821]: Failed to connect to database, retry 1
+Thg 6 20 12:08:47 tai-computer logger[6821]: Failed to connect to database, retry 2
+Thg 6 20 12:08:49 tai-computer logger[6821]: Failed to connect to database, retry 3
+Thg 6 20 12:08:51 tai-computer logger[6821]: Failed to connect to database, retry 4
+Thg 6 20 12:08:53 tai-computer logger[6821]: Failed to connect to database, retry 5
+Thg 6 20 12:08:55 tai-computer logger[6821]: Failed to connect to database, retry 6
+Thg 6 20 12:08:57 tai-computer logger[6821]: Failed to connect to database, retry 7
+Thg 6 20 12:08:59 tai-computer logger[6821]: Failed to connect to database, retry 8
+Thg 6 20 12:09:01 tai-computer logger[6821]: Failed to connect to database, retry 9
+Thg 6 20 12:09:03 tai-computer logger[6821]: Failed to connect to database, retry 10
+Thg 6 20 12:09:05 tai-computer logger[6821]: Failed to connect to database, retry 11
+Thg 6 20 12:09:07 tai-computer logger[6821]: Failed to connect to database, retry 12
+Thg 6 20 12:09:09 tai-computer logger[6821]: Failed to connect to database, retry 13
+Thg 6 20 12:09:11 tai-computer logger[6821]: Failed to connect to database, retry 14
+Thg 6 20 12:09:13 tai-computer logger[6821]: Failed to connect to database, retry 15
+Thg 6 20 12:09:15 tai-computer logger[6821]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:12:12 tai-computer logger[7476]: Failed to connect to database, retry 1
+Thg 6 20 12:12:14 tai-computer logger[7476]: Failed to connect to database, retry 2
+Thg 6 20 12:12:16 tai-computer logger[7476]: Failed to connect to database, retry 3
+Thg 6 20 12:12:18 tai-computer logger[7476]: Failed to connect to database, retry 4
+Thg 6 20 12:12:20 tai-computer logger[7476]: Failed to connect to database, retry 5
+Thg 6 20 12:12:22 tai-computer logger[7476]: Failed to connect to database, retry 6
+Thg 6 20 12:12:24 tai-computer logger[7476]: Failed to connect to database, retry 7
+Thg 6 20 12:12:26 tai-computer logger[7476]: Failed to connect to database, retry 8
+Thg 6 20 12:12:28 tai-computer logger[7476]: Failed to connect to database, retry 9
+Thg 6 20 12:12:30 tai-computer logger[7476]: Failed to connect to database, retry 10
+Thg 6 20 12:12:32 tai-computer logger[7476]: Failed to connect to database, retry 11
+Thg 6 20 12:12:34 tai-computer logger[7476]: Failed to connect to database, retry 12
+Thg 6 20 12:12:36 tai-computer logger[7476]: Failed to connect to database, retry 13
+Thg 6 20 12:12:38 tai-computer logger[7476]: Failed to connect to database, retry 14
+Thg 6 20 12:12:40 tai-computer logger[7476]: Failed to connect to database, retry 15
+Thg 6 20 12:12:42 tai-computer logger[7476]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:15:26 tai-computer logger[7769]: Failed to connect to database, retry 1
+Thg 6 20 12:15:28 tai-computer logger[7769]: Failed to connect to database, retry 2
+Thg 6 20 12:15:30 tai-computer logger[7769]: Failed to connect to database, retry 3
+Thg 6 20 12:15:32 tai-computer logger[7769]: Failed to connect to database, retry 4
+Thg 6 20 12:15:34 tai-computer logger[7769]: Failed to connect to database, retry 5
+Thg 6 20 12:15:36 tai-computer logger[7769]: Failed to connect to database, retry 6
+Thg 6 20 12:15:38 tai-computer logger[7769]: Failed to connect to database, retry 7
+Thg 6 20 12:15:40 tai-computer logger[7769]: Failed to connect to database, retry 8
+Thg 6 20 12:15:42 tai-computer logger[7769]: Failed to connect to database, retry 9
+Thg 6 20 12:15:44 tai-computer logger[7769]: Failed to connect to database, retry 10
+Thg 6 20 12:15:46 tai-computer logger[7769]: Failed to connect to database, retry 11
+Thg 6 20 12:15:48 tai-computer logger[7769]: Failed to connect to database, retry 12
+Thg 6 20 12:15:50 tai-computer logger[7769]: Failed to connect to database, retry 13
+Thg 6 20 12:15:52 tai-computer logger[7769]: Failed to connect to database, retry 14
+Thg 6 20 12:15:54 tai-computer logger[7769]: Failed to connect to database, retry 15
+Thg 6 20 12:15:56 tai-computer logger[7769]: Critical internal error encountered. Triggering abort()...
+=== 4. Log from the last 1 minute ===
+Thg 6 20 12:15:52 tai-computer logger[7769]: Service running normally, cycle 14
+Thg 6 20 12:15:52 tai-computer logger[7769]: Memory usage high: 89%
+Thg 6 20 12:15:52 tai-computer logger[7769]: Failed to connect to database, retry 14
+Thg 6 20 12:15:54 tai-computer logger[7769]: Service running normally, cycle 15
+Thg 6 20 12:15:54 tai-computer logger[7769]: Memory usage high: 91%
+Thg 6 20 12:15:54 tai-computer logger[7769]: Failed to connect to database, retry 15
+Thg 6 20 12:15:56 tai-computer logger[7769]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:15:56 tai-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 20 12:15:56 tai-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 5. Crash point ===
+Thg 6 20 12:01:34 tai-computer logger[6044]: Failed to connect to database, retry 1
+Thg 6 20 12:01:36 tai-computer logger[6044]: Failed to connect to database, retry 2
+Thg 6 20 12:01:38 tai-computer logger[6044]: Failed to connect to database, retry 3
+Thg 6 20 12:01:40 tai-computer logger[6044]: Failed to connect to database, retry 4
+Thg 6 20 12:01:42 tai-computer logger[6044]: Failed to connect to database, retry 5
+Thg 6 20 12:01:44 tai-computer logger[6044]: Failed to connect to database, retry 6
+Thg 6 20 12:01:46 tai-computer logger[6044]: Failed to connect to database, retry 7
+Thg 6 20 12:01:48 tai-computer logger[6044]: Failed to connect to database, retry 8
+Thg 6 20 12:01:50 tai-computer logger[6044]: Failed to connect to database, retry 9
+Thg 6 20 12:01:52 tai-computer logger[6044]: Failed to connect to database, retry 10
+Thg 6 20 12:01:54 tai-computer logger[6044]: Failed to connect to database, retry 11
+Thg 6 20 12:01:56 tai-computer logger[6044]: Failed to connect to database, retry 12
+Thg 6 20 12:01:58 tai-computer logger[6044]: Failed to connect to database, retry 13
+Thg 6 20 12:02:00 tai-computer logger[6044]: Failed to connect to database, retry 14
+Thg 6 20 12:02:02 tai-computer logger[6044]: Failed to connect to database, retry 15
+Thg 6 20 12:02:04 tai-computer logger[6044]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:08:45 tai-computer logger[6821]: Failed to connect to database, retry 1
+Thg 6 20 12:08:47 tai-computer logger[6821]: Failed to connect to database, retry 2
+Thg 6 20 12:08:49 tai-computer logger[6821]: Failed to connect to database, retry 3
+Thg 6 20 12:08:51 tai-computer logger[6821]: Failed to connect to database, retry 4
+Thg 6 20 12:08:53 tai-computer logger[6821]: Failed to connect to database, retry 5
+Thg 6 20 12:08:55 tai-computer logger[6821]: Failed to connect to database, retry 6
+Thg 6 20 12:08:57 tai-computer logger[6821]: Failed to connect to database, retry 7
+Thg 6 20 12:08:59 tai-computer logger[6821]: Failed to connect to database, retry 8
+Thg 6 20 12:09:01 tai-computer logger[6821]: Failed to connect to database, retry 9
+Thg 6 20 12:09:03 tai-computer logger[6821]: Failed to connect to database, retry 10
+Thg 6 20 12:09:05 tai-computer logger[6821]: Failed to connect to database, retry 11
+Thg 6 20 12:09:07 tai-computer logger[6821]: Failed to connect to database, retry 12
+Thg 6 20 12:09:09 tai-computer logger[6821]: Failed to connect to database, retry 13
+Thg 6 20 12:09:11 tai-computer logger[6821]: Failed to connect to database, retry 14
+Thg 6 20 12:09:13 tai-computer logger[6821]: Failed to connect to database, retry 15
+Thg 6 20 12:09:15 tai-computer logger[6821]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:12:12 tai-computer logger[7476]: Failed to connect to database, retry 1
+Thg 6 20 12:12:14 tai-computer logger[7476]: Failed to connect to database, retry 2
+Thg 6 20 12:12:16 tai-computer logger[7476]: Failed to connect to database, retry 3
+Thg 6 20 12:12:18 tai-computer logger[7476]: Failed to connect to database, retry 4
+Thg 6 20 12:12:20 tai-computer logger[7476]: Failed to connect to database, retry 5
+Thg 6 20 12:12:22 tai-computer logger[7476]: Failed to connect to database, retry 6
+Thg 6 20 12:12:24 tai-computer logger[7476]: Failed to connect to database, retry 7
+Thg 6 20 12:12:26 tai-computer logger[7476]: Failed to connect to database, retry 8
+Thg 6 20 12:12:28 tai-computer logger[7476]: Failed to connect to database, retry 9
+Thg 6 20 12:12:30 tai-computer logger[7476]: Failed to connect to database, retry 10
+Thg 6 20 12:12:32 tai-computer logger[7476]: Failed to connect to database, retry 11
+Thg 6 20 12:12:34 tai-computer logger[7476]: Failed to connect to database, retry 12
+Thg 6 20 12:12:36 tai-computer logger[7476]: Failed to connect to database, retry 13
+Thg 6 20 12:12:38 tai-computer logger[7476]: Failed to connect to database, retry 14
+Thg 6 20 12:12:40 tai-computer logger[7476]: Failed to connect to database, retry 15
+Thg 6 20 12:12:42 tai-computer logger[7476]: Critical internal error encountered. Triggering abort()...
+Thg 6 20 12:15:26 tai-computer logger[7769]: Failed to connect to database, retry 1
+Thg 6 20 12:15:28 tai-computer logger[7769]: Failed to connect to database, retry 2
+Thg 6 20 12:15:30 tai-computer logger[7769]: Failed to connect to database, retry 3
+Thg 6 20 12:15:32 tai-computer logger[7769]: Failed to connect to database, retry 4
+Thg 6 20 12:15:34 tai-computer logger[7769]: Failed to connect to database, retry 5
+Thg 6 20 12:15:36 tai-computer logger[7769]: Failed to connect to database, retry 6
+Thg 6 20 12:15:38 tai-computer logger[7769]: Failed to connect to database, retry 7
+Thg 6 20 12:15:40 tai-computer logger[7769]: Failed to connect to database, retry 8
+Thg 6 20 12:15:42 tai-computer logger[7769]: Failed to connect to database, retry 9
+Thg 6 20 12:15:44 tai-computer logger[7769]: Failed to connect to database, retry 10
+Thg 6 20 12:15:46 tai-computer logger[7769]: Failed to connect to database, retry 11
+Thg 6 20 12:15:48 tai-computer logger[7769]: Failed to connect to database, retry 12
+Thg 6 20 12:15:50 tai-computer logger[7769]: Failed to connect to database, retry 13
+Thg 6 20 12:15:52 tai-computer logger[7769]: Failed to connect to database, retry 14
+Thg 6 20 12:15:54 tai-computer logger[7769]: Failed to connect to database, retry 15
+Thg 6 20 12:15:56 tai-computer logger[7769]: Critical internal error encountered. Triggering abort()...
