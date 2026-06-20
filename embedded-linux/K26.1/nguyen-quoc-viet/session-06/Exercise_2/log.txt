@@ -1,0 +1,114 @@
+=== 1. Full service log ===
+-- Logs begin at Sat 2026-06-20 08:00:01 UTC, end at Sat 2026-06-20 08:01:15 UTC. --
+Jun 20 08:00:30 devlinux systemd[1]: Started Logger Service -- severity-level demo.
+Jun 20 08:00:30 devlinux logger_demo[1523]: Service running normally, cycle 1
+Jun 20 08:00:30 devlinux logger_demo[1523]: Memory usage high: 87%
+Jun 20 08:00:30 devlinux logger_demo[1523]: Failed to connect to database, retry 1
+Jun 20 08:00:32 devlinux logger_demo[1523]: Service running normally, cycle 2
+Jun 20 08:00:32 devlinux logger_demo[1523]: Memory usage high: 91%
+Jun 20 08:00:32 devlinux logger_demo[1523]: Failed to connect to database, retry 2
+Jun 20 08:00:34 devlinux logger_demo[1523]: Service running normally, cycle 3
+Jun 20 08:00:34 devlinux logger_demo[1523]: Memory usage high: 83%
+Jun 20 08:00:34 devlinux logger_demo[1523]: Failed to connect to database, retry 3
+Jun 20 08:00:36 devlinux logger_demo[1523]: Service running normally, cycle 4
+Jun 20 08:00:36 devlinux logger_demo[1523]: Memory usage high: 89%
+Jun 20 08:00:36 devlinux logger_demo[1523]: Failed to connect to database, retry 4
+Jun 20 08:00:38 devlinux logger_demo[1523]: Service running normally, cycle 5
+Jun 20 08:00:38 devlinux logger_demo[1523]: Memory usage high: 92%
+Jun 20 08:00:38 devlinux logger_demo[1523]: Failed to connect to database, retry 5
+Jun 20 08:00:40 devlinux logger_demo[1523]: Service running normally, cycle 6
+Jun 20 08:00:40 devlinux logger_demo[1523]: Memory usage high: 85%
+Jun 20 08:00:40 devlinux logger_demo[1523]: Failed to connect to database, retry 6
+Jun 20 08:00:42 devlinux logger_demo[1523]: Service running normally, cycle 7
+Jun 20 08:00:42 devlinux logger_demo[1523]: Memory usage high: 90%
+Jun 20 08:00:42 devlinux logger_demo[1523]: Failed to connect to database, retry 7
+Jun 20 08:00:44 devlinux logger_demo[1523]: Service running normally, cycle 8
+Jun 20 08:00:44 devlinux logger_demo[1523]: Memory usage high: 88%
+Jun 20 08:00:44 devlinux logger_demo[1523]: Failed to connect to database, retry 8
+Jun 20 08:00:46 devlinux logger_demo[1523]: Service running normally, cycle 9
+Jun 20 08:00:46 devlinux logger_demo[1523]: Memory usage high: 84%
+Jun 20 08:00:46 devlinux logger_demo[1523]: Failed to connect to database, retry 9
+Jun 20 08:00:48 devlinux logger_demo[1523]: Service running normally, cycle 10
+Jun 20 08:00:48 devlinux logger_demo[1523]: Memory usage high: 93%
+Jun 20 08:00:48 devlinux logger_demo[1523]: Failed to connect to database, retry 10
+Jun 20 08:00:48 devlinux logger_demo[1523]: Uptime exceeded 30 s -- aborting to simulate crash
+Jun 20 08:00:48 devlinux systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 20 08:00:48 devlinux systemd[1]: logger.service: Failed with result 'core-dump'.
+Jun 20 08:00:48 devlinux systemd[1]: Failed to start Logger Service -- severity-level demo.
+
+=== 2. Warning level and above ===
+-- Logs begin at Sat 2026-06-20 08:00:01 UTC, end at Sat 2026-06-20 08:01:15 UTC. --
+Jun 20 08:00:30 devlinux logger_demo[1523]: Memory usage high: 87%
+Jun 20 08:00:30 devlinux logger_demo[1523]: Failed to connect to database, retry 1
+Jun 20 08:00:32 devlinux logger_demo[1523]: Memory usage high: 91%
+Jun 20 08:00:32 devlinux logger_demo[1523]: Failed to connect to database, retry 2
+Jun 20 08:00:34 devlinux logger_demo[1523]: Memory usage high: 83%
+Jun 20 08:00:34 devlinux logger_demo[1523]: Failed to connect to database, retry 3
+Jun 20 08:00:36 devlinux logger_demo[1523]: Memory usage high: 89%
+Jun 20 08:00:36 devlinux logger_demo[1523]: Failed to connect to database, retry 4
+Jun 20 08:00:38 devlinux logger_demo[1523]: Memory usage high: 92%
+Jun 20 08:00:38 devlinux logger_demo[1523]: Failed to connect to database, retry 5
+Jun 20 08:00:40 devlinux logger_demo[1523]: Memory usage high: 85%
+Jun 20 08:00:40 devlinux logger_demo[1523]: Failed to connect to database, retry 6
+Jun 20 08:00:42 devlinux logger_demo[1523]: Memory usage high: 90%
+Jun 20 08:00:42 devlinux logger_demo[1523]: Failed to connect to database, retry 7
+Jun 20 08:00:44 devlinux logger_demo[1523]: Memory usage high: 88%
+Jun 20 08:00:44 devlinux logger_demo[1523]: Failed to connect to database, retry 8
+Jun 20 08:00:46 devlinux logger_demo[1523]: Memory usage high: 84%
+Jun 20 08:00:46 devlinux logger_demo[1523]: Failed to connect to database, retry 9
+Jun 20 08:00:48 devlinux logger_demo[1523]: Memory usage high: 93%
+Jun 20 08:00:48 devlinux logger_demo[1523]: Failed to connect to database, retry 10
+Jun 20 08:00:48 devlinux logger_demo[1523]: Uptime exceeded 30 s -- aborting to simulate crash
+
+=== 3. Error level and above ===
+-- Logs begin at Sat 2026-06-20 08:00:01 UTC, end at Sat 2026-06-20 08:01:15 UTC. --
+Jun 20 08:00:30 devlinux logger_demo[1523]: Failed to connect to database, retry 1
+Jun 20 08:00:32 devlinux logger_demo[1523]: Failed to connect to database, retry 2
+Jun 20 08:00:34 devlinux logger_demo[1523]: Failed to connect to database, retry 3
+Jun 20 08:00:36 devlinux logger_demo[1523]: Failed to connect to database, retry 4
+Jun 20 08:00:38 devlinux logger_demo[1523]: Failed to connect to database, retry 5
+Jun 20 08:00:40 devlinux logger_demo[1523]: Failed to connect to database, retry 6
+Jun 20 08:00:42 devlinux logger_demo[1523]: Failed to connect to database, retry 7
+Jun 20 08:00:44 devlinux logger_demo[1523]: Failed to connect to database, retry 8
+Jun 20 08:00:46 devlinux logger_demo[1523]: Failed to connect to database, retry 9
+Jun 20 08:00:48 devlinux logger_demo[1523]: Failed to connect to database, retry 10
+Jun 20 08:00:48 devlinux logger_demo[1523]: Uptime exceeded 30 s -- aborting to simulate crash
+
+=== 4. Log from the last 1 minute ===
+-- Logs begin at Sat 2026-06-20 08:00:01 UTC, end at Sat 2026-06-20 08:01:15 UTC. --
+Jun 20 08:00:38 devlinux logger_demo[1523]: Service running normally, cycle 5
+Jun 20 08:00:38 devlinux logger_demo[1523]: Memory usage high: 92%
+Jun 20 08:00:38 devlinux logger_demo[1523]: Failed to connect to database, retry 5
+Jun 20 08:00:40 devlinux logger_demo[1523]: Service running normally, cycle 6
+Jun 20 08:00:40 devlinux logger_demo[1523]: Memory usage high: 85%
+Jun 20 08:00:40 devlinux logger_demo[1523]: Failed to connect to database, retry 6
+Jun 20 08:00:42 devlinux logger_demo[1523]: Service running normally, cycle 7
+Jun 20 08:00:42 devlinux logger_demo[1523]: Memory usage high: 90%
+Jun 20 08:00:42 devlinux logger_demo[1523]: Failed to connect to database, retry 7
+Jun 20 08:00:44 devlinux logger_demo[1523]: Service running normally, cycle 8
+Jun 20 08:00:44 devlinux logger_demo[1523]: Memory usage high: 88%
+Jun 20 08:00:44 devlinux logger_demo[1523]: Failed to connect to database, retry 8
+Jun 20 08:00:46 devlinux logger_demo[1523]: Service running normally, cycle 9
+Jun 20 08:00:46 devlinux logger_demo[1523]: Memory usage high: 84%
+Jun 20 08:00:46 devlinux logger_demo[1523]: Failed to connect to database, retry 9
+Jun 20 08:00:48 devlinux logger_demo[1523]: Service running normally, cycle 10
+Jun 20 08:00:48 devlinux logger_demo[1523]: Memory usage high: 93%
+Jun 20 08:00:48 devlinux logger_demo[1523]: Failed to connect to database, retry 10
+Jun 20 08:00:48 devlinux logger_demo[1523]: Uptime exceeded 30 s -- aborting to simulate crash
+Jun 20 08:00:48 devlinux systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 20 08:00:48 devlinux systemd[1]: logger.service: Failed with result 'core-dump'.
+Jun 20 08:00:48 devlinux systemd[1]: Failed to start Logger Service -- severity-level demo.
+
+=== 5. Crash point ===
+-- Logs begin at Sat 2026-06-20 08:00:01 UTC, end at Sat 2026-06-20 08:01:15 UTC. --
+Jun 20 08:00:30 devlinux logger_demo[1523]: Failed to connect to database, retry 1
+Jun 20 08:00:32 devlinux logger_demo[1523]: Failed to connect to database, retry 2
+Jun 20 08:00:34 devlinux logger_demo[1523]: Failed to connect to database, retry 3
+Jun 20 08:00:36 devlinux logger_demo[1523]: Failed to connect to database, retry 4
+Jun 20 08:00:38 devlinux logger_demo[1523]: Failed to connect to database, retry 5
+Jun 20 08:00:40 devlinux logger_demo[1523]: Failed to connect to database, retry 6
+Jun 20 08:00:42 devlinux logger_demo[1523]: Failed to connect to database, retry 7
+Jun 20 08:00:44 devlinux logger_demo[1523]: Failed to connect to database, retry 8
+Jun 20 08:00:46 devlinux logger_demo[1523]: Failed to connect to database, retry 9
+Jun 20 08:00:48 devlinux logger_demo[1523]: Failed to connect to database, retry 10
+Jun 20 08:00:48 devlinux logger_demo[1523]: Uptime exceeded 30 s -- aborting to simulate crash
