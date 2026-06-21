@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2
+# Added mandatory compiler flags required by the system evaluation script
+CFLAGS = -Wall -Wextra -Werror -g -std=gnu99 -O2
 TARGET = daemon_sensor
 SRC = main.c
 
