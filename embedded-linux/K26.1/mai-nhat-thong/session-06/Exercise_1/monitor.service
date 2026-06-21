@@ -1,0 +1,19 @@
+[Unit]
+Description=Embedded Linux Background Monitor Service
+After=network.target
+
+[Service]
+Type=simple
+# Path to your cross-compiled binary on the target filesystem
+ExecStart=/usr/local/bin/monitor
+
+# Restart constraints configuration
+Restart=always
+RestartSec=5s
+
+# Rate-limiting: Max 3 restart attempts within a 30s window
+StartLimitIntervalSec=30s
+StartLimitBurst=3
+
+[Install]
+WantedBy=multi-user.target
