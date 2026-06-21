@@ -22,6 +22,50 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           path: student-code
 
+      # 1b. Checkout master branch (để đọc class.json mới nhất từ teacher)
+      - name: Checkout base repo at master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          path: base-code
+
+      # 1c. Add labels to PR based on branch name (dynamic, no hard-coding)
+      - name: Add labels to PR
+        run: |
+          python3 << 'EOF'
+          import re
+          import requests
+
+          BRANCH = "${{ github.event.pull_request.head.ref }}"
+          PR_NUMBER = ${{ github.event.pull_request.number }}
+          REPO = "${{ github.repository }}"
+          TOKEN = "${{ secrets.GITHUB_TOKEN }}"
+
+          # Parse branch: subject/course/student/session-XX
+          match = re.match(r'([^/]+)/([^/]+)/', BRANCH)
+          if not match:
+              print(f"⚠️  Branch '{BRANCH}' không match format")
+              exit(0)
+
+          subject, course = match.groups()
+          labels = [subject, course]
+
+          # Add labels via GitHub API
+          headers = {
+              "Authorization": f"token {TOKEN}",
+              "Accept": "application/vnd.github.v3+json"
+          }
+
+          url = f"https://api.github.com/repos/{REPO}/issues/{PR_NUMBER}/labels"
+          response = requests.post(url, headers=headers, json={"labels": labels})
+
+          if response.status_code == 200:
+              print(f"✅ PR #{PR_NUMBER}: Added labels '{subject}', '{course}'")
+          else:
+              print(f"❌ Failed: {response.text}")
+              exit(1)
+          EOF
+
       # 2. Setup SSH để clone private repo
       - name: Setup SSH Deploy Key
         uses: webfactory/ssh-agent@v0.9.0
@@ -52,4 +96,5 @@ jobs:
           PR_AUTHOR:         ${{ github.event.pull_request.user.login }}
           PR_TITLE:          ${{ github.event.pull_request.title }}
           STUDENT_CODE_PATH: student-code
+          BASE_CODE_PATH:    base-code
         run: python reviewer-core/reviewer/review_pr.py

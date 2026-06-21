@@ -1,0 +1,73 @@
+name: Generate Attendance Report
+
+on:
+  schedule:
+    # Run at 23:59 UTC every Sunday
+    - cron: '59 23 * * 0'
+
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+
+jobs:
+  generate-report:
+    name: Generate Homework Attendance Reports
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      # Checkout the public devlinux repo
+      - name: Checkout devlinux repo
+        uses: actions/checkout@v4
+
+      # Setup SSH to clone private reviewer repo
+      - name: Setup SSH Deploy Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.REVIEWER_DEPLOY_KEY }}
+
+      # Clone private reviewer repo containing the script
+      - name: Checkout private reviewer repo
+        run: git clone git@github.com:${{ secrets.REVIEWER_REPO }} reviewer-core
+
+      # Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: pip install requests --break-system-packages
+
+      # Run the attendance report generator
+      - name: Generate attendance reports
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_REPO: ${{ github.repository }}
+          BASE_CODE_PATH: .
+        run: python reviewer-core/attendance-report/generate_attendance_report.py
+
+      # Configure git
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Commit and push reports
+      - name: Commit and push reports
+        run: |
+          echo "📍 Current dir: $(pwd)"
+          echo "📍 Files in cwd:"
+          find . -name "homework_report.csv" -type f
+          echo "---"
+          git add . && git status
+          if ! git diff --cached --quiet; then
+            git commit -m "📊 Update attendance report - $(date +'%Y-%m-%d')"
+            git push origin master
+            echo "✅ Reports pushed to GitHub"
+          else
+            echo "✅ No changes to reports"
+          fi

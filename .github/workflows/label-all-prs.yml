@@ -1,0 +1,82 @@
+name: Label All PRs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  label-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Python dependencies
+        run: pip install requests --break-system-packages
+
+      - name: Label all PRs by subject/course
+        run: |
+          python3 << 'EOF'
+          import re
+          import requests
+          import json
+
+          TOKEN = "${{ secrets.GITHUB_TOKEN }}"
+          REPO = "${{ github.repository }}"
+
+          headers = {
+              "Authorization": f"token {TOKEN}",
+              "Accept": "application/vnd.github.v3+json"
+          }
+
+          # Get all PRs with pagination (supports unlimited PRs)
+          all_prs = []
+          page = 1
+          while True:
+              url = f"https://api.github.com/repos/{REPO}/pulls?state=all&per_page=100&page={page}"
+              response = requests.get(url, headers=headers, timeout=10)
+
+              if response.status_code != 200:
+                  print(f"Error fetching PRs page {page}: {response.text}")
+                  exit(1)
+
+              prs = response.json()
+              if not prs:  # Empty page = reached end
+                  break
+
+              all_prs.extend(prs)
+              page += 1
+
+          print(f"📊 Found {len(all_prs)} PRs across {page-1} pages")
+
+          for pr in all_prs:
+              number = pr["number"]
+              branch = pr["head"]["ref"]
+
+              # Parse branch: subject/course/student/session-XX
+              match = re.match(r"([^/]+)/([^/]+)/", branch)
+              if not match:
+                  print(f"⚠️  PR #{number}: Branch '{branch}' không match format")
+                  continue
+
+              subject, course = match.groups()
+
+              # Add labels to PR via API
+              labels_url = f"https://api.github.com/repos/{REPO}/issues/{number}/labels"
+              label_response = requests.post(
+                  labels_url,
+                  headers=headers,
+                  json={"labels": [subject, course]}
+              )
+
+              if label_response.status_code == 200:
+                  print(f"✅ PR #{number}: Added labels '{subject}', '{course}'")
+              else:
+                  print(f"❌ PR #{number}: Failed to add labels - {label_response.text}")
+
+          print("Done!")
+          EOF
