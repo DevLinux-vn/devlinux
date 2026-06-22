@@ -1,0 +1,110 @@
+=== 1. Full service log ===
+Thg 6 22 23:31:19 3593 systemd[1]: Started Logger Service for Severity Level Analysis.
+Thg 6 22 23:31:19 3593 logger[204776]: Service running normally, cycle 1
+Thg 6 22 23:31:19 3593 logger[204776]: Memory usage high: 81%
+Thg 6 22 23:31:19 3593 logger[204776]: Failed to connect to database, retry 1
+Thg 6 22 23:31:21 3593 logger[204776]: Service running normally, cycle 2
+Thg 6 22 23:31:21 3593 logger[204776]: Memory usage high: 82%
+Thg 6 22 23:31:21 3593 logger[204776]: Failed to connect to database, retry 2
+Thg 6 22 23:31:23 3593 logger[204776]: Service running normally, cycle 3
+Thg 6 22 23:31:23 3593 logger[204776]: Memory usage high: 83%
+Thg 6 22 23:31:23 3593 logger[204776]: Failed to connect to database, retry 3
+Thg 6 22 23:31:25 3593 logger[204776]: Service running normally, cycle 4
+Thg 6 22 23:31:25 3593 logger[204776]: Memory usage high: 84%
+Thg 6 22 23:31:25 3593 logger[204776]: Failed to connect to database, retry 4
+Thg 6 22 23:31:27 3593 logger[204776]: Service running normally, cycle 5
+Thg 6 22 23:31:27 3593 logger[204776]: Memory usage high: 85%
+Thg 6 22 23:31:27 3593 logger[204776]: Failed to connect to database, retry 5
+Thg 6 22 23:31:29 3593 logger[204776]: Service running normally, cycle 6
+Thg 6 22 23:31:29 3593 logger[204776]: Memory usage high: 86%
+Thg 6 22 23:31:29 3593 logger[204776]: Failed to connect to database, retry 6
+Thg 6 22 23:31:31 3593 logger[204776]: Service running normally, cycle 7
+Thg 6 22 23:31:31 3593 logger[204776]: Memory usage high: 87%
+Thg 6 22 23:31:31 3593 logger[204776]: Failed to connect to database, retry 7
+Thg 6 22 23:31:33 3593 logger[204776]: Service running normally, cycle 8
+Thg 6 22 23:31:33 3593 logger[204776]: Memory usage high: 88%
+Thg 6 22 23:31:33 3593 logger[204776]: Failed to connect to database, retry 8
+Thg 6 22 23:31:35 3593 logger[204776]: Service running normally, cycle 9
+Thg 6 22 23:31:35 3593 logger[204776]: Memory usage high: 89%
+Thg 6 22 23:31:35 3593 logger[204776]: Failed to connect to database, retry 9
+Thg 6 22 23:31:37 3593 logger[204776]: Service running normally, cycle 10
+Thg 6 22 23:31:37 3593 logger[204776]: Memory usage high: 90%
+Thg 6 22 23:31:37 3593 logger[204776]: Failed to connect to database, retry 10
+Thg 6 22 23:31:39 3593 logger[204776]: Service running normally, cycle 11
+Thg 6 22 23:31:39 3593 logger[204776]: Memory usage high: 91%
+Thg 6 22 23:31:39 3593 logger[204776]: Failed to connect to database, retry 11
+Thg 6 22 23:31:41 3593 logger[204776]: Service running normally, cycle 12
+Thg 6 22 23:31:41 3593 logger[204776]: Memory usage high: 92%
+Thg 6 22 23:31:41 3593 logger[204776]: Failed to connect to database, retry 12
+Thg 6 22 23:31:43 3593 logger[204776]: Service running normally, cycle 13
+Thg 6 22 23:31:43 3593 logger[204776]: Memory usage high: 93%
+Thg 6 22 23:31:43 3593 logger[204776]: Failed to connect to database, retry 13
+Thg 6 22 23:31:45 3593 logger[204776]: Service running normally, cycle 14
+Thg 6 22 23:31:45 3593 logger[204776]: Memory usage high: 94%
+Thg 6 22 23:31:45 3593 logger[204776]: Failed to connect to database, retry 14
+Thg 6 22 23:31:47 3593 logger[204776]: Service running normally, cycle 15
+Thg 6 22 23:31:47 3593 logger[204776]: Memory usage high: 80%
+Thg 6 22 23:31:47 3593 logger[204776]: Failed to connect to database, retry 15
+Thg 6 22 23:31:50 3593 systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 22 23:31:50 3593 systemd[1]: logger.service: Failed with result 'core-dump'.
+
+=== 2. Warning level and above ===
+Thg 6 22 23:31:19 3593 logger[204776]: Memory usage high: 81%
+Thg 6 22 23:31:19 3593 logger[204776]: Failed to connect to database, retry 1
+Thg 6 22 23:31:21 3593 logger[204776]: Memory usage high: 82%
+Thg 6 22 23:31:21 3593 logger[204776]: Failed to connect to database, retry 2
+Thg 6 22 23:31:23 3593 logger[204776]: Memory usage high: 83%
+Thg 6 22 23:31:23 3593 logger[204776]: Failed to connect to database, retry 3
+Thg 6 22 23:31:25 3593 logger[204776]: Memory usage high: 84%
+Thg 6 22 23:31:25 3593 logger[204776]: Failed to connect to database, retry 4
+Thg 6 22 23:31:27 3593 logger[204776]: Memory usage high: 85%
+Thg 6 22 23:31:27 3593 logger[204776]: Failed to connect to database, retry 5
+Thg 6 22 23:31:29 3593 logger[204776]: Memory usage high: 86%
+Thg 6 22 23:31:29 3593 logger[204776]: Failed to connect to database, retry 6
+Thg 6 22 23:31:31 3593 logger[204776]: Memory usage high: 87%
+Thg 6 22 23:31:31 3593 logger[204776]: Failed to connect to database, retry 7
+Thg 6 22 23:31:33 3593 logger[204776]: Memory usage high: 88%
+Thg 6 22 23:31:33 3593 logger[204776]: Failed to connect to database, retry 8
+Thg 6 22 23:31:35 3593 logger[204776]: Memory usage high: 89%
+Thg 6 22 23:31:35 3593 logger[204776]: Failed to connect to database, retry 9
+Thg 6 22 23:31:37 3593 logger[204776]: Memory usage high: 90%
+Thg 6 22 23:31:37 3593 logger[204776]: Failed to connect to database, retry 10
+Thg 6 22 23:31:39 3593 logger[204776]: Memory usage high: 91%
+Thg 6 22 23:31:39 3593 logger[204776]: Failed to connect to database, retry 11
+Thg 6 22 23:31:41 3593 logger[204776]: Memory usage high: 92%
+Thg 6 22 23:31:41 3593 logger[204776]: Failed to connect to database, retry 12
+Thg 6 22 23:31:43 3593 logger[204776]: Memory usage high: 93%
+Thg 6 22 23:31:43 3593 logger[204776]: Failed to connect to database, retry 13
+Thg 6 22 23:31:45 3593 logger[204776]: Memory usage high: 94%
+Thg 6 22 23:31:45 3593 logger[204776]: Failed to connect to database, retry 14
+Thg 6 22 23:31:47 3593 logger[204776]: Memory usage high: 80%
+Thg 6 22 23:31:47 3593 logger[204776]: Failed to connect to database, retry 15
+Thg 6 22 23:31:50 3593 systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 22 23:31:50 3593 systemd[1]: logger.service: Failed with result 'core-dump'.
+
+=== 3. Error level and above ===
+Thg 6 22 23:31:19 3593 logger[204776]: Failed to connect to database, retry 1
+Thg 6 22 23:31:21 3593 logger[204776]: Failed to connect to database, retry 2
+Thg 6 22 23:31:23 3593 logger[204776]: Failed to connect to database, retry 3
+Thg 6 22 23:31:25 3593 logger[204776]: Failed to connect to database, retry 4
+Thg 6 22 23:31:27 3593 logger[204776]: Failed to connect to database, retry 5
+Thg 6 22 23:31:29 3593 logger[204776]: Failed to connect to database, retry 6
+Thg 6 22 23:31:31 3593 logger[204776]: Failed to connect to database, retry 7
+Thg 6 22 23:31:33 3593 logger[204776]: Failed to connect to database, retry 8
+Thg 6 22 23:31:35 3593 logger[204776]: Failed to connect to database, retry 9
+Thg 6 22 23:31:37 3593 logger[204776]: Failed to connect to database, retry 10
+Thg 6 22 23:31:39 3593 logger[204776]: Failed to connect to database, retry 11
+Thg 6 22 23:31:41 3593 logger[204776]: Failed to connect to database, retry 12
+Thg 6 22 23:31:43 3593 logger[204776]: Failed to connect to database, retry 13
+Thg 6 22 23:31:45 3593 logger[204776]: Failed to connect to database, retry 14
+Thg 6 22 23:31:47 3593 logger[204776]: Failed to connect to database, retry 15
+
+=== 4. Log from the last 1 minute ===
+-- No entries --
+
+=== 5. Crash point ===
+Thg 6 22 23:31:39 3593 logger[204776]: Failed to connect to database, retry 11
+Thg 6 22 23:31:41 3593 logger[204776]: Failed to connect to database, retry 12
+Thg 6 22 23:31:43 3593 logger[204776]: Failed to connect to database, retry 13
+Thg 6 22 23:31:45 3593 logger[204776]: Failed to connect to database, retry 14
+Thg 6 22 23:31:47 3593 logger[204776]: Failed to connect to database, retry 15
