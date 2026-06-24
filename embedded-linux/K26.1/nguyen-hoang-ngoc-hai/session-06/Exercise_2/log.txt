@@ -1,0 +1,168 @@
+=== 1. Full service log ===
+Jun 21 10:40:24 hint-VMware20-1 systemd[1]: Started logger.service - Logger Service Exercise.
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Service running normally, cycle 1
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Memory usage high: 80%
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 1
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Service running normally, cycle 2
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Memory usage high: 82%
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 2
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Service running normally, cycle 3
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Memory usage high: 94%
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 3
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Service running normally, cycle 4
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Memory usage high: 84%
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 4
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Service running normally, cycle 5
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Memory usage high: 91%
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 5
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Service running normally, cycle 6
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Memory usage high: 93%
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 6
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Service running normally, cycle 7
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Memory usage high: 88%
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 7
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Service running normally, cycle 8
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Memory usage high: 89%
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 8
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Service running normally, cycle 9
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Memory usage high: 89%
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 9
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Service running normally, cycle 10
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Memory usage high: 83%
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 10
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Service running normally, cycle 11
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Memory usage high: 86%
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 11
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Service running normally, cycle 12
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Memory usage high: 82%
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 12
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Service running normally, cycle 13
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Memory usage high: 81%
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 13
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Service running normally, cycle 14
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Memory usage high: 94%
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 14
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Service running normally, cycle 15
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Memory usage high: 89%
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 15
+Jun 21 10:40:54 hint-VMware20-1 logger[6447]: Service crashed intentionally after 30 seconds
+Jun 21 10:40:54 hint-VMware20-1 systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 21 10:40:54 hint-VMware20-1 systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 2. Warning level and above ===
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Memory usage high: 80%
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 1
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Memory usage high: 82%
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 2
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Memory usage high: 94%
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 3
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Memory usage high: 84%
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 4
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Memory usage high: 91%
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 5
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Memory usage high: 93%
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 6
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Memory usage high: 88%
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 7
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Memory usage high: 89%
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 8
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Memory usage high: 89%
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 9
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Memory usage high: 83%
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 10
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Memory usage high: 86%
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 11
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Memory usage high: 82%
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 12
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Memory usage high: 81%
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 13
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Memory usage high: 94%
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 14
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Memory usage high: 89%
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 15
+Jun 21 10:40:54 hint-VMware20-1 logger[6447]: Service crashed intentionally after 30 seconds
+Jun 21 10:40:54 hint-VMware20-1 systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 21 10:40:54 hint-VMware20-1 systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 3. Error level and above ===
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 1
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 2
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 3
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 4
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 5
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 6
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 7
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 8
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 9
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 10
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 11
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 12
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 13
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 14
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 15
+Jun 21 10:40:54 hint-VMware20-1 logger[6447]: Service crashed intentionally after 30 seconds
+=== 4. Log from the last 1 minute ===
+Jun 21 10:40:24 hint-VMware20-1 systemd[1]: Started logger.service - Logger Service Exercise.
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Service running normally, cycle 1
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Memory usage high: 80%
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 1
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Service running normally, cycle 2
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Memory usage high: 82%
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 2
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Service running normally, cycle 3
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Memory usage high: 94%
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 3
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Service running normally, cycle 4
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Memory usage high: 84%
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 4
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Service running normally, cycle 5
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Memory usage high: 91%
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 5
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Service running normally, cycle 6
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Memory usage high: 93%
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 6
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Service running normally, cycle 7
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Memory usage high: 88%
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 7
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Service running normally, cycle 8
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Memory usage high: 89%
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 8
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Service running normally, cycle 9
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Memory usage high: 89%
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 9
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Service running normally, cycle 10
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Memory usage high: 83%
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 10
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Service running normally, cycle 11
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Memory usage high: 86%
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 11
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Service running normally, cycle 12
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Memory usage high: 82%
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 12
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Service running normally, cycle 13
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Memory usage high: 81%
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 13
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Service running normally, cycle 14
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Memory usage high: 94%
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 14
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Service running normally, cycle 15
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Memory usage high: 89%
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 15
+Jun 21 10:40:54 hint-VMware20-1 logger[6447]: Service crashed intentionally after 30 seconds
+Jun 21 10:40:54 hint-VMware20-1 systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Jun 21 10:40:54 hint-VMware20-1 systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 5. Crash point ===
+Jun 21 10:40:24 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 1
+Jun 21 10:40:26 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 2
+Jun 21 10:40:28 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 3
+Jun 21 10:40:30 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 4
+Jun 21 10:40:32 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 5
+Jun 21 10:40:34 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 6
+Jun 21 10:40:36 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 7
+Jun 21 10:40:38 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 8
+Jun 21 10:40:40 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 9
+Jun 21 10:40:42 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 10
+Jun 21 10:40:44 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 11
+Jun 21 10:40:46 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 12
+Jun 21 10:40:48 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 13
+Jun 21 10:40:50 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 14
+Jun 21 10:40:52 hint-VMware20-1 logger[6447]: Failed to connect to database, retry 15
+Jun 21 10:40:54 hint-VMware20-1 logger[6447]: Service crashed intentionally after 30 seconds
