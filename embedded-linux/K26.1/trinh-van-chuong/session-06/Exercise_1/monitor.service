@@ -1,0 +1,20 @@
+[Unit]
+Description=Monitor Background Service
+After=multi-user.target
+
+[Service]
+# Đường dẫn tới file thực thi sau khi biên dịch
+ExecStart=/usr/local/bin/monitor
+
+# Cấu hình tự động restart khi bị crash
+Restart=on-failure
+# Đợi 5 giây trước khi khởi động lại
+RestartSec=5s
+
+# Giới hạn: Tối đa 3 lần restart trong vòng 30 giây
+StartLimitIntervalSec=30s
+StartLimitBurst=3
+
+[Install]
+# Tự động chạy khi boot máy ở chế độ multi-user
+WantedBy=multi-user.target
