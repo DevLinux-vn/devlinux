@@ -1,0 +1,6 @@
+[PID:41453] [2026-06-28 01:16:37] [INFO] Hello from flock 1
+[PID:41455] [2026-06-28 01:16:37] [INFO] Hello from flock 3
+[PID:41454] [2026-06-28 01:16:37] [INFO] Hello from flock 2
+[PID:41536] [2026-06-28 01:16:55] [INFO] Hello from fcntl 2
+[PID:41535] [2026-06-28 01:16:55] [INFO] Hello from fcntl 1
+[PID:41537] [2026-06-28 01:16:55] [INFO] Hello from fcntl 3
