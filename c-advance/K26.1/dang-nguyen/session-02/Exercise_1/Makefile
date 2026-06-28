@@ -1,35 +1,27 @@
-# Toolchain configuration
 CC := gcc
-AR := ar
 CFLAGS := -Wall -Wextra -pedantic -Werror -std=c99
+TARGET := mem_layout
+SRC := main.c
+INC := -I.
 
-# Module and path configuration
-MODULE := mem_layout
-INC := -Iinclude
-SRC := $(wildcard src/*.c)
-
-# Build artifacts
-BUILD_DIR := build
-OBJ := $(SRC:src/%.c=$(BUILD_DIR)/%.o)
-TARGET := lib/lib$(MODULE).a
-
-# Phony targets are commands, not generated files.
 .PHONY: all clean
 
-# Default target: build the IPv4 parser static library.
 all: $(TARGET)
 
-# Archive all object files into a static library.
-$(TARGET): $(OBJ)
-	mkdir -p lib
-	$(AR) rcs $(TARGET) $(OBJ)
-	rm -f $(OBJ)
+$(TARGET): $(SRC)
+	$(CC) $(CFLAGS) $(INC) $(SRC) -o $(TARGET)
 
-# Compile each source file into the build directory.
-$(BUILD_DIR)/%.o: src/%.c
-	mkdir -p $(BUILD_DIR)
-	$(CC) $(INC) $(CFLAGS) -c $< -o $@
+check_size: $(TARGET)
+	@echo "Size of $<"
+	size $<
 
-# Remove all generated build outputs.
+check_var: $(TARGET)
+	@echo "Information about main function:"
+	nm $< | grep -i p_main_func
+
+	@echo "\n"
+	@echo "Information about global_const:"
+	nm $< | grep -i global_const
+
 clean:
-	rm -rf $(BUILD_DIR) lib
+	rm -f $(TARGET)
