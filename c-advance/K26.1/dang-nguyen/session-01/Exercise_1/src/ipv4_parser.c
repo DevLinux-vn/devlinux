@@ -12,6 +12,13 @@
 /*********************************************************************************************
  Macro definitions
  ********************************************************************************************/
+/* Expose internal functions for unit testing; keep them static in production. */
+#ifdef UNIT_TEST
+#define EC_STATIC
+#else
+#define EC_STATIC   static
+#endif
+
 /* IPv4 dotted-decimal format constraints */
 #define IPV4_OCTET_DIGIT_MAX    (3U)    /**< Maximum decimal digits in one octet */
 #define IPV4_OCTET_COUNT        (4U)    /**< Number of octets in an IPv4 address */
@@ -45,17 +52,17 @@
 /*********************************************************************************************
  Private function declarations
  ********************************************************************************************/
-static e_errcode_t convert_octet(
+EC_STATIC e_errcode_t convert_octet(
     const char      **pp_str,           /* NOLINT(readability-identifier-naming) */
     uint32_t        *const p_octet
 );
 
-static e_errcode_t move_to_next_octet(
+EC_STATIC e_errcode_t move_to_next_octet(
     const uint8_t   idx,
     const char      **pp_str            /* NOLINT(readability-identifier-naming) */
 );
 
-static e_errcode_t validate_ip_boundary(
+EC_STATIC e_errcode_t validate_ip_boundary(
     const char      *const p_ip_str
 );
 
@@ -83,7 +90,7 @@ static e_errcode_t validate_ip_boundary(
  *                              - IP string starts with a non-digit character.
  *                              - IP string ends with a non-digit character.
  */
-static e_errcode_t validate_ip_boundary(
+EC_STATIC e_errcode_t validate_ip_boundary(
     const char      *const p_ip_str
 )
 {
@@ -142,7 +149,7 @@ static e_errcode_t validate_ip_boundary(
  *                              - A required octet is missing.
  *                              - An unexpected character appears after an octet.
  */
-static e_errcode_t move_to_next_octet(
+EC_STATIC e_errcode_t move_to_next_octet(
     const uint8_t   idx,
     const char      **pp_str            /* NOLINT(readability-identifier-naming) */
 )
@@ -227,7 +234,7 @@ static e_errcode_t move_to_next_octet(
  *                              - Octet has more than 3 digits.
  *                              - Octet value is greater than 255.
  */
-static e_errcode_t convert_octet(
+EC_STATIC e_errcode_t convert_octet(
     const char      **pp_str,           /* NOLINT(readability-identifier-naming) */
     uint32_t        *const p_octet
 )
