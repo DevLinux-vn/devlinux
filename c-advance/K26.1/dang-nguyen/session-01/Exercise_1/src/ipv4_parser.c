@@ -34,12 +34,12 @@
         printf("%s: ", __func__);    \
         printf(__VA_ARGS__);         \
         printf("\n");                \
-    } while (0)
+    } while (0)     /* Macro safety: wrap in do-while to ensure single statement */
 #else
 #define DBG_LOG(...)                 \
     do                               \
     {                                \
-    } while (0)
+    } while (0)     /* Macro safety: wrap in do-while to ensure single statement */
 #endif
 
 /*********************************************************************************************
