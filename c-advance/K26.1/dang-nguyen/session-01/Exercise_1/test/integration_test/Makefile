@@ -35,6 +35,10 @@ $(LIBTARGET):
 %.o: %.c
 	$(CC) $(INC) $(CFLAGS) -c $< -o $@
 
+# Run integration test
+run: all
+	$(TARGET)
+
 # Remove integration test outputs and clean the library build.
 clean:
 	rm -f $(OBJ) $(TARGET)
