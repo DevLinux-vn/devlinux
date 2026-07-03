@@ -1,9 +1,3 @@
-/**
- * @file reader.c
- * @brief Tracking daemon processing shared mapped configs using accurate POSIX nanosleep.
- * @date 2026-07-04
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,6 +5,7 @@
 #include <signal.h>
 #include <sys/mman.h>
 #include <errno.h>
+#include <time.h> 
 #include "device_cfg.h"
 
 #define INTERVAL_SEC 2
@@ -46,14 +41,14 @@ int main(void) {
 
     int fd = open(CONFIG_FILE_PATH, O_RDONLY);
     if (fd < 0) {
-        perror("CRITICAL: Storage open failed. Execute writer binary first");
+        perror("CRITICAL: Cannot open config file");
         return EXIT_FAILURE;
     }
 
     device_cfg_t *cfg = (device_cfg_t *)mmap(NULL, sizeof(device_cfg_t),
                                              PROT_READ, MAP_SHARED, fd, 0);
     if (cfg == MAP_FAILED) {
-        perror("CRITICAL: Reader mmap attachment failed");
+        perror("CRITICAL: mmap failed");
         close(fd);
         return EXIT_FAILURE;
     }
@@ -65,23 +60,20 @@ int main(void) {
         printf("baud_rate=%d  sampling_rate=%d Hz  log_level=%s\n",
                cfg->baud_rate, cfg->sampling_rate_hz, get_log_level_str(cfg->log_level));
         
-        /* High-precision defensive sleep block mitigating EINTR signals */
         struct timespec requested_interval = { .tv_sec = INTERVAL_SEC, .tv_nsec = 0 };
         struct timespec remaining_interval;
         
         while (nanosleep(&requested_interval, &remaining_interval) < 0) {
             if (errno == EINTR) {
                 if (!g_keep_running) break;
-                requested_interval = remaining_interval; /* Continue sleeping the remainder time */
+                requested_interval = remaining_interval;
             } else {
-                perror("ERROR: Precise nanosleep tracking crashed");
+                perror("ERROR: nanosleep failed");
                 break;
             }
         }
     }
 
-    printf("\n[Config Reader] Unmapping node segments cleanly...\n");
-    if (munmap(cfg, sizeof(device_cfg_t)) < 0) perror("ERROR: Reader munmap failed");
-
+    if (munmap(cfg, sizeof(device_cfg_t)) < 0) perror("ERROR: munmap failed");
     return EXIT_SUCCESS;
 }

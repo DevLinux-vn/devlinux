@@ -1,9 +1,3 @@
-/**
- * @file device.c
- * @brief Remote listener tracking memory flag adjustments via atomic process validation.
- * @date 2026-07-04
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -35,14 +29,14 @@ int main(void) {
 
     int shm_fd = shm_open(SHM_NAME, O_RDWR, 0666);
     if (shm_fd < 0) {
-        perror("CRITICAL: Host shm connection missing. Initiate controller first");
+        perror("CRITICAL: shm_open failed");
         return EXIT_FAILURE;
     }
 
     device_state_t *state = (device_state_t *)mmap(NULL, sizeof(device_state_t),
                                                    PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (state == MAP_FAILED) {
-        perror("CRITICAL: Device mmap linking crashed");
+        perror("CRITICAL: mmap failed");
         close(shm_fd);
         return EXIT_FAILURE;
     }
@@ -53,14 +47,16 @@ int main(void) {
     while (g_keep_running) {
         int active_state_snapshot = STATUS_IDLE;
 
-        /* SỬA LỖI: Luôn kiểm tra kiểm tra mã lỗi của thao tác đồng bộ phía Reader */
-        if (pthread_mutex_lock(&state->mutex) == 0) {
+        /* FIX: Conditional logic tree ensuring unlock is ONLY called if lock succeeds */
+        int lock_status = pthread_mutex_lock(&state->mutex);
+        if (lock_status == 0) {
             active_state_snapshot = state->status;
             if (pthread_mutex_unlock(&state->mutex) != 0) {
-                fprintf(stderr, "ERROR: Mutex release failed inside processing thread\n");
+                fprintf(stderr, "ERROR: Structural unlock failure\n");
             }
         } else {
-            fprintf(stderr, "ERROR: Mutex lock acquisition failure encountered\n");
+            /* Lock failed: Do NOT execute unlock, log error state directly */
+            fprintf(stderr, "ERROR: Mutex acquire block failed (rc=%d)\n", lock_status);
         }
 
         if (active_state_snapshot == STATUS_RUNNING) {
@@ -72,8 +68,6 @@ int main(void) {
         sleep(POLLING_CYCLE_SEC);
     }
 
-    printf("\n[Device] Disconnecting segment memory traces...\n");
     munmap(state, sizeof(device_state_t));
-
     return EXIT_SUCCESS;
 }

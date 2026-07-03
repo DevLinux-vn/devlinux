@@ -1,14 +1,8 @@
-/**
- * @file device_cfg.h
- * @brief Memory map layout schema representing target system parameters.
- * @date 2026-07-04
- */
-
 #ifndef DEVICE_CFG_H
 #define DEVICE_CFG_H
 
 #define CONFIG_FILE_PATH "/tmp/device.cfg"
-#define MENU_BUF_SIZE    32    /* Size allocation for interactive console strings */
+#define MENU_BUF_SIZE    32  
 #define BAUD_LOW         9600
 #define BAUD_MID         115200
 #define BAUD_HIGH        460800
