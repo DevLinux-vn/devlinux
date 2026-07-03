@@ -1,9 +1,3 @@
-/**
- * @file daemon.c
- * @brief Collects system telemetry metrics and stores them into SystemV SHM.
- * @date 2026-07-03
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -61,13 +55,13 @@ int main(void) {
 
     int shmid = shmget(SHM_KEY, sizeof(sensor_data_t), IPC_CREAT | 0666);
     if (shmid < 0) {
-        /* SỬA LỖI ĐỘC QUYỀN: Phân tích sâu mọi kịch bản lỗi hệ thống của shmget */
+        /* Enterprise-grade detailed errno diagnostics */
         if (errno == EACCES) {
             fprintf(stderr, "CRITICAL: Permission denied (EACCES) for SHM Key 0x%x.\n", SHM_KEY);
         } else if (errno == EEXIST) {
             fprintf(stderr, "CRITICAL: Key conflict (EEXIST). Segment already exists.\n");
         } else if (errno == ENOMEM) {
-            fprintf(stderr, "CRITICAL: Insufficient system memory (ENOMEM) to allocate SHM.\n");
+            fprintf(stderr, "CRITICAL: Insufficient core memory (ENOMEM) to allocate SHM.\n");
         } else {
             perror("CRITICAL: shmget initialization failed");
         }

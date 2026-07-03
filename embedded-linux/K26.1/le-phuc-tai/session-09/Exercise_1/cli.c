@@ -1,9 +1,3 @@
-/**
- * @file cli.c
- * @brief Reads and parses sensor reports from SystemV shared memory.
- * @date 2026-07-03
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/shm.h>

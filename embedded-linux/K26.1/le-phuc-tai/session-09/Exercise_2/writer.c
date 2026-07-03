@@ -1,9 +1,3 @@
-/**
- * @file writer.c
- * @brief Provides an interactive terminal menu to modify mmap-synchronized configurations.
- * @date 2026-07-03
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,21 +7,41 @@
 #include <errno.h>
 #include "device_cfg.h"
 
-/* SỬA LỖI EINTR: Hàm bọc đọc chuỗi an toàn chống ngắt hệ thống đột ngột */
+/* Robust wrapper to prevent stream freezing on signal interrupts */
 static char *safe_fgets(char *str, int num, FILE *stream) {
     char *result;
-    do {
+    while (1) {
         result = fgets(str, num, stream);
-    } while (result == NULL && ferror(stream) && errno == EINTR);
+        if (result != NULL) break;
+        if (errno == EINTR) {
+            clearerr(stream); /* Clears stream error indicator to resume I/O */
+            continue;
+        }
+        break;
+    }
     return result;
 }
 
-/* SỬA LỖI EINTR: Hàm bọc đọc số nguyên an toàn chống ngắt hệ thống đột ngột */
 static int safe_scanf_int(int *value) {
     int res;
-    do {
+    while (1) {
         res = scanf("%d", value);
-    } while (res == -1 && errno == EINTR);
+        if (res >= 0) break;
+        if (res == EOF && errno == EINTR) {
+            clearerr(stdin);
+            continue;
+        }
+        break;
+    }
+    return res;
+}
+
+/* Retries flushing when interrupted to avoid partial file writes */
+static int safe_msync(void *addr, size_t length, int flags) {
+    int res;
+    do {
+        res = msync(addr, length, flags);
+    } while (res < 0 && errno == EINTR);
     return res;
 }
 
@@ -36,7 +50,6 @@ static void print_current_config(const device_cfg_t *cfg) {
            cfg->baud_rate, cfg->sampling_rate_hz, cfg->log_level);
 }
 
-/* SỬA LỖI MAIN QUÁ DÀI: Tách toàn bộ lõi xử lý giao tiếp ra khỏi main() */
 static void execute_menu_interaction(device_cfg_t *cfg) {
     char choice[MENU_BUF_SIZE];
     
@@ -55,10 +68,10 @@ static void execute_menu_interaction(device_cfg_t *cfg) {
             if (safe_scanf_int(&new_baud) == 1) {
                 if (new_baud == 9600 || new_baud == 115200 || new_baud == 460800) {
                     cfg->baud_rate = new_baud;
-                    msync(cfg, sizeof(device_cfg_t), MS_SYNC);
+                    safe_msync(cfg, sizeof(device_cfg_t), MS_SYNC);
                     printf("[Updated] baud_rate = %d\n", new_baud);
                 } else {
-                    printf("ERROR: Invalid baud rate value.\n");
+                    printf("ERROR: Invalid baud rate.\n");
                 }
             }
             while (getchar() != '\n');
@@ -68,10 +81,10 @@ static void execute_menu_interaction(device_cfg_t *cfg) {
             if (safe_scanf_int(&new_rate) == 1) {
                 if (new_rate >= 1 && new_rate <= 1000) {
                     cfg->sampling_rate_hz = new_rate;
-                    msync(cfg, sizeof(device_cfg_t), MS_SYNC);
+                    safe_msync(cfg, sizeof(device_cfg_t), MS_SYNC);
                     printf("[Updated] sampling_rate_hz = %d\n", new_rate);
                 } else {
-                    printf("ERROR: Value must be inside range 1-1000.\n");
+                    printf("ERROR: Out of bounds (1-1000).\n");
                 }
             }
             while (getchar() != '\n');
@@ -81,7 +94,7 @@ static void execute_menu_interaction(device_cfg_t *cfg) {
             if (safe_scanf_int(&new_log) == 1) {
                 if (new_log >= 0 && new_log <= 3) {
                     cfg->log_level = new_log;
-                    msync(cfg, sizeof(device_cfg_t), MS_SYNC);
+                    safe_msync(cfg, sizeof(device_cfg_t), MS_SYNC);
                     printf("[Updated] log_level = %d\n", new_log);
                 } else {
                     printf("ERROR: Invalid log level.\n");
@@ -97,6 +110,7 @@ static void execute_menu_interaction(device_cfg_t *cfg) {
 
 int main(void) {
     setbuf(stdout, NULL);
+    int is_new_file = (access(CONFIG_FILE_PATH, F_OK) != 0);
 
     int fd = open(CONFIG_FILE_PATH, O_RDWR | O_CREAT, 0666);
     if (fd < 0) {
@@ -110,13 +124,23 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    device_cfg_t *cfg = (device_cfg_t *)mmap(NULL, sizeof(device_cfg_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    device_cfg_t *cfg = (device_cfg_t *)mmap(NULL, sizeof(device_cfg_t),
+                                             PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (cfg == MAP_FAILED) {
         perror("CRITICAL: mmap failed");
         close(fd);
         return EXIT_FAILURE;
     }
     close(fd);
+
+    /* Erase junk bytes and inject defaults if file was just created */
+    if (is_new_file) {
+        memset(cfg, 0, sizeof(device_cfg_t));
+        cfg->baud_rate = 9600;
+        cfg->sampling_rate_hz = 100;
+        cfg->log_level = 2; /* Default: INFO */
+        safe_msync(cfg, sizeof(device_cfg_t), MS_SYNC);
+    }
 
     printf("[Config Writer] Loaded %s\n", CONFIG_FILE_PATH);
     execute_menu_interaction(cfg);

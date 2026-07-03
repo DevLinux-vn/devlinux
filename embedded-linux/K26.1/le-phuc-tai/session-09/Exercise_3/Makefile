@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 -std=gnu99 -g
+# FIX: Added strict -Werror to ensure zero-warning enterprise compilation
+CFLAGS = -Wall -Wextra -Werror -O2 -std=gnu99 -g
 LIBS = -lrt -lpthread
 
 all: controller device

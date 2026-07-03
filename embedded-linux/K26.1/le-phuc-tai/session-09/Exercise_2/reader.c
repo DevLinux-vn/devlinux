@@ -1,9 +1,3 @@
-/**
- * @file reader.c
- * @brief Periodically samples and outputs shared memory config file attributes.
- * @date 2026-07-03
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -45,11 +39,12 @@ int main(void) {
 
     int fd = open(CONFIG_FILE_PATH, O_RDONLY);
     if (fd < 0) {
-        perror("CRITICAL: Cannot open config file. Start writer process first");
+        perror("CRITICAL: Cannot open config file");
         return EXIT_FAILURE;
     }
 
-    device_cfg_t *cfg = (device_cfg_t *)mmap(NULL, sizeof(device_cfg_t), PROT_READ, MAP_SHARED, fd, 0);
+    device_cfg_t *cfg = (device_cfg_t *)mmap(NULL, sizeof(device_cfg_t),
+                                             PROT_READ, MAP_SHARED, fd, 0);
     if (cfg == MAP_FAILED) {
         perror("CRITICAL: mmap failed");
         close(fd);
@@ -62,7 +57,12 @@ int main(void) {
     while (g_keep_running) {
         printf("baud_rate=%d  sampling_rate=%d Hz  log_level=%s\n",
                cfg->baud_rate, cfg->sampling_rate_hz, get_log_level_str(cfg->log_level));
-        sleep(INTERVAL_SEC);
+        
+        /* Defensive execution against premature sleep interruption */
+        unsigned int remaining = INTERVAL_SEC;
+        while (remaining > 0 && g_keep_running) {
+            remaining = sleep(remaining);
+        }
     }
 
     printf("\n[Config Reader] Unmapping memory core...\n");
