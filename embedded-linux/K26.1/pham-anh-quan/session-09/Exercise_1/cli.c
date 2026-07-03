@@ -24,4 +24,4 @@ int main() {
 
     shmdt(shm_ptr);
     return 0;
-}5
+}
