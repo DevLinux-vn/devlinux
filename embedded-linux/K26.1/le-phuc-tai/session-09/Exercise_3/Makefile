@@ -1,5 +1,4 @@
 CC = gcc
-# FIX: Added strict -Werror to ensure zero-warning enterprise compilation
 CFLAGS = -Wall -Wextra -Werror -O2 -std=gnu99 -g
 LIBS = -lrt -lpthread
 

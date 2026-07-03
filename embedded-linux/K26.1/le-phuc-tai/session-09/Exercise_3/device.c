@@ -1,3 +1,9 @@
+/**
+ * @file device.c
+ * @brief Remote listener tracking memory flag adjustments via atomic process validation.
+ * @date 2026-07-04
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -6,7 +12,7 @@
 #include <sys/mman.h>
 #include "device_state.h"
 
-#define LOOP_INTERVAL_SEC 1
+#define POLLING_CYCLE_SEC 1
 
 volatile sig_atomic_t g_keep_running = 1;
 
@@ -27,16 +33,16 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    /* Kết nối vào phân vùng của controller, không tạo mới */
     int shm_fd = shm_open(SHM_NAME, O_RDWR, 0666);
     if (shm_fd < 0) {
-        perror("CRITICAL: shm_open failed. Run controller first!");
+        perror("CRITICAL: Host shm connection missing. Initiate controller first");
         return EXIT_FAILURE;
     }
 
-    device_state_t *state = (device_state_t *)mmap(NULL, sizeof(device_state_t), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    device_state_t *state = (device_state_t *)mmap(NULL, sizeof(device_state_t),
+                                                   PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (state == MAP_FAILED) {
-        perror("CRITICAL: mmap failed");
+        perror("CRITICAL: Device mmap linking crashed");
         close(shm_fd);
         return EXIT_FAILURE;
     }
@@ -45,23 +51,28 @@ int main(void) {
     printf("[Device] Attached to %s\n", SHM_NAME);
 
     while (g_keep_running) {
-        int current_status;
+        int active_state_snapshot = STATUS_IDLE;
 
-        /* Đồng bộ hóa: Khóa mutex trước khi đọc dữ liệu chia sẻ */
-        pthread_mutex_lock(&state->mutex);
-        current_status = state->status;
-        pthread_mutex_unlock(&state->mutex);
+        /* SỬA LỖI: Luôn kiểm tra kiểm tra mã lỗi của thao tác đồng bộ phía Reader */
+        if (pthread_mutex_lock(&state->mutex) == 0) {
+            active_state_snapshot = state->status;
+            if (pthread_mutex_unlock(&state->mutex) != 0) {
+                fprintf(stderr, "ERROR: Mutex release failed inside processing thread\n");
+            }
+        } else {
+            fprintf(stderr, "ERROR: Mutex lock acquisition failure encountered\n");
+        }
 
-        if (current_status == 1) {
+        if (active_state_snapshot == STATUS_RUNNING) {
             printf("[Device] Status: ON  — Running...\n");
         } else {
             printf("[Device] Status: OFF — Idle.\n");
         }
 
-        sleep(LOOP_INTERVAL_SEC);
+        sleep(POLLING_CYCLE_SEC);
     }
 
-    printf("\n[Device] Detaching core segment...\n");
+    printf("\n[Device] Disconnecting segment memory traces...\n");
     munmap(state, sizeof(device_state_t));
 
     return EXIT_SUCCESS;

@@ -1,3 +1,9 @@
+/**
+ * @file writer.c
+ * @brief Handles human interactive tuning loops with safe file flushing mechanics.
+ * @date 2026-07-04
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,14 +13,16 @@
 #include <errno.h>
 #include "device_cfg.h"
 
-/* Robust wrapper to prevent stream freezing on signal interrupts */
-static char *safe_fgets(char *str, int num, FILE *stream) {
+/**
+ * @brief Standard stream input acquisition engine handling persistent interrupt signals.
+ */
+static char *acquire_console_line_protected(char *str, int num, FILE *stream) {
     char *result;
     while (1) {
         result = fgets(str, num, stream);
         if (result != NULL) break;
         if (errno == EINTR) {
-            clearerr(stream); /* Clears stream error indicator to resume I/O */
+            clearerr(stream); 
             continue;
         }
         break;
@@ -22,7 +30,10 @@ static char *safe_fgets(char *str, int num, FILE *stream) {
     return result;
 }
 
-static int safe_scanf_int(int *value) {
+/**
+ * @brief Standard stream integer evaluation engine handling persistent interrupt signals.
+ */
+static int acquire_console_int_protected(int *value) {
     int res;
     while (1) {
         res = scanf("%d", value);
@@ -36,8 +47,7 @@ static int safe_scanf_int(int *value) {
     return res;
 }
 
-/* Retries flushing when interrupted to avoid partial file writes */
-static int safe_msync(void *addr, size_t length, int flags) {
+static int dispatch_memory_flush(void *addr, size_t length, int flags) {
     int res;
     do {
         res = msync(addr, length, flags);
@@ -45,64 +55,60 @@ static int safe_msync(void *addr, size_t length, int flags) {
     return res;
 }
 
-static void print_current_config(const device_cfg_t *cfg) {
-    printf("Current: baud_rate=%d sampling_rate=%d log_level=%d\n",
-           cfg->baud_rate, cfg->sampling_rate_hz, cfg->log_level);
-}
-
-static void execute_menu_interaction(device_cfg_t *cfg) {
+static void display_interactive_menu(device_cfg_t *cfg) {
     char choice[MENU_BUF_SIZE];
     
     while (1) {
-        print_current_config(cfg);
+        printf("Current: baud_rate=%d sampling_rate=%d log_level=%d\n",
+               cfg->baud_rate, cfg->sampling_rate_hz, cfg->log_level);
         printf("\nSelect field to update [baud/rate/log/quit]: ");
         
-        if (safe_fgets(choice, sizeof(choice), stdin) == NULL) break;
+        if (acquire_console_line_protected(choice, sizeof(choice), stdin) == NULL) break;
         choice[strcspn(choice, "\r\n")] = '\0';
 
         if (strcmp(choice, "quit") == 0) {
             break;
         } else if (strcmp(choice, "baud") == 0) {
             int new_baud = 0;
-            printf("Select baud rate [9600/115200/460800]: ");
-            if (safe_scanf_int(&new_baud) == 1) {
-                if (new_baud == 9600 || new_baud == 115200 || new_baud == 460800) {
+            printf("Select baud rate [%d/%d/%d]: ", BAUD_LOW, BAUD_MID, BAUD_HIGH);
+            if (acquire_console_int_protected(&new_baud) == 1) {
+                if (new_baud == BAUD_LOW || new_baud == BAUD_MID || new_baud == BAUD_HIGH) {
                     cfg->baud_rate = new_baud;
-                    safe_msync(cfg, sizeof(device_cfg_t), MS_SYNC);
+                    dispatch_memory_flush(cfg, sizeof(device_cfg_t), MS_SYNC);
                     printf("[Updated] baud_rate = %d\n", new_baud);
                 } else {
-                    printf("ERROR: Invalid baud rate.\n");
+                    printf("ERROR: Invalid baud rate option.\n");
                 }
             }
             while (getchar() != '\n');
         } else if (strcmp(choice, "rate") == 0) {
             int new_rate = 0;
-            printf("Enter sampling rate hz [1-1000]: ");
-            if (safe_scanf_int(&new_rate) == 1) {
-                if (new_rate >= 1 && new_rate <= 1000) {
+            printf("Enter sampling rate hz [%d-%d]: ", SAMPLING_MIN, SAMPLING_MAX);
+            if (acquire_console_int_protected(&new_rate) == 1) {
+                if (new_rate >= SAMPLING_MIN && new_rate <= SAMPLING_MAX) {
                     cfg->sampling_rate_hz = new_rate;
-                    safe_msync(cfg, sizeof(device_cfg_t), MS_SYNC);
+                    dispatch_memory_flush(cfg, sizeof(device_cfg_t), MS_SYNC);
                     printf("[Updated] sampling_rate_hz = %d\n", new_rate);
                 } else {
-                    printf("ERROR: Out of bounds (1-1000).\n");
+                    printf("ERROR: Bounds violation.\n");
                 }
             }
             while (getchar() != '\n');
         } else if (strcmp(choice, "log") == 0) {
             int new_log = 0;
             printf("Select log level [0=OFF, 1=ERROR, 2=INFO, 3=DEBUG]: ");
-            if (safe_scanf_int(&new_log) == 1) {
+            if (acquire_console_int_protected(&new_log) == 1) {
                 if (new_log >= 0 && new_log <= 3) {
                     cfg->log_level = new_log;
-                    safe_msync(cfg, sizeof(device_cfg_t), MS_SYNC);
+                    dispatch_memory_flush(cfg, sizeof(device_cfg_t), MS_SYNC);
                     printf("[Updated] log_level = %d\n", new_log);
                 } else {
-                    printf("ERROR: Invalid log level.\n");
+                    printf("ERROR: Invalid log scale range.\n");
                 }
             }
             while (getchar() != '\n');
         } else {
-            printf("Unknown command.\n");
+            printf("Unknown operational choice.\n");
         }
         printf("---------------------------------------------------\n");
     }
@@ -110,16 +116,16 @@ static void execute_menu_interaction(device_cfg_t *cfg) {
 
 int main(void) {
     setbuf(stdout, NULL);
-    int is_new_file = (access(CONFIG_FILE_PATH, F_OK) != 0);
+    int needs_initialization = (access(CONFIG_FILE_PATH, F_OK) != 0);
 
     int fd = open(CONFIG_FILE_PATH, O_RDWR | O_CREAT, 0666);
     if (fd < 0) {
-        perror("CRITICAL: Cannot open config file");
+        perror("CRITICAL: Cannot open system storage file");
         return EXIT_FAILURE;
     }
 
     if (ftruncate(fd, sizeof(device_cfg_t)) < 0) {
-        perror("CRITICAL: ftruncate failed");
+        perror("CRITICAL: storage ftruncate resizing failed");
         close(fd);
         return EXIT_FAILURE;
     }
@@ -127,24 +133,24 @@ int main(void) {
     device_cfg_t *cfg = (device_cfg_t *)mmap(NULL, sizeof(device_cfg_t),
                                              PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (cfg == MAP_FAILED) {
-        perror("CRITICAL: mmap failed");
+        perror("CRITICAL: Core mmap execution failed");
         close(fd);
         return EXIT_FAILURE;
     }
     close(fd);
 
-    /* Erase junk bytes and inject defaults if file was just created */
-    if (is_new_file) {
+    /* Clean initialization step if file allocation occurs for the first time */
+    if (needs_initialization) {
         memset(cfg, 0, sizeof(device_cfg_t));
-        cfg->baud_rate = 9600;
-        cfg->sampling_rate_hz = 100;
-        cfg->log_level = 2; /* Default: INFO */
-        safe_msync(cfg, sizeof(device_cfg_t), MS_SYNC);
+        cfg->baud_rate = BAUD_LOW;
+        cfg->sampling_rate_hz = 100; /* Standard 100Hz base telemetry */
+        cfg->log_level = 2;          /* Default operational index to INFO */
+        dispatch_memory_flush(cfg, sizeof(device_cfg_t), MS_SYNC);
     }
 
-    printf("[Config Writer] Loaded %s\n", CONFIG_FILE_PATH);
-    execute_menu_interaction(cfg);
+    printf("[Config Writer] Synchronized target: %s\n", CONFIG_FILE_PATH);
+    display_interactive_menu(cfg);
 
-    if (munmap(cfg, sizeof(device_cfg_t)) < 0) perror("ERROR: munmap failed");
+    if (munmap(cfg, sizeof(device_cfg_t)) < 0) perror("ERROR: munmap teardown failed");
     return EXIT_SUCCESS;
 }
