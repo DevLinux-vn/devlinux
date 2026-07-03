@@ -34,8 +34,7 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    device_state_t *state = (device_state_t *)mmap(NULL, sizeof(device_state_t),
-                                                   PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    device_state_t *state = (device_state_t *)mmap(NULL, sizeof(device_state_t), PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (state == MAP_FAILED) {
         perror("CRITICAL: mmap failed");
         close(shm_fd);

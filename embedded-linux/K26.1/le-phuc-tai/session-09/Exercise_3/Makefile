@@ -1,5 +1,4 @@
 CC = gcc
-# BẮT BUỘC: Thêm thư viện liên kết thời gian thực -lrt và luồng -lpthread chuẩn doanh nghiệp
 CFLAGS = -Wall -Wextra -O2 -std=gnu99 -g
 LIBS = -lrt -lpthread
 

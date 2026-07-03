@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 -std=gnu99 -g
+# SỬA LỖI: Thêm -Werror ép toàn bộ cảnh báo phải xử lý như lỗi hệ thống
+CFLAGS = -Wall -Wextra -Werror -O2 -std=gnu99 -g
 
 all: sensor-daemon sensor-cli
 

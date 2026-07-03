@@ -1,3 +1,9 @@
+/**
+ * @file reader.c
+ * @brief Periodically samples and outputs shared memory config file attributes.
+ * @date 2026-07-03
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -39,11 +45,10 @@ int main(void) {
 
     int fd = open(CONFIG_FILE_PATH, O_RDONLY);
     if (fd < 0) {
-        perror("CRITICAL: Cannot open config file. Make sure writer runs first");
+        perror("CRITICAL: Cannot open config file. Start writer process first");
         return EXIT_FAILURE;
     }
 
-    /* Ánh xạ vùng nhớ chế độ chỉ đọc (PROT_READ) bảo vệ an toàn dữ liệu */
     device_cfg_t *cfg = (device_cfg_t *)mmap(NULL, sizeof(device_cfg_t), PROT_READ, MAP_SHARED, fd, 0);
     if (cfg == MAP_FAILED) {
         perror("CRITICAL: mmap failed");
@@ -60,10 +65,8 @@ int main(void) {
         sleep(INTERVAL_SEC);
     }
 
-    printf("\n[Config Reader] Stopping. Unmapping core memory...\n");
-    if (munmap(cfg, sizeof(device_cfg_t)) < 0) {
-        perror("ERROR: munmap failed");
-    }
+    printf("\n[Config Reader] Unmapping memory core...\n");
+    if (munmap(cfg, sizeof(device_cfg_t)) < 0) perror("ERROR: munmap failed");
 
     return EXIT_SUCCESS;
 }

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2 -std=gnu99 -g
+CFLAGS = -Wall -Wextra -Werror -O2 -std=gnu99 -g
 
 all: config-writer config-reader
 

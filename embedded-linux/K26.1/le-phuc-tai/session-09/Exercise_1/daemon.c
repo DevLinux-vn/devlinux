@@ -1,9 +1,16 @@
+/**
+ * @file daemon.c
+ * @brief Collects system telemetry metrics and stores them into SystemV SHM.
+ * @date 2026-07-03
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/shm.h>
+#include <errno.h>
 #include "sensor_shm.h"
 
 #define INTERVAL_SEC 2
@@ -52,18 +59,25 @@ int main(void) {
         return EXIT_FAILURE;
     }
 
-    /* Khởi tạo phân vùng nhớ shared memory với quyền đọc ghi 0666 */
     int shmid = shmget(SHM_KEY, sizeof(sensor_data_t), IPC_CREAT | 0666);
     if (shmid < 0) {
-        perror("CRITICAL: shmget failed");
+        /* SỬA LỖI ĐỘC QUYỀN: Phân tích sâu mọi kịch bản lỗi hệ thống của shmget */
+        if (errno == EACCES) {
+            fprintf(stderr, "CRITICAL: Permission denied (EACCES) for SHM Key 0x%x.\n", SHM_KEY);
+        } else if (errno == EEXIST) {
+            fprintf(stderr, "CRITICAL: Key conflict (EEXIST). Segment already exists.\n");
+        } else if (errno == ENOMEM) {
+            fprintf(stderr, "CRITICAL: Insufficient system memory (ENOMEM) to allocate SHM.\n");
+        } else {
+            perror("CRITICAL: shmget initialization failed");
+        }
         return EXIT_FAILURE;
     }
     printf("[Daemon] Shared memory created. Key=0x%x\n", SHM_KEY);
 
-    /* Ánh xạ phân vùng nhớ vào không gian địa chỉ ảo của daemon */
     sensor_data_t *shm_ptr = (sensor_data_t *)shmat(shmid, NULL, 0);
     if (shm_ptr == (void *)-1) {
-        perror("CRITICAL: shmat failed");
+        perror("CRITICAL: shmat link failed");
         return EXIT_FAILURE;
     }
 
@@ -71,7 +85,6 @@ int main(void) {
         double temp = 0.0, ram_pct = 0.0;
         read_system_metrics(&temp, &ram_pct);
 
-        /* Ghi trực tiếp dữ liệu vào RAM chia sẻ */
         shm_ptr->timestamp = time(NULL);
         shm_ptr->cpu_temp = temp;
         shm_ptr->ram_used_pct = ram_pct;
@@ -80,14 +93,9 @@ int main(void) {
         sleep(INTERVAL_SEC);
     }
 
-    /* Quy trình dọn dẹp hệ thống phòng chống rò rỉ RAM (Resource Cleanup) */
     printf("\n[Daemon] Cleaning up shared memory. Goodbye.\n");
-    if (shmdt(shm_ptr) < 0) {
-        perror("ERROR: shmdt failed");
-    }
-    if (shmctl(shmid, IPC_RMID, NULL) < 0) {
-        perror("ERROR: shmctl IPC_RMID failed");
-    }
+    if (shmdt(shm_ptr) < 0) perror("ERROR: shmdt failed");
+    if (shmctl(shmid, IPC_RMID, NULL) < 0) perror("ERROR: shmctl IPC_RMID failed");
 
     return EXIT_SUCCESS;
 }
