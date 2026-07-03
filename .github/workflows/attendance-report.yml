@@ -22,6 +22,25 @@ jobs:
       - name: Checkout devlinux repo
         uses: actions/checkout@v4
 
+      # Pull latest changes to avoid conflicts
+      - name: Pull latest changes
+        run: |
+          echo "📍 Before fetch:"
+          git log --oneline -1
+          git status
+          echo "---"
+          git fetch origin master
+          git reset --hard origin/master
+          echo "📍 After reset to origin/master:"
+          git log --oneline -1
+          git status
+
+          # Clean any untracked reviewer-core folder
+          if [ -d reviewer-core ]; then
+            echo "⚠️ Removing untracked reviewer-core folder..."
+            rm -rf reviewer-core
+          fi
+
       # Setup SSH to clone private reviewer repo
       - name: Setup SSH Deploy Key
         uses: webfactory/ssh-agent@v0.9.0
@@ -63,9 +82,20 @@ jobs:
           echo "📍 Files in cwd:"
           find . -name "homework_report.csv" -type f
           echo "---"
-          git add . && git status
+          echo "📍 Before git add:"
+          git status
+          echo "---"
+          git add . && echo "📍 After git add:"
+          git status
+          echo "---"
           if ! git diff --cached --quiet; then
             git commit -m "📊 Update attendance report - $(date +'%Y-%m-%d')"
+            echo "📍 After commit:"
+            git log --oneline -2
+            git status
+            echo "📍 Before push:"
+            git remote -v
+            echo "---"
             git push origin master
             echo "✅ Reports pushed to GitHub"
           else
