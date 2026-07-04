@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <errno.h>
+#include <ctype.h>
 #include "device_cfg.h"
 
 #define CONFIG_FILE "/tmp/device.cfg"
@@ -39,7 +41,11 @@ int main() {
         cfg->baud_rate = 9600;
         cfg->sampling_rate_hz = 100;
         cfg->log_level = 2;  // INFO
-        msync(cfg, sizeof(device_cfg_t), MS_SYNC);
+        if (msync(cfg, sizeof(device_cfg_t), MS_SYNC) == -1) {
+            perror("msync (init)");
+            munmap(cfg, sizeof(device_cfg_t));
+            exit(1);
+        }
     }
     
     printf("[Config Writer] Loaded %s\n", CONFIG_FILE);
@@ -70,45 +76,89 @@ int main() {
         if (strcmp(input, "baud") == 0) {
             printf("Select baud rate [9600/115200/460800]: ");
             fflush(stdout);
-            fgets(input, sizeof(input), stdin);
-            int baud = atoi(input);
+            if (fgets(input, sizeof(input), stdin) == NULL) {
+                printf("[Error] fgets failed\n");
+                continue;
+            }
+            
+            char *endptr;
+            long baud = strtol(input, &endptr, 10);
+            
+            if (endptr == input || (*endptr != '\n' && *endptr != '\0')) {
+                printf("[Error] Invalid input format\n");
+                continue;
+            }
+            
             if (baud == 9600 || baud == 115200 || baud == 460800) {
-                cfg->baud_rate = baud;
-                msync(cfg, sizeof(device_cfg_t), MS_SYNC);
-                printf("[Updated] baud_rate = %d\n", baud);
+                cfg->baud_rate = (int)baud;
+                if (msync(cfg, sizeof(device_cfg_t), MS_SYNC) == -1) {
+                    perror("msync (baud)");
+                } else {
+                    printf("[Updated] baud_rate = %d\n", cfg->baud_rate);
+                }
             } else {
-                printf("[Error] Invalid baud rate\n");
+                printf("[Error] Invalid baud rate (choose 9600, 115200, or 460800)\n");
             }
         } else if (strcmp(input, "rate") == 0) {
             printf("Enter sampling rate (1-1000 Hz): ");
             fflush(stdout);
-            fgets(input, sizeof(input), stdin);
-            int rate = atoi(input);
+            if (fgets(input, sizeof(input), stdin) == NULL) {
+                printf("[Error] fgets failed\n");
+                continue;
+            }
+            
+            char *endptr;
+            long rate = strtol(input, &endptr, 10);
+            
+            if (endptr == input || (*endptr != '\n' && *endptr != '\0')) {
+                printf("[Error] Invalid input format\n");
+                continue;
+            }
+            
             if (rate >= 1 && rate <= 1000) {
-                cfg->sampling_rate_hz = rate;
-                msync(cfg, sizeof(device_cfg_t), MS_SYNC);
-                printf("[Updated] sampling_rate = %d\n", rate);
+                cfg->sampling_rate_hz = (int)rate;
+                if (msync(cfg, sizeof(device_cfg_t), MS_SYNC) == -1) {
+                    perror("msync (rate)");
+                } else {
+                    printf("[Updated] sampling_rate = %d\n", cfg->sampling_rate_hz);
+                }
             } else {
-                printf("[Error] Invalid sampling rate\n");
+                printf("[Error] Invalid sampling rate (must be 1-1000)\n");
             }
         } else if (strcmp(input, "log") == 0) {
             printf("Select log level [0=OFF/1=ERROR/2=INFO/3=DEBUG]: ");
             fflush(stdout);
-            fgets(input, sizeof(input), stdin);
-            int level = atoi(input);
+            if (fgets(input, sizeof(input), stdin) == NULL) {
+                printf("[Error] fgets failed\n");
+                continue;
+            }
+            
+            char *endptr;
+            long level = strtol(input, &endptr, 10);
+            
+            if (endptr == input || (*endptr != '\n' && *endptr != '\0')) {
+                printf("[Error] Invalid input format\n");
+                continue;
+            }
+            
             if (level >= 0 && level <= 3) {
-                cfg->log_level = level;
-                msync(cfg, sizeof(device_cfg_t), MS_SYNC);
-                printf("[Updated] log_level = %d\n", level);
+                cfg->log_level = (int)level;
+                if (msync(cfg, sizeof(device_cfg_t), MS_SYNC) == -1) {
+                    perror("msync (log)");
+                } else {
+                    printf("[Updated] log_level = %d\n", cfg->log_level);
+                }
             } else {
-                printf("[Error] Invalid log level\n");
+                printf("[Error] Invalid log level (choose 0-3)\n");
             }
         } else {
-            printf("[Error] Unknown field\n");
+            printf("[Error] Unknown field (use baud/rate/log/quit)\n");
         }
     }
     
-    munmap(cfg, sizeof(device_cfg_t));
+    if (munmap(cfg, sizeof(device_cfg_t)) == -1) {
+        perror("munmap");
+    }
     printf("[Config Writer] Goodbye.\n");
     
     return 0;
