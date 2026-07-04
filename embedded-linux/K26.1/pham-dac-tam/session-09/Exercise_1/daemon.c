@@ -6,6 +6,7 @@
 #include <sys/shm.h>
 #include <signal.h>
 #include "sensor_shm.h"
+#include <time.h>
 
 int shm_id = -1;
 sensor_data_t *sensor_data = NULL;
