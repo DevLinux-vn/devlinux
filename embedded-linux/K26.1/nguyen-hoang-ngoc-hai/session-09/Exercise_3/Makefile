@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -std=c11 -D_POSIX_C_SOURCE=200809L
+CFLAGS=-Wall -Wextra -Werror -g -std=gnu99
 LDFLAGS=-lrt -lpthread
 
 all: controller device

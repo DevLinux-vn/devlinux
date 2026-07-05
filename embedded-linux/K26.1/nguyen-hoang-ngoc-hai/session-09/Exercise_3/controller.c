@@ -22,8 +22,6 @@ static void die(const char *msg) {
 }
 
 int main(void) {
-    shm_unlink(SHM_NAME);
-
     int fd = shm_open(SHM_NAME, O_CREAT | O_EXCL | O_RDWR, 0666);
     if (fd == -1) {
         die("shm_open");
@@ -72,6 +70,7 @@ int main(void) {
         printf("> ");
 
         if (fgets(input, sizeof(input), stdin) == NULL) {
+            printf("\nEOF detected. Exiting.\n");
             break;
         }
 

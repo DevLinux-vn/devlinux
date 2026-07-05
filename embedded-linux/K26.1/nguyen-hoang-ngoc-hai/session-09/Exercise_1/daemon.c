@@ -8,28 +8,25 @@
 #include <time.h>
 #include "sensor_shm.h"
 #include <stdint.h>
+#include <unistd.h>
 
 static int shmid = -1;
 static sensor_data_t *shm_ptr = NULL;
 
-void cleanup(int sig) {
-    (void)sig;
+void cleanup(int sig)
+{
+	const char msg[] = "\n[Daemon] Cleaning up shared memory. Goodbye.\n";
 
-    printf("\n[Daemon] Cleaning up shared memory. Goodbye.\n");
-    fflush(stdout);
-    if (shm_ptr != NULL) {
-        if (shmdt(shm_ptr) == -1) {
-            perror("shmdt");
-        }
-    }
+	(void)sig;
+	write(STDOUT_FILENO, msg, sizeof(msg) - 1);
 
-    if (shmid != -1) {
-        if (shmctl(shmid, IPC_RMID, NULL) == -1) {
-            perror("shmctl IPC_RMID");
-        }
-    }
+	if (shm_ptr != NULL)
+		shmdt(shm_ptr);
 
-    exit(0);
+	if (shmid != -1)
+		shmctl(shmid, IPC_RMID, NULL);
+
+	_exit(0);
 }
 
 double read_cpu_temp(void) {
@@ -43,7 +40,7 @@ double read_cpu_temp(void) {
     if (fscanf(fp, "%lf", &load1) != 1) {
         perror("fscanf /proc/loadavg");
         fclose(fp);
-        return 0.0;
+        return 40.0;
     }
 
     fclose(fp);

@@ -7,6 +7,7 @@
 #include "device_cfg.h"
 #include <signal.h>
 
+#define INPUT_MAX 64
 static device_cfg_t *g_cfg = NULL;
 
 const char *log_level_name(int level) {
@@ -86,7 +87,7 @@ int main(void) {
 
     printf("[Config Writer] Loaded %s\n", CFG_PATH);
 
-    char input[64];
+    char input[INPUT_MAX];
 
     while (1) {
         print_current(cfg);
@@ -94,7 +95,7 @@ int main(void) {
         printf("\nSelect field to update [baud/rate/log/quit]: ");
 
         if (fgets(input, sizeof(input), stdin) == NULL) {
-            printf("\nEOF reached. Exiting.\n");
+            printf("\nEOF detected. Exiting.\n");
             break;
         }
 
