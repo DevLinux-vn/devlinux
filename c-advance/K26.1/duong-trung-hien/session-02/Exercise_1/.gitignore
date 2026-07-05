@@ -1,0 +1,5 @@
+#Bỏ qua file thực thi
+output
+
+# Bỏ qua cấu hình VS Code
+.vscode/
