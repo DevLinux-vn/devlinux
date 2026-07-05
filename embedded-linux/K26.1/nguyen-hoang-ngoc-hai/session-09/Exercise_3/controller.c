@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#include <errno.h>
 
 #define SHM_NAME "/device_shm"
 
@@ -21,9 +22,12 @@ static void die(const char *msg) {
 }
 
 int main(void) {
-    int fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
-    if (fd == -1) die("shm_open");
+    shm_unlink(SHM_NAME);
 
+    int fd = shm_open(SHM_NAME, O_CREAT | O_EXCL | O_RDWR, 0666);
+    if (fd == -1) {
+        die("shm_open");
+    }
     if (ftruncate(fd, sizeof(device_state_t)) == -1) {
         close(fd);
         die("ftruncate");

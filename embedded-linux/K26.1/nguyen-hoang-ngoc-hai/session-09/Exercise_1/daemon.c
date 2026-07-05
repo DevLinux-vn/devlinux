@@ -7,6 +7,7 @@
 #include <sys/shm.h>
 #include <time.h>
 #include "sensor_shm.h"
+#include <stdint.h>
 
 static int shmid = -1;
 static sensor_data_t *shm_ptr = NULL;
@@ -15,7 +16,7 @@ void cleanup(int sig) {
     (void)sig;
 
     printf("\n[Daemon] Cleaning up shared memory. Goodbye.\n");
-
+    fflush(stdout);
     if (shm_ptr != NULL) {
         if (shmdt(shm_ptr) == -1) {
             perror("shmdt");
@@ -77,7 +78,8 @@ double read_ram_used_pct(void) {
 
     fclose(fp);
 
-    if (mem_total == 0) {
+    if (mem_total <= 0 || mem_free < 0) {
+        fprintf(stderr, "Warning: incomplete /proc/meminfo\n");
         return 0.0;
     }
 

@@ -4,7 +4,9 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include "device_cfg.h"
+#include <signal.h>
 
+static device_cfg_t *g_cfg = NULL;
 const char *log_level_name(int level) {
     switch (level) {
         case 0: return "OFF";
@@ -15,7 +17,23 @@ const char *log_level_name(int level) {
     }
 }
 
+void cleanup(int sig) {
+    (void)sig;
+
+    printf("\n[Config Reader] Cleaning up. Goodbye.\n");
+
+    if (g_cfg != NULL) {
+        if (munmap(g_cfg, sizeof(device_cfg_t)) == -1) {
+            perror("munmap");
+        }
+    }
+
+    exit(0);
+}
+
 int main(void) {
+    signal(SIGINT, cleanup);
+
     int fd = open(CFG_PATH, O_RDONLY);
 
     if (fd == -1) {
@@ -28,6 +46,9 @@ int main(void) {
                              PROT_READ,
                              MAP_SHARED, fd, 0);
 
+                             
+    g_cfg = cfg;
+    
     if (cfg == MAP_FAILED) {
         perror("mmap");
         close(fd);

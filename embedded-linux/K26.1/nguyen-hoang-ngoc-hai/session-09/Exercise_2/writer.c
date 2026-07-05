@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include "device_cfg.h"
+#include <signal.h>
+
+static device_cfg_t *g_cfg = NULL;
 
 const char *log_level_name(int level) {
     switch (level) {
@@ -31,7 +34,23 @@ void print_current(device_cfg_t *cfg) {
            log_level_name(cfg->log_level));
 }
 
+void cleanup(int sig) {
+    (void)sig;
+
+    printf("\n[Config Writer] Cleaning up. Goodbye.\n");
+
+    if (g_cfg != NULL) {
+        if (munmap(g_cfg, sizeof(device_cfg_t)) == -1) {
+            perror("munmap");
+        }
+    }
+
+    exit(0);
+}
+
 int main(void) {
+    signal(SIGINT, cleanup);
+
     int fd = open(CFG_PATH, O_RDWR | O_CREAT, 0666);
     if (fd == -1) {
         perror("open");
@@ -47,6 +66,8 @@ int main(void) {
     device_cfg_t *cfg = mmap(NULL, sizeof(device_cfg_t),
                              PROT_READ | PROT_WRITE,
                              MAP_SHARED, fd, 0);
+
+    g_cfg = cfg;
 
     if (cfg == MAP_FAILED) {
         perror("mmap");
@@ -73,6 +94,7 @@ int main(void) {
         printf("\nSelect field to update [baud/rate/log/quit]: ");
 
         if (fgets(input, sizeof(input), stdin) == NULL) {
+            printf("\nEOF reached. Exiting.\n");
             break;
         }
 
