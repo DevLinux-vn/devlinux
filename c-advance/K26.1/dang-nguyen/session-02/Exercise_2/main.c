@@ -54,10 +54,13 @@ int8_t recurse_with_monitor(
     else
     {
         /*
-         * MISRA-C 2012 Rule 17.2 forbids recursion because recursive calls can
-         * grow the stack without a fixed upper bound. This exercise uses
-         * recursion intentionally and checks stack_limit_bytes before each
-         * recursive call to abort before stack usage becomes unsafe.
+         * MISRA-C 2012 Rule 17.2 forbids recursion because recursive calls can grow
+         * the stack unboundedly, risking stack overflow and memory corruption.
+         * This implementation is safe because:
+         * 1. stack_limit_bytes guard prevents recursion before overflow occurs
+         * 2. Each level compares current stack_used against limit BEFORE recursing
+         * 3. Function returns immediately upon limit detection
+         * This makes recursion usage controlled and predictable.
          */
         ret = recurse_with_monitor(current_depth + 1U, max_depth, stack_base_addr, stack_limit_bytes);
     }
@@ -65,11 +68,19 @@ int8_t recurse_with_monitor(
     return ret;
 }
 
+/**
+ * @brief Entry point for stack depth monitor demonstration.
+ * 
+ * Initializes stack base address and calls recurse_with_monitor() to demonstrate
+ * stack consumption tracking and overflow detection.
+ * 
+ * @return 0 on success, -1 if stack limit was exceeded.
+ */
 int32_t main(void)
 {
     int32_t ret = EC_SUCCESS;
-    int32_t my_var = 1;
-    uintptr_t base_addr = (uintptr_t)&my_var;
+    int32_t stack_base_marker = 0;
+    uintptr_t base_addr = (uintptr_t)&stack_base_marker;
     uint32_t cur_depth = 0U;
 
     ret = (int32_t)recurse_with_monitor(cur_depth, MAX_DEPTH, base_addr, STACK_LIMIT_BYTES);

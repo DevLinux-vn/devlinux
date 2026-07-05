@@ -16,12 +16,12 @@ check_size: $(TARGET)
 	size $<
 
 check_var: $(TARGET)
-	@echo "Information about main function:"
-	nm $< | grep -i p_main_func
+	@echo "Information about global_init:"
+	nm $< | grep -i global_init
 
 	@echo "\n"
-	@echo "Information about global_const:"
-	nm $< | grep -i global_const
+	@echo "Information about global_uninit:"
+	nm $< | grep -i global_uninit
 
 clean:
 	rm -f $(TARGET)
