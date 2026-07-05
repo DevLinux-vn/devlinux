@@ -3,83 +3,101 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <pthread.h>
 
 #define SHM_NAME "/device_shm"
+#define DEVICE_POLL_INTERVAL 1
 
 typedef struct {
-    pthread_mutex_t mutex;
-    int status; /* 0 = OFF, 1 = ON */
+	pthread_mutex_t mutex;
+	int status;		/* 0 = OFF, 1 = ON */
 } device_state_t;
 
-static device_state_t *state = NULL;
+static device_state_t *g_state = NULL;
 
-static void die(const char *msg) {
-    perror(msg);
-    exit(1);
+static void cleanup(int sig)
+{
+	(void)sig;
+
+	printf("\n[Device] Detaching shared memory. Goodbye.\n");
+
+	if (g_state != NULL) {
+		if (munmap(g_state, sizeof(device_state_t)) == -1)
+			perror("munmap");
+
+		g_state = NULL;
+	}
+
+	exit(0);
 }
 
-void cleanup(int sig) {
-    (void)sig;
+static void die(const char *msg)
+{
+	perror(msg);
 
-    printf("\n[Device] Detaching shared memory. Goodbye.\n");
+	if (g_state != NULL)
+		munmap(g_state, sizeof(device_state_t));
 
-    if (state != NULL) {
-        if (munmap(state, sizeof(device_state_t)) == -1) {
-            perror("munmap");
-        }
-    }
-
-    exit(0);
+	exit(1);
 }
 
-int main(void) {
-    signal(SIGINT, cleanup);
+int main(void)
+{
+	int fd;
 
-    int fd = shm_open(SHM_NAME, O_RDWR, 0666);
+	if (signal(SIGINT, cleanup) == SIG_ERR) {
+		perror("signal");
+		exit(1);
+	}
 
-    if (fd == -1) {
-        printf("[Device] Shared memory not found. Run controller first.\n");
-        exit(1);
-    }
+	fd = shm_open(SHM_NAME, O_RDWR, 0666);
+	if (fd == -1) {
+		if (errno == ENOENT)
+			fprintf(stderr, "[Device] Shared memory not found. Run controller first.\n");
+		else
+			perror("shm_open");
 
-    state = mmap(NULL, sizeof(device_state_t),
-                 PROT_READ | PROT_WRITE,
-                 MAP_SHARED, fd, 0);
+		exit(1);
+	}
 
-    if (state == MAP_FAILED) {
-        close(fd);
-        die("mmap");
-    }
+	g_state = mmap(NULL, sizeof(device_state_t),
+		       PROT_READ | PROT_WRITE,
+		       MAP_SHARED, fd, 0);
 
-    close(fd);
+	if (g_state == MAP_FAILED) {
+		g_state = NULL;
+		close(fd);
+		perror("mmap");
+		exit(1);
+	}
 
-    printf("[Device] Attached to %s\n", SHM_NAME);
+	if (close(fd) == -1)
+		die("close");
 
-    while (1) {
-        int current_status;
+	printf("[Device] Attached to %s\n", SHM_NAME);
 
-        if (pthread_mutex_lock(&state->mutex) != 0) {
-            die("pthread_mutex_lock");
-        }
+	while (1) {
+		int current_status;
 
-        current_status = state->status;
+		if (pthread_mutex_lock(&g_state->mutex) != 0)
+			die("pthread_mutex_lock");
 
-        if (pthread_mutex_unlock(&state->mutex) != 0) {
-            die("pthread_mutex_unlock");
-        }
+		current_status = g_state->status;
 
-        if (current_status == 1) {
-            printf("[Device] Status: ON  — Running...\n");
-        } else {
-            printf("[Device] Status: OFF — Idle.\n");
-        }
+		if (pthread_mutex_unlock(&g_state->mutex) != 0)
+			die("pthread_mutex_unlock");
 
-        sleep(1);
-    }
+		if (current_status == 1)
+			printf("[Device] Status: ON  — Running...\n");
+		else
+			printf("[Device] Status: OFF — Idle.\n");
 
-    return 0;
+		sleep(DEVICE_POLL_INTERVAL);
+	}
+
+	return 0;
 }

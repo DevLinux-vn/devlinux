@@ -1,77 +1,97 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
+
 #include "device_cfg.h"
-#include <signal.h>
+
+#define READER_POLL_INTERVAL 2
 
 static device_cfg_t *g_cfg = NULL;
-const char *log_level_name(int level) {
-    switch (level) {
-        case 0: return "OFF";
-        case 1: return "ERROR";
-        case 2: return "INFO";
-        case 3: return "DEBUG";
-        default: return "UNKNOWN";
-    }
+
+static const char *log_level_name(int level)
+{
+	switch (level) {
+	case 0:
+		return "OFF";
+	case 1:
+		return "ERROR";
+	case 2:
+		return "INFO";
+	case 3:
+		return "DEBUG";
+	default:
+		return "UNKNOWN";
+	}
 }
 
-void cleanup(int sig) {
-    (void)sig;
+static void cleanup(int sig)
+{
+	(void)sig;
 
-    printf("\n[Config Reader] Cleaning up. Goodbye.\n");
+	printf("\n[Config Reader] Cleaning up. Goodbye.\n");
 
-    if (g_cfg != NULL) {
-        if (munmap(g_cfg, sizeof(device_cfg_t)) == -1) {
-            perror("munmap");
-        }
-    }
+	if (g_cfg != NULL) {
+		if (munmap(g_cfg, sizeof(device_cfg_t)) == -1)
+			perror("munmap");
+	}
 
-    exit(0);
+	exit(0);
 }
 
-int main(void) {
-    signal(SIGINT, cleanup);
+int main(void)
+{
+	int fd;
+	device_cfg_t *cfg;
 
-    int fd = open(CFG_PATH, O_RDONLY);
+	if (signal(SIGINT, cleanup) == SIG_ERR) {
+		perror("signal");
+		exit(1);
+	}
 
-    if (fd == -1) {
-        perror("open");
-        printf("Config file does not exist. Run config-writer first.\n");
-        exit(1);
-    }
+	fd = open(CFG_PATH, O_RDONLY);
+	if (fd == -1) {
+		if (errno == ENOENT)
+			fprintf(stderr, "Config file not found. Run config-writer first.\n");
+		else
+			perror("open");
 
-    device_cfg_t *cfg = mmap(NULL, sizeof(device_cfg_t),
-                             PROT_READ,
-                             MAP_SHARED, fd, 0);
+		exit(1);
+	}
 
-                             
-    g_cfg = cfg;
-    
-    if (cfg == MAP_FAILED) {
-        perror("mmap");
-        close(fd);
-        exit(1);
-    }
+	cfg = mmap(NULL, sizeof(device_cfg_t),
+		   PROT_READ,
+		   MAP_SHARED, fd, 0);
 
-    close(fd);
+	if (cfg == MAP_FAILED) {
+		perror("mmap");
+		close(fd);
+		exit(1);
+	}
 
-    printf("[Config Reader] Polling %s every 2s...\n", CFG_PATH);
+	g_cfg = cfg;
 
-    while (1) {
-        printf("baud_rate=%d  sampling_rate=%d Hz  log_level=%s\n",
-               cfg->baud_rate,
-               cfg->sampling_rate_hz,
-               log_level_name(cfg->log_level));
+	if (close(fd) == -1) {
+		perror("close");
+		munmap(cfg, sizeof(device_cfg_t));
+		exit(1);
+	}
 
-        sleep(2);
-    }
+	printf("[Config Reader] Polling %s every 2s...\n", CFG_PATH);
 
-    if (munmap(cfg, sizeof(device_cfg_t)) == -1) {
-        perror("munmap");
-        exit(1);
-    }
+	while (1) {
+		printf("baud_rate=%d  sampling_rate=%d Hz  log_level=%s\n",
+		       cfg->baud_rate,
+		       cfg->sampling_rate_hz,
+		       log_level_name(cfg->log_level));
 
-    return 0;
+		sleep(READER_POLL_INTERVAL);
+	}
+
+	return 0;
 }

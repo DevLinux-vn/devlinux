@@ -3,129 +3,157 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <pthread.h>
-#include <errno.h>
 
 #define SHM_NAME "/device_shm"
+#define INPUT_MAX 64
 
 typedef struct {
-    pthread_mutex_t mutex;
-    int status; /* 0 = OFF, 1 = ON */
+	pthread_mutex_t mutex;
+	int status;		/* 0 = OFF, 1 = ON */
 } device_state_t;
 
-static void die(const char *msg) {
-    perror(msg);
-    exit(1);
+static device_state_t *g_state = NULL;
+static int g_mutex_initialized = 0;
+
+static void cleanup(void)
+{
+	if (g_state != NULL) {
+		if (g_mutex_initialized) {
+			if (pthread_mutex_destroy(&g_state->mutex) != 0)
+				fprintf(stderr, "Warning: pthread_mutex_destroy failed\n");
+		}
+
+		if (munmap(g_state, sizeof(device_state_t)) == -1)
+			perror("munmap");
+
+		g_state = NULL;
+	}
+
+	if (shm_unlink(SHM_NAME) == -1)
+		perror("shm_unlink");
 }
 
-int main(void) {
-    int fd = shm_open(SHM_NAME, O_CREAT | O_EXCL | O_RDWR, 0666);
-    if (fd == -1) {
-        die("shm_open");
-    }
-    if (ftruncate(fd, sizeof(device_state_t)) == -1) {
-        close(fd);
-        die("ftruncate");
-    }
+static void cleanup_signal(int sig)
+{
+	(void)sig;
 
-    device_state_t *state = mmap(NULL, sizeof(device_state_t),
-                                 PROT_READ | PROT_WRITE,
-                                 MAP_SHARED, fd, 0);
+	printf("\n[Controller] Cleaning up. Goodbye.\n");
+	cleanup();
+	exit(0);
+}
 
-    if (state == MAP_FAILED) {
-        close(fd);
-        die("mmap");
-    }
+static void die(const char *msg)
+{
+	perror(msg);
+	cleanup();
+	exit(1);
+}
 
-    close(fd);
+int main(void)
+{
+	int fd;
+	char input[INPUT_MAX];
+	pthread_mutexattr_t attr;
 
-    pthread_mutexattr_t attr;
+	if (signal(SIGINT, cleanup_signal) == SIG_ERR) {
+		perror("signal");
+		exit(1);
+	}
 
-    if (pthread_mutexattr_init(&attr) != 0) {
-        die("pthread_mutexattr_init");
-    }
+	fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
+	if (fd == -1) {
+		perror("shm_open");
+		exit(1);
+	}
 
-    if (pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED) != 0) {
-        die("pthread_mutexattr_setpshared");
-    }
+	if (ftruncate(fd, sizeof(device_state_t)) == -1) {
+		close(fd);
+		perror("ftruncate");
+		exit(1);
+	}
 
-    if (pthread_mutex_init(&state->mutex, &attr) != 0) {
-        die("pthread_mutex_init");
-    }
+	g_state = mmap(NULL, sizeof(device_state_t),
+		       PROT_READ | PROT_WRITE,
+		       MAP_SHARED, fd, 0);
 
-    if (pthread_mutexattr_destroy(&attr) != 0) {
-        die("pthread_mutexattr_destroy");
-    }
+	if (g_state == MAP_FAILED) {
+		g_state = NULL;
+		close(fd);
+		perror("mmap");
+		exit(1);
+	}
 
-    state->status = 0;
+	if (close(fd) == -1)
+		die("close");
 
-    printf("[Controller] Shared memory ready. Commands: on / off / quit\n");
+	if (pthread_mutexattr_init(&attr) != 0)
+		die("pthread_mutexattr_init");
 
-    char input[64];
+	if (pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED) != 0) {
+		pthread_mutexattr_destroy(&attr);
+		die("pthread_mutexattr_setpshared");
+	}
 
-    while (1) {
-        printf("> ");
+	if (pthread_mutex_init(&g_state->mutex, &attr) != 0) {
+		pthread_mutexattr_destroy(&attr);
+		die("pthread_mutex_init");
+	}
 
-        if (fgets(input, sizeof(input), stdin) == NULL) {
-            printf("\nEOF detected. Exiting.\n");
-            break;
-        }
+	g_mutex_initialized = 1;
 
-        input[strcspn(input, "\n")] = '\0';
+	if (pthread_mutexattr_destroy(&attr) != 0)
+		die("pthread_mutexattr_destroy");
 
-        if (strcmp(input, "quit") == 0) {
-            break;
-        }
+	g_state->status = 0;
 
-        if (strcmp(input, "on") == 0) {
-            if (pthread_mutex_lock(&state->mutex) != 0) {
-                die("pthread_mutex_lock");
-            }
+	printf("[Controller] Shared memory ready. Commands: on / off / quit\n");
 
-            state->status = 1;
+	while (1) {
+		printf("> ");
 
-            if (pthread_mutex_unlock(&state->mutex) != 0) {
-                die("pthread_mutex_unlock");
-            }
+		if (fgets(input, sizeof(input), stdin) == NULL) {
+			printf("\nEOF detected. Exiting.\n");
+			break;
+		}
 
-            printf("[Controller] Command sent: ON\n");
-        }
+		input[strcspn(input, "\n")] = '\0';
 
-        else if (strcmp(input, "off") == 0) {
-            if (pthread_mutex_lock(&state->mutex) != 0) {
-                die("pthread_mutex_lock");
-            }
+		if (strcmp(input, "quit") == 0)
+			break;
 
-            state->status = 0;
+		if (strcmp(input, "on") == 0) {
+			if (pthread_mutex_lock(&g_state->mutex) != 0)
+				die("pthread_mutex_lock");
 
-            if (pthread_mutex_unlock(&state->mutex) != 0) {
-                die("pthread_mutex_unlock");
-            }
+			g_state->status = 1;
 
-            printf("[Controller] Command sent: OFF\n");
-        }
+			if (pthread_mutex_unlock(&g_state->mutex) != 0)
+				die("pthread_mutex_unlock");
 
-        else {
-            printf("Unknown command. Use: on / off / quit\n");
-        }
-    }
+			printf("[Controller] Command sent: ON\n");
+		} else if (strcmp(input, "off") == 0) {
+			if (pthread_mutex_lock(&g_state->mutex) != 0)
+				die("pthread_mutex_lock");
 
-    printf("[Controller] Cleaning up. Goodbye.\n");
+			g_state->status = 0;
 
-    if (pthread_mutex_destroy(&state->mutex) != 0) {
-        die("pthread_mutex_destroy");
-    }
+			if (pthread_mutex_unlock(&g_state->mutex) != 0)
+				die("pthread_mutex_unlock");
 
-    if (munmap(state, sizeof(device_state_t)) == -1) {
-        die("munmap");
-    }
+			printf("[Controller] Command sent: OFF\n");
+		} else {
+			printf("Unknown command. Use: on / off / quit\n");
+		}
+	}
 
-    if (shm_unlink(SHM_NAME) == -1) {
-        die("shm_unlink");
-    }
+	printf("[Controller] Cleaning up. Goodbye.\n");
 
-    return 0;
+	cleanup();
+
+	return 0;
 }

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -std=c11
+CFLAGS=-Wall -Wextra -Werror -g -std=gnu99
 
 all: sensor-daemon sensor-cli
 
