@@ -201,3 +201,6 @@ Exercise_2/
 ├── Makefile      (required — targets: all, clean)
 └── *.h           (if any)
 ```
+
+
+<!-- resubmit session-01 only -->
