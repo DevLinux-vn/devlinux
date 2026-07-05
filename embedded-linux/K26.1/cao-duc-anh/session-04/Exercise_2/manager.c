@@ -1,13 +1,19 @@
+#include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/wait.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <sys/wait.h>
+#include <string.h>
 
-extern char **environ;
+char *data_path = "students.txt";
+char *envp[] = {"PATH=/bin:/usr/bin", NULL};
 
 int main(void)
 {
+    char input[100];
+
     printf("=============================================\n");
     printf("   STUDENT LOOKUP SYSTEM — MANAGER\n");
     printf("   (fork + execve | file: students.txt)\n");
@@ -15,54 +21,48 @@ int main(void)
     printf("[MANAGER] PID: %d\n", getpid());
     printf("Enter student ID ('quit' to exit).\n");
 
-    char id[64];
     while (1) {
         printf("\n---------------------------------------------\n");
         printf("Student ID: ");
         fflush(stdout);
 
-        if (scanf("%63s", id) != 1)
+        if (fgets(input, sizeof(input), stdin) == NULL)
             break;
 
-        if (strcmp(id, "quit") == 0) {
+        input[strcspn(input, "\n")] = '\0';
+
+        if (strcmp(input, "quit") == 0) {
             printf("[MANAGER] Exiting. Goodbye!\n");
             break;
         }
 
         fflush(stdout);
         pid_t pid = fork();
-
-        if (pid < 0) {
-            perror("fork");
-            exit(1);
-        }
-
-        if (pid == 0) {
-            /* Child: replace image with searcher */
-            char *args[] = {"./searcher", id, "students.txt", NULL};
-            execve("./searcher", args, environ);
-            /* execve() only returns if it fails — process image was NOT replaced */
-            perror("execve failed");
+        if (pid == -1) {
+            perror("[MANAGER] Error when create child process \n");
+        } else if (pid == 0) {
+            char *args[] = {"./searcher", input, data_path, NULL};
+            execve("./searcher", args, envp);
+            // Chỉ tới được đây nếu execve() thất bại — execve() thành công
+            // sẽ thay thế toàn bộ process image nên không bao giờ return.
+            perror("[MANAGER] Child error when run execve \n");
             exit(2);
-        }
+        } else {
+            printf("\n[MANAGER] fork() → child PID: %d\n", pid);
+            printf("[MANAGER] Waiting for child (waitpid)...\n\n");
+            fflush(stdout);
 
-        /* Parent */
-        printf("\n[MANAGER] fork() → child PID: %d\n", pid);
-        printf("[MANAGER] Waiting for child (waitpid)...\n\n");
-
-        int status;
-        waitpid(pid, &status, 0);
-
-        if (WIFEXITED(status)) {
-            int code = WEXITSTATUS(status);
-            if (code == 0)
-                printf("[MANAGER] Child (PID %d) exited. code=%d → Found\n", pid, code);
-            else if (code == 1)
-                printf("[MANAGER] Child (PID %d) exited. code=%d → Not found\n", pid, code);
-            else
-                printf("[MANAGER] Child (PID %d) exited. code=%d → Error\n", pid, code);
-        } else if (WIFSIGNALED(status)) {
-            printf("[MANAGER] Child (PID %d) killed by signal %d\n", pid, WTERMSIG(status));
+            int status;
+            waitpid(pid, &status, 0);
+            if (WIFEXITED(status)) {
+                int code = WEXITSTATUS(status);
+                const char *result = (code == 0) ? "Found"
+                                    : (code == 1) ? "Not found"
+                                                  : "Error";
+                printf("\n[MANAGER] Child (PID %d) exited. code=%d → %s\n", pid, code, result);
+            } else if (WIFSIGNALED(status)) {
+                printf("\n[MANAGER] Child (PID %d) killed by signal %d\n", pid, WTERMSIG(status));
+            }
         }
     }
 

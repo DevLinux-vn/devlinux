@@ -1,5 +1,5 @@
-CC      = gcc
-CFLAGS  = -Wall -Wextra
+CC = gcc
+CFLAGS = -Wall -Wextra -std=gnu11
 
 all: manager searcher
 
@@ -11,3 +11,5 @@ searcher: searcher.c
 
 clean:
 	rm -f manager searcher
+
+.PHONY: all clean
