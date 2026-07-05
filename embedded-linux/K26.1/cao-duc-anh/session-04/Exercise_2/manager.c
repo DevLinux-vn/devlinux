@@ -1,5 +1,4 @@
-#include <signal.h>
-#include <stdint.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -9,8 +8,9 @@
 
 #define INPUT_BUF_SIZE 100
 
+extern char **environ;
+
 char *data_path = "students.txt";
-char *envp[] = {"PATH=/bin:/usr/bin", NULL};
 
 int main(void)
 {
@@ -44,7 +44,7 @@ int main(void)
             perror("[MANAGER] Error when create child process \n");
         } else if (pid == 0) {
             char *args[] = {"./searcher", input, data_path, NULL};
-            execve("./searcher", args, envp);
+            execve("./searcher", args, environ);
             // Chỉ tới được đây nếu execve() thất bại — execve() thành công
             // sẽ thay thế toàn bộ process image nên không bao giờ return.
             perror("[MANAGER] Child error when run execve \n");
@@ -55,8 +55,14 @@ int main(void)
             fflush(stdout);
 
             int status;
-            waitpid(pid, &status, 0);
-            if (WIFEXITED(status)) {
+            pid_t w;
+            do {
+                w = waitpid(pid, &status, 0);
+            } while (w == -1 && errno == EINTR);
+
+            if (w == -1) {
+                perror("[MANAGER] waitpid");
+            } else if (WIFEXITED(status)) {
                 int code = WEXITSTATUS(status);
                 const char *result = (code == 0) ? "Found"
                                     : (code == 1) ? "Not found"

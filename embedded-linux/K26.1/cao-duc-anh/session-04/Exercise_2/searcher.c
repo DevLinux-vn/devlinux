@@ -38,7 +38,8 @@ int main(int argc, char *argv[]) {
         char *gpa_s = strtok(NULL, "|");
 
         if (id == NULL || name == NULL || class == NULL || gpa_s == NULL) {
-            continue; // dòng dữ liệu bị lỗi định dạng, bỏ qua
+            fprintf(stderr, "[SEARCHER] Skipping malformed line: %s\n", line);
+            continue;
         }
 
         if (strcmp(id, target_id) == 0) {
