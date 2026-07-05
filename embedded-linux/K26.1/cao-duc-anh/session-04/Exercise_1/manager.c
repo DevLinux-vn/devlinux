@@ -4,6 +4,8 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
+#define NUM_ORDERS 3
+
 typedef struct {
     int   id;
     char  name[50];
@@ -11,13 +13,13 @@ typedef struct {
     float unit_price;
 } Order;
 
-Order orders[3] = {
+Order orders[NUM_ORDERS] = {
     {1, "Backpack", 2, 350000},
     {2, "Shoes",    1, 500000},
     {3, "Hat",      3, 120000}
 };
 
-int pids[3];
+pid_t pids[NUM_ORDERS];
 
 void process_order(Order o) {
     float total = o.quantity * o.unit_price;
@@ -32,13 +34,14 @@ int main() {
     printf("===================================================\n");
     printf("   ORDER PROCESSING SYSTEM — MANAGER (fork+wait)\n");
     printf("===================================================\n");
-    printf("[MANAGER] PID: %d — spawning 3 child processes...\n\n", getpid());
+    printf("[MANAGER] PID: %d — spawning %d child processes...\n\n", getpid(), NUM_ORDERS);
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < NUM_ORDERS; i++) {
         fflush(stdout); // tránh child in lại buffer chưa flush của parent
         pid_t pid = fork(); // Gọi fork() để tạo tiến trình con
         if (pid == -1) {
-            printf("Error when create child process \n");
+            perror("[MANAGER] fork");
+            pids[i] = -1; // đánh dấu order này không có child, sẽ bỏ qua khi wait
         } else if (pid == 0) {
             process_order(orders[i]);
             exit(0);
@@ -47,12 +50,18 @@ int main() {
             printf("[MANAGER] fork() order #%d → child PID: %d\n", orders[i].id, pid);
         }
     }
-    printf("[MANAGER] All 3 children spawned. Starting waitpid()...\n\n");
+    printf("[MANAGER] All children spawned. Starting waitpid()...\n\n");
 
     int status;
     int success = 0;
+    int failed = 0;
     float total_revenue = 0;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < NUM_ORDERS; i++) {
+        if (pids[i] == -1) {
+            printf("[MANAGER] order #%d: skipped (fork failed)\n", orders[i].id);
+            failed++;
+            continue;
+        }
         waitpid(pids[i], &status, 0);
         if (WIFEXITED(status)) {
             printf("[MANAGER] waitpid(%d) — order #%d: exit code=%d → SUCCESS\n",
@@ -62,13 +71,14 @@ int main() {
         } else if (WIFSIGNALED(status)) {
             printf("[MANAGER] waitpid(%d) — order #%d: killed by signal %d\n",
                    pids[i], orders[i].id, WTERMSIG(status));
+            failed++;
         }
     }
 
     printf("\n================= SUMMARY =================\n");
-    printf("  Total orders    : %d\n", 3);
+    printf("  Total orders    : %d\n", NUM_ORDERS);
     printf("  Successful      : %d\n", success);
-    printf("  Failed          : %d\n", 3 - success);
+    printf("  Failed          : %d\n", failed);
     printf("  Total revenue   : %.0f VND\n", total_revenue);
     printf("===========================================\n");
     return 0;

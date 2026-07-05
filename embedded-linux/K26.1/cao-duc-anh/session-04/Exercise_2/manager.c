@@ -7,12 +7,14 @@
 #include <sys/wait.h>
 #include <string.h>
 
+#define INPUT_BUF_SIZE 100
+
 char *data_path = "students.txt";
 char *envp[] = {"PATH=/bin:/usr/bin", NULL};
 
 int main(void)
 {
-    char input[100];
+    char input[INPUT_BUF_SIZE];
 
     printf("=============================================\n");
     printf("   STUDENT LOOKUP SYSTEM — MANAGER\n");
