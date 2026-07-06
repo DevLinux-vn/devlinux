@@ -170,7 +170,7 @@ Sau khi fork xong, GitHub tự chuyển sang repo của bạn. Kiểm tra góc t
 
 ```
 TÊN_BẠN / devlinux
-forked from quocviet1026/devlinux
+forked from DevLinux-vn/devlinux
 ```
 
 ---
@@ -247,6 +247,16 @@ git pull
 # 2. Tạo branch mới cho buổi học và checkout sang branch đó
 git checkout -b tên-môn/KXX.X/tên-của-bạn/session-XX
 ```
+
+> ⚠️ **RẤT QUAN TRỌNG:** **LUÔN `git checkout master` TRƯỚC khi tạo branch session mới!**
+>
+> Nếu bạn quên `git checkout master` và tạo branch mới từ branch buổi cũ, PR của bạn sẽ chứa code từ **cả 2 buổi** → bị reject tự động.
+>
+> **Cách kiểm tra bạn đang ở master:**
+> ```bash
+> git branch   # phải thấy * master (có dấu *)
+> git log --oneline | head -1  # phải thấy commit mới nhất từ master
+> ```
 
 **Format branch bắt buộc:** `tên-môn/KXX.X/tên-của-bạn/session-XX`
 
@@ -327,6 +337,21 @@ session-01/
     └── Makefile
 ```
 
+> ⚠️ **RẤT QUAN TRỌNG:** Chỉ được tạo/sửa file **TRONG Exercise folders**!
+>
+> ❌ **KHÔNG được tạo:**
+> - `session-01/debug.c` (ngoài Exercise)
+> - `session-01/config.h` (ngoài Exercise)
+> - `session-01/test.c` (ngoài Exercise)
+> - `session-01/.gitignore` (ngoài Exercise)
+>
+> ✅ **CHỈ được tạo trong:**
+> - `session-01/Exercise_1/main.c`
+> - `session-01/Exercise_1/Makefile`
+> - `session-01/Exercise_2/...`
+>
+> Nếu cần file helper (debug, config, test), **đặt nó TRONG Exercise folder**, không ở root session.
+
 > ⚠️ Mỗi Exercise trong đề bài có ghi rõ loại:
 > - `[build]` — **bắt buộc có Makefile**, hệ thống sẽ build và chạy thử. Không có Makefile → điểm 0 toàn bài.
 > - `[review-only]` — không cần Makefile, hệ thống chỉ review code tĩnh (Yocto recipe, Device Tree, v.v.).
@@ -361,7 +386,7 @@ Phần sau `origin` là tên branch — phải khớp với branch đang làm vi
 3. Kiểm tra 4 trường như ví dụ sau:
 
 ```
-base repository: quocviet1026/devlinux  ←  base: master
+base repository: DevLinux-vn/devlinux  ←  base: master
 head repository: nguyen-van-a/devlinux  ←  compare: embedded-linux/K26.1/nguyen-van-a/session-01
 ```
 
@@ -398,9 +423,9 @@ Hệ thống sẽ **tự động close PR và báo lý do** nếu vi phạm mộ
 
 | Lý do bị reject | Cách khắc phục |
 |---|---|
-| Nộp file từ nhiều session cùng lúc (vd: session-01 + session-03) | Mỗi PR chỉ nộp **1 session duy nhất**. Tạo PR riêng cho mỗi session |
-| Sửa file ngoài thư mục session (vd: `README.md`, `class.json` ở root) | Chỉ được tạo/sửa file bên trong thư mục session của bạn |
-| Sửa file không phải Exercise folders (vd: sửa `homework.md`) | Chỉ được tạo/sửa file **trong** `Exercise_N/` folders |
+| Nộp file từ nhiều session cùng lúc (vd: session-01 + session-03) | **Nguyên nhân:** Quên `git checkout master` trước khi tạo branch session-02. Branch mới được tạo từ session-01 → kéo theo code cũ. **Cách khắc phục:** LUÔN quay về master trước tạo branch buổi mới: `git checkout master && git pull` rồi mới `git checkout -b embedded-linux/K26.1/ten-ban/session-02`. Nếu tạo sai, đóng PR cũ và tạo PR mới từ branch đúng. |
+| Sửa hoặc tạo file ngoài Exercise folders | **Chỉ được tạo/sửa file TRONG `Exercise_N/` folders.** Không được tạo/sửa: `homework.md`, `debug.c`, `config.h`, `.gitignore`, v.v. ở ngoài Exercise folders (dù là bên trong session folder). Mỗi file phụ trợ phải nằm bên trong Exercise folder tương ứng. |
+| Sửa file ở root repo (vd: `README.md`, `class.json`) | Chỉ được tạo/sửa file bên trong thư mục session của bạn (`{môn}/{khoá}/{tên-bạn}/{session-XX}/`). Không được sửa files ở root repo |
 
 ### **3️⃣ Kiểm tra Bài Tập**
 

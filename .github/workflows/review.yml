@@ -29,25 +29,42 @@ jobs:
           ref: master
           path: base-code
 
-      # 1c. Extract subject and course from branch name for labeling
-      - name: Extract subject and course from branch
-        id: branch_info
-        run: |
-          BRANCH="${{ github.event.pull_request.head.ref }}"
-          # Branch format: embedded-linux/K26.1/student-name/session-XX
-          SUBJECT=$(echo $BRANCH | cut -d'/' -f1)
-          COURSE=$(echo $BRANCH | cut -d'/' -f2)
-          echo "subject=$SUBJECT" >> $GITHUB_OUTPUT
-          echo "course=$COURSE" >> $GITHUB_OUTPUT
-
-      # 1d. Add labels to PR (subject and course)
+      # 1c. Add labels to PR based on branch name (dynamic, no hard-coding)
       - name: Add labels to PR
         run: |
-          gh pr edit ${{ github.event.pull_request.number }} \
-            --add-label "${{ steps.branch_info.outputs.subject }}" \
-            --add-label "${{ steps.branch_info.outputs.course }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          python3 << 'EOF'
+          import re
+          import requests
+
+          BRANCH = "${{ github.event.pull_request.head.ref }}"
+          PR_NUMBER = ${{ github.event.pull_request.number }}
+          REPO = "${{ github.repository }}"
+          TOKEN = "${{ secrets.GITHUB_TOKEN }}"
+
+          # Parse branch: subject/course/student/session-XX
+          match = re.match(r'([^/]+)/([^/]+)/', BRANCH)
+          if not match:
+              print(f"⚠️  Branch '{BRANCH}' không match format")
+              exit(0)
+
+          subject, course = match.groups()
+          labels = [subject, course]
+
+          # Add labels via GitHub API
+          headers = {
+              "Authorization": f"token {TOKEN}",
+              "Accept": "application/vnd.github.v3+json"
+          }
+
+          url = f"https://api.github.com/repos/{REPO}/issues/{PR_NUMBER}/labels"
+          response = requests.post(url, headers=headers, json={"labels": labels})
+
+          if response.status_code == 200:
+              print(f"✅ PR #{PR_NUMBER}: Added labels '{subject}', '{course}'")
+          else:
+              print(f"❌ Failed: {response.text}")
+              exit(1)
+          EOF
 
       # 2. Setup SSH để clone private repo
       - name: Setup SSH Deploy Key
