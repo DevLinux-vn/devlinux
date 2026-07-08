@@ -4,5 +4,6 @@
     "student-name-2": "P2",
     "student-name-3": "P3",
     "student-name-4": "P4"
-  }
+  },
+  "reviewers": ["teacher-1", "teacher-2"]
 }
