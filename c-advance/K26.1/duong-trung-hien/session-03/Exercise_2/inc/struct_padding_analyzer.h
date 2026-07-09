@@ -62,4 +62,4 @@ void print_packed_info(void);
  */
 void demonstrate_packed_access(void);
 
-#endif
+#endif /* STRUCT_PADDING_ANALYZER_H */

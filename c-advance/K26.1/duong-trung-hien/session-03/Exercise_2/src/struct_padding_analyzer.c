@@ -40,7 +40,9 @@ void demonstrate_packed_access(void)
 {
     packed_t data;
     data.i = 10;
-    // int *p_data = &data.i;
+    
+    // Warning: unaligned pointer
+    // int *p_data = &data.i; 
     // *p_data = 20;
 
     if (data.i == 10)

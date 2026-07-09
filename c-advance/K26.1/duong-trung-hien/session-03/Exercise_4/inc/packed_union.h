@@ -45,4 +45,4 @@ typedef struct __attribute__((packed)) {
  */
 void union_size(void);
 
-#endif
+#endif /* PACKED_UNION_H */

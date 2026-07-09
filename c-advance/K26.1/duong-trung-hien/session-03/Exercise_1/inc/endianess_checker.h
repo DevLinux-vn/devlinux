@@ -62,4 +62,4 @@ endian_type_t endianess_checker(const endian_checker_u *p_checker, uint32_t valu
  */
 void endianess_print(const endian_checker_u *p_checker, uint32_t value, endian_type_t type);
 
-#endif
+#endif /* ENDIANESS_CHECKER_H */

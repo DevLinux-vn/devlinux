@@ -50,9 +50,11 @@ int main()
     }
     else
     {
+        fprintf(stderr, "Memory allocation failed\n");
         return -1;
     }
 
     free(p_checker);
+    p_checker = NULL;
     return 0;
 }

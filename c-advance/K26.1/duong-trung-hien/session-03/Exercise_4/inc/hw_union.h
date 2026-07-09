@@ -38,4 +38,4 @@ typedef union {
  */
 void peripheral_union(hw_reg_t *p_reg);
 
-#endif
+#endif /* HW_UNION_H */

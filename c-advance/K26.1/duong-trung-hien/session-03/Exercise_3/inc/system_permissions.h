@@ -42,4 +42,4 @@ const char *permission_to_string(uint8_t required_perms);
  */
 void result_check(uint8_t user_perms, uint8_t required_perms);
 
-#endif
+#endif /* SYSTEM_PERMISSIONS_H */
