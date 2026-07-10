@@ -156,7 +156,7 @@ void display_message(const char *line)
 
 void chat_loop(int sock, const char *username)
 {
-	char send_buf[BUFFER_SIZE];
+	char input_line[BUFFER_SIZE];
 	char recv_buf[BUFFER_SIZE];
 	int recv_len;
 	fd_set readfds;
@@ -194,8 +194,7 @@ void chat_loop(int sock, const char *username)
 
 			recv_buf[recv_len] = '\0';
 
-			if (strlen(send_buf) > 0)
-				printf("\n");
+			printf("\n");
 
 			char *pos = recv_buf;
 			char *newline;
@@ -205,61 +204,48 @@ void chat_loop(int sock, const char *username)
 				pos = newline + 1;
 			}
 
-			printf("> %s", send_buf);
+			printf("> ");
 			fflush(stdout);
 		}
 
 		if (FD_ISSET(STDIN_FILENO, &readfds)) {
-			int ch = getchar();
+			if (fgets(input_line, sizeof(input_line), stdin) == NULL) {
+				break;
+			}
 
-			if (ch == '\n') {
-				char trimmed[BUFFER_SIZE];
-				strcpy(trimmed, send_buf);
+			input_line[strcspn(input_line, "\n")] = '\0';
 
-				if (strlen(trimmed) == 0) {
-					printf("> ");
-					fflush(stdout);
-					continue;
-				}
-
-				printf("\n");
-
-				if (strncmp(trimmed, "/quit", 5) == 0) {
-					snprintf(send_buf, sizeof(send_buf), "LOGOUT\n");
-					send(sock, send_buf, strlen(send_buf), 0);
-					printf("[!] Logged out.\n");
-					break;
-				} else if (strncmp(trimmed, "/who", 4) == 0) {
-					snprintf(send_buf, sizeof(send_buf), "USERLIST\n");
-					send(sock, send_buf, strlen(send_buf), 0);
-				} else if (strncmp(trimmed, "/help", 5) == 0) {
-					show_help();
-				} else {
-					int maxlen = (int)sizeof(send_buf) - 6;
-					snprintf(send_buf, sizeof(send_buf), "MSG:%.*s\n",
-						maxlen > 0 ? maxlen : 0, trimmed);
-					send(sock, send_buf, strlen(send_buf), 0);
-				}
-
-				memset(send_buf, 0, sizeof(send_buf));
+			if (strlen(input_line) == 0) {
 				printf("> ");
 				fflush(stdout);
-			} else if (ch == EOF) {
-				break;
-			} else if (ch == '\b' || ch == 127) {
-				if (strlen(send_buf) > 0)
-					send_buf[strlen(send_buf) - 1] = '\0';
-				printf("\b \b");
-				fflush(stdout);
-			} else if (ch >= 32 && ch < 127) {
-				size_t len = strlen(send_buf);
-				if (len < sizeof(send_buf) - 1) {
-					send_buf[len] = ch;
-					send_buf[len + 1] = '\0';
-					printf("%c", ch);
-					fflush(stdout);
-				}
+				continue;
 			}
+
+			if (strncmp(input_line, "/quit", 5) == 0) {
+				char buf[BUFFER_SIZE];
+				snprintf(buf, sizeof(buf), "LOGOUT\n");
+				send(sock, buf, strlen(buf), 0);
+				printf("[!] Logged out.\n");
+				break;
+			} else if (strncmp(input_line, "/who", 4) == 0) {
+				char buf[BUFFER_SIZE];
+				snprintf(buf, sizeof(buf), "USERLIST\n");
+				send(sock, buf, strlen(buf), 0);
+			} else if (strncmp(input_line, "/help", 5) == 0) {
+				show_help();
+				printf("> ");
+				fflush(stdout);
+				continue;
+			} else {
+				char buf[BUFFER_SIZE];
+				int maxlen = (int)sizeof(buf) - 6;
+				snprintf(buf, sizeof(buf), "MSG:%.*s\n",
+					maxlen > 0 ? maxlen : 0, input_line);
+				send(sock, buf, strlen(buf), 0);
+			}
+
+			printf("> ");
+			fflush(stdout);
 		}
 	}
 }
