@@ -10,9 +10,6 @@
 #define MAX_MESSAGE 256
 #define MAX_CLIENTS 100
 
-extern int epfd;
-extern int client_count;
-
 typedef struct {
 	int fd;
 	char username[64];
@@ -44,22 +41,6 @@ void save_message_log(const char *username, const char *text)
 
 	flock(fileno(fp), LOCK_UN);
 	fclose(fp);
-}
-
-void broadcast_message(const char *username, const char *text)
-{
-	int i;
-	char buf[512];
-
-	snprintf(buf, sizeof(buf), "FROM:%s:%s\n", username, text);
-
-	for (i = 0; i < MAX_CLIENTS; i++) {
-		if (clients[i].fd >= 0 && clients[i].authenticated) {
-			send_message(&clients[i], buf);
-		}
-	}
-
-	save_message_log(username, text);
 }
 
 void send_message_history(int client_fd, const char *username)

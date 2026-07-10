@@ -1,40 +1,55 @@
-# Chat Server — P3 Project
+# Chat Server & Client — P3 Project
 
-Multi-user chat server using epoll for concurrent connection handling.
+Multi-user chat server using epoll for concurrent connection handling, with CLI client.
 
 ## Quick Start
 
 ```bash
-make              # Build chat-server
-./build/chat-server  # Run server (listens on port 5000)
+make                      # Build both server and client
+./build/chat-server       # Terminal 1: Run server (listens on port 5000)
+./build/chat-client       # Terminal 2+: Run client(s)
 ```
 
 ## Project Structure
 
 ```
 .
-├── src/           # Source files (.c)
-│   ├── main.c     # epoll event loop, client management
-│   ├── auth.c     # User authentication, password hashing
-│   └── message.c  # Message broadcast, persistence
-├── inc/           # Header files (.h)
-│   └── chat.h     # Shared definitions
-├── build/         # Build artifacts (git ignored)
-│   └── obj/       # Object files
-├── test/          # Unit tests
-├── doc/           # Documentation
-├── Makefile       # Build system
-└── README.md      # This file
+├── src/
+│   ├── server/            # Server implementation
+│   │   ├── main.c         # epoll event loop, client management
+│   │   ├── auth.c         # User authentication, password hashing
+│   │   ├── broadcast.c    # Message broadcast
+│   │   └── history.c      # Message persistence & history
+│   └── client/            # Client CLI
+│       └── main.c         # Interactive chat client
+├── inc/                   # Header files
+│   └── chat.h             # Shared definitions
+├── build/                 # Build artifacts (git ignored)
+│   ├── chat-server        # Server executable
+│   ├── chat-client        # Client executable
+│   └── obj/               # Object files
+├── test/                  # Test directory
+├── doc/                   # Documentation directory
+├── Makefile               # Build system
+└── README.md              # This file
 ```
 
 ## Features
 
+### Server
 - **Single-threaded**: Epoll-based event loop (NOT thread-per-client)
 - **Non-blocking I/O**: Proper EAGAIN/EWOULDBLOCK handling
 - **Authentication**: SHA256 password hashing with salt
 - **Persistence**: Message history logging with file locking
 - **Concurrent**: Supports 100+ simultaneous clients
-- **Protocol**: TEXT-based (LOGIN, MSG, USERLIST, LOGOUT, HISTORY)
+- **Protocol**: TEXT-based (LOGIN, MSG, USERLIST, LOGOUT, HISTORY, REGISTER)
+
+### Client
+- **Interactive CLI**: Real-time message input/output
+- **Login/Register**: User account management
+- **Commands**: `/who`, `/help`, `/quit`
+- **Message History**: Displays previous messages on join
+- **Non-blocking**: Handles server messages while typing
 
 ## Building
 
@@ -43,6 +58,38 @@ make              # Build
 make clean        # Remove build artifacts
 make rebuild      # Clean and build
 make help         # Show targets
+```
+
+## Client Usage
+
+```
+╔═══════════════════════════════════════╗
+║     DevLinux Chat Client v1.0         ║
+╚═══════════════════════════════════════╝
+Server: 127.0.0.1:5000
+
+Login or Register? [login/register]: login
+Username: alice
+Password: mypass123
+[✓] Login successful!
+
+[Connected as alice]
+┌─ Available Commands ─────────────────────────────┐
+│ /who              - List online users            │
+│ /help             - Show this help               │
+│ /quit             - Exit chat                    │
+│ (other text)      - Send message to all users    │
+└──────────────────────────────────────────────────┘
+
+> hello everyone
+[alice] alice: hello everyone
+[bob] bob: hi there!
+> /who
+[users] Online: alice,bob,charlie
+> /quit
+[!] Logged out.
+
+Goodbye!
 ```
 
 ## Testing
