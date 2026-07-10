@@ -100,17 +100,26 @@ void handle_register(int sock, char *username, char *password)
 {
 	char buf[BUFFER_SIZE];
 	int len;
+	fd_set readfds;
+	struct timeval tv;
 
 	snprintf(buf, sizeof(buf), "REGISTER:%s:%s\n", username, password);
 	send(sock, buf, strlen(buf), 0);
 
-	memset(buf, 0, sizeof(buf));
-	len = recv(sock, buf, sizeof(buf) - 1, 0);
-	if (len > 0) {
-		buf[len] = '\0';
-		if (strncmp(buf, "OK:REGISTER", 11) == 0) {
-			printf("[✓] Registration successful! Logging in...\n\n");
-			return;
+	FD_ZERO(&readfds);
+	FD_SET(sock, &readfds);
+	tv.tv_sec = 3;
+	tv.tv_usec = 0;
+
+	if (select(sock + 1, &readfds, NULL, NULL, &tv) > 0) {
+		memset(buf, 0, sizeof(buf));
+		len = recv(sock, buf, sizeof(buf) - 1, 0);
+		if (len > 0) {
+			buf[len] = '\0';
+			if (strncmp(buf, "OK:REGISTER", 11) == 0) {
+				printf("[✓] Registration successful!\n\n");
+				return;
+			}
 		}
 	}
 

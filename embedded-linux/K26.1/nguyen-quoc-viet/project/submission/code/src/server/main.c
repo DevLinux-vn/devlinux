@@ -33,6 +33,7 @@ int epfd;
 volatile int running = 1;
 
 extern int authenticate_user(const char *username, const char *password);
+extern int register_user(const char *username, const char *password);
 extern void broadcast_message(const char *username, const char *text);
 extern void send_message_history(int client_fd, const char *username);
 
@@ -45,6 +46,7 @@ void handle_client_event(int fd, uint32_t events);
 void process_input(client_t *client);
 void route_message(client_t *client, const char *message);
 void handle_login(client_t *client, const char *credentials);
+void handle_register(client_t *client, const char *credentials);
 void handle_message(client_t *client, const char *text);
 void handle_logout(client_t *client);
 void handle_userlist(client_t *client);
@@ -169,17 +171,22 @@ void handle_client_event(int fd, uint32_t events)
 		return;
 
 	if (events & EPOLLIN) {
+		if (client->input_len >= BUFFER_SIZE - 1) {
+			close_client(client);
+			return;
+		}
 		ssize_t n = read(fd, &client->input_buffer[client->input_len],
-			BUFFER_SIZE - client->input_len);
+			BUFFER_SIZE - 1 - client->input_len);
 		if (n < 0) {
 			if (errno != EAGAIN && errno != EWOULDBLOCK)
 				close_client(client);
+			return;
 		} else if (n == 0) {
 			close_client(client);
-		} else {
-			client->input_len += n;
-			process_input(client);
+			return;
 		}
+		client->input_len += n;
+		process_input(client);
 	}
 
 	if (events & EPOLLOUT && client->fd >= 0) {
@@ -202,27 +209,45 @@ void handle_client_event(int fd, uint32_t events)
 
 void process_input(client_t *client)
 {
-	char *newline;
+	int i, newline_pos = -1;
 	char message[BUFFER_SIZE];
-	int msg_len;
 
-	while ((newline = memchr(client->input_buffer, '\n', client->input_len)) != NULL) {
-		msg_len = newline - client->input_buffer;
-		if (msg_len > 0)
-			memcpy(message, client->input_buffer, msg_len);
-		message[msg_len] = '\0';
-
-		route_message(client, message);
-
-		memmove(client->input_buffer, newline + 1, client->input_len - msg_len - 1);
-		client->input_len -= (msg_len + 1);
+	for (i = 0; i < client->input_len; i++) {
+		if (client->input_buffer[i] == '\n') {
+			newline_pos = i;
+			break;
+		}
 	}
+
+	if (newline_pos < 0)
+		return;
+
+	if (newline_pos >= BUFFER_SIZE - 1) {
+		client->input_len = 0;
+		return;
+	}
+
+	memcpy(message, client->input_buffer, newline_pos);
+	message[newline_pos] = '\0';
+
+	route_message(client, message);
+
+	int remaining = client->input_len - newline_pos - 1;
+	if (remaining > 0) {
+		memmove(client->input_buffer, &client->input_buffer[newline_pos + 1], remaining);
+	}
+	client->input_len = remaining;
+
+	if (remaining > 0)
+		process_input(client);
 }
 
 void route_message(client_t *client, const char *message)
 {
 	if (strncmp(message, "LOGIN:", 6) == 0) {
 		handle_login(client, message + 6);
+	} else if (strncmp(message, "REGISTER:", 9) == 0) {
+		handle_register(client, message + 9);
 	} else if (strncmp(message, "MSG:", 4) == 0) {
 		handle_message(client, message + 4);
 	} else if (strcmp(message, "LOGOUT") == 0) {
@@ -268,6 +293,35 @@ void handle_login(client_t *client, const char *credentials)
 		} else {
 			send_error(client, "INVALID_CREDENTIALS");
 		}
+	}
+}
+
+void handle_register(client_t *client, const char *credentials)
+{
+	char username[64], password[256];
+	const char *colon = strchr(credentials, ':');
+
+	if (!colon) {
+		send_error(client, "INVALID_FORMAT");
+		return;
+	}
+
+	int user_len = colon - credentials;
+	if (user_len >= 64)
+		user_len = 63;
+
+	strncpy(username, credentials, user_len);
+	username[user_len] = '\0';
+	strcpy(password, colon + 1);
+
+	if (register_user(username, password)) {
+		strcpy(client->username, username);
+		client->authenticated = 1;
+		client->failed_attempts = 0;
+		send_message(client, "OK:REGISTER\n");
+		send_message_history(client->fd, username);
+	} else {
+		send_error(client, "REGISTER_FAILED");
 	}
 }
 
