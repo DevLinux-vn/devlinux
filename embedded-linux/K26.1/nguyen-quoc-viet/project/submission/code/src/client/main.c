@@ -38,6 +38,7 @@ void show_help(void)
 {
 	printf("\n┌─ Available Commands ─────────────────────────────┐\n");
 	printf("│ /who              - List online users            │\n");
+	printf("│ /all-users        - List all registered users    │\n");
 	printf("│ /help             - Show this help               │\n");
 	printf("│ /quit             - Exit chat                    │\n");
 	printf("│ (other text)      - Send message to all users    │\n");
@@ -145,6 +146,11 @@ void display_message(const char *line)
 		}
 	} else if (strncmp(line, "USERS:", 6) == 0) {
 		printf("[users] Online: %s\n", line + 6);
+	} else if (strncmp(line, "ALLUSERS:", 9) == 0) {
+		printf("\n[📋 Registered Users]\n");
+		printf("─────────────────────────────────────────\n");
+	} else if (strncmp(line, "ALLUSERS:", 9) != 0 && strlen(line) > 0 && line[0] != '[' && strchr(line, '|')) {
+		printf("%s\n", line);
 	} else if (strncmp(line, "ERR:", 4) == 0) {
 		printf("[!] Server error: %s\n", line + 4);
 	} else if (strncmp(line, "OK:", 3) == 0) {
@@ -230,6 +236,10 @@ void chat_loop(int sock, const char *username)
 			} else if (strncmp(input_line, "/who", 4) == 0) {
 				char buf[BUFFER_SIZE];
 				snprintf(buf, sizeof(buf), "USERLIST\n");
+				send(sock, buf, strlen(buf), 0);
+			} else if (strncmp(input_line, "/all-users", 10) == 0) {
+				char buf[BUFFER_SIZE];
+				snprintf(buf, sizeof(buf), "ALLUSERS\n");
 				send(sock, buf, strlen(buf), 0);
 			} else if (strncmp(input_line, "/help", 5) == 0) {
 				show_help();

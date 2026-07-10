@@ -16,6 +16,7 @@ typedef struct {
 	int fd;
 	char username[64];
 	int authenticated;
+	struct sockaddr_in addr;
 } client_t;
 
 client_t clients[MAX_CLIENTS];
@@ -27,6 +28,7 @@ extern int authenticate_user(const char *username, const char *password);
 extern int register_user(const char *username, const char *password);
 extern void broadcast_message(const char *username, const char *text);
 extern void send_message_history(int client_fd, const char *username);
+extern void send_all_users_list(int client_fd);
 
 void signal_handler(int sig)
 {
@@ -201,6 +203,8 @@ void route_message(client_t *client, const char *message)
 		handle_logout(client);
 	} else if (strcmp(message, "USERLIST") == 0) {
 		handle_userlist(client);
+	} else if (strcmp(message, "ALLUSERS") == 0) {
+		send_all_users_list(client->fd);
 	} else if (strcmp(message, "HISTORY") == 0) {
 		if (client->authenticated)
 			send_message_history(client->fd, client->username);
@@ -270,6 +274,7 @@ int main(int argc, char *argv[])
 			if (clients[i].fd < 0) {
 				clients[i].fd = client_fd;
 				clients[i].authenticated = 0;
+				clients[i].addr = client_addr;
 				found = 1;
 				break;
 			}
