@@ -74,7 +74,7 @@ int connect_to_server(void)
 	return sock;
 }
 
-void handle_login(int sock, char *username, char *password)
+int handle_login(int sock, char *username, char *password)
 {
 	char buf[BUFFER_SIZE];
 	int len;
@@ -88,15 +88,15 @@ void handle_login(int sock, char *username, char *password)
 		buf[len] = '\0';
 		if (strncmp(buf, "OK:LOGIN", 8) == 0) {
 			printf("[✓] Login successful!\n\n");
-			return;
+			return 1;
 		}
 	}
 
-	printf("[!] Login failed. Server error or invalid credentials.\n");
-	exit(EXIT_FAILURE);
+	printf("[!] Login failed: Invalid username or password.\n");
+	return 0;
 }
 
-void handle_register(int sock, char *username, char *password)
+int handle_register(int sock, char *username, char *password)
 {
 	char buf[BUFFER_SIZE];
 	int len;
@@ -118,13 +118,13 @@ void handle_register(int sock, char *username, char *password)
 			buf[len] = '\0';
 			if (strncmp(buf, "OK:REGISTER", 11) == 0) {
 				printf("[✓] Registration successful!\n\n");
-				return;
+				return 1;
 			}
 		}
 	}
 
-	printf("[!] Registration failed.\n");
-	exit(EXIT_FAILURE);
+	printf("[!] Registration failed: Username may already exist or server error.\n");
+	return 0;
 }
 
 void display_message(const char *line)
@@ -271,22 +271,41 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	printf("Login or Register? [login/register]: ");
-	fgets(choice, sizeof(choice), stdin);
-	choice[strcspn(choice, "\n")] = '\0';
+	while (1) {
+		printf("Login or Register? [login/register]: ");
+		fgets(choice, sizeof(choice), stdin);
+		choice[strcspn(choice, "\n")] = '\0';
 
-	printf("Username: ");
-	fgets(username, sizeof(username), stdin);
-	username[strcspn(username, "\n")] = '\0';
+		printf("Username: ");
+		fgets(username, sizeof(username), stdin);
+		username[strcspn(username, "\n")] = '\0';
 
-	printf("Password: ");
-	fgets(password, sizeof(password), stdin);
-	password[strcspn(password, "\n")] = '\0';
+		printf("Password: ");
+		fgets(password, sizeof(password), stdin);
+		password[strcspn(password, "\n")] = '\0';
 
-	if (strcmp(choice, "register") == 0) {
-		handle_register(sock, username, password);
-	} else {
-		handle_login(sock, username, password);
+		int success = 0;
+		if (strcmp(choice, "register") == 0) {
+			success = handle_register(sock, username, password);
+		} else {
+			success = handle_login(sock, username, password);
+		}
+
+		if (success) {
+			break;
+		}
+
+		printf("\nTry again? [yes/no]: ");
+		char retry[16];
+		fgets(retry, sizeof(retry), stdin);
+		retry[strcspn(retry, "\n")] = '\0';
+
+		if (strcmp(retry, "no") == 0 || strcmp(retry, "n") == 0) {
+			close(sock);
+			printf("Goodbye!\n");
+			return EXIT_SUCCESS;
+		}
+		printf("\n");
 	}
 
 	fcntl(sock, F_SETFL, O_NONBLOCK);
