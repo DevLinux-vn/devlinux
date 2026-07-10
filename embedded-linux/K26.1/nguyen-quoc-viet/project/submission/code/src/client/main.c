@@ -222,6 +222,8 @@ void chat_loop(int sock, const char *username)
 					continue;
 				}
 
+				printf("\n");
+
 				if (strncmp(trimmed, "/quit", 5) == 0) {
 					snprintf(send_buf, sizeof(send_buf), "LOGOUT\n");
 					send(sock, send_buf, strlen(send_buf), 0);
