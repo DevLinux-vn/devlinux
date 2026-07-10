@@ -12,6 +12,8 @@
 #include <sys/types.h>
 #include "colors.h"
 
+void display_message(const char *line);
+
 #define SERVER_HOST "127.0.0.1"
 #define SERVER_PORT 5000
 #define BUFFER_SIZE 4096
@@ -83,17 +85,42 @@ int handle_login(int sock, char *username, char *password)
 {
 	char buf[BUFFER_SIZE];
 	int len;
+	fd_set readfds;
+	struct timeval tv;
 
 	snprintf(buf, sizeof(buf), "LOGIN:%s:%s\n", username, password);
 	send(sock, buf, strlen(buf), 0);
 
-	memset(buf, 0, sizeof(buf));
-	len = recv(sock, buf, sizeof(buf) - 1, 0);
-	if (len > 0) {
-		buf[len] = '\0';
-		if (strncmp(buf, "OK:LOGIN", 8) == 0) {
-			printf(COLOR_GREEN "✅ Login successful!" COLOR_RESET "\n\n");
-			return 1;
+	FD_ZERO(&readfds);
+	FD_SET(sock, &readfds);
+	tv.tv_sec = 3;
+	tv.tv_usec = 0;
+
+	if (select(sock + 1, &readfds, NULL, NULL, &tv) > 0) {
+		memset(buf, 0, sizeof(buf));
+		len = recv(sock, buf, sizeof(buf) - 1, 0);
+		if (len > 0) {
+			buf[len] = '\0';
+
+			char *pos = buf;
+			char *newline;
+			int success = 0;
+
+			while ((newline = strchr(pos, '\n')) != NULL) {
+				*newline = '\0';
+				if (strncmp(pos, "OK:LOGIN", 8) == 0) {
+					success = 1;
+					pos = newline + 1;
+					continue;
+				}
+				display_message(pos);
+				pos = newline + 1;
+			}
+
+			if (success) {
+				printf(COLOR_GREEN "✅ Login successful!" COLOR_RESET "\n\n");
+				return 1;
+			}
 		}
 	}
 
@@ -121,7 +148,23 @@ int handle_register(int sock, char *username, char *password)
 		len = recv(sock, buf, sizeof(buf) - 1, 0);
 		if (len > 0) {
 			buf[len] = '\0';
-			if (strncmp(buf, "OK:REGISTER", 11) == 0) {
+
+			char *pos = buf;
+			char *newline;
+			int success = 0;
+
+			while ((newline = strchr(pos, '\n')) != NULL) {
+				*newline = '\0';
+				if (strncmp(pos, "OK:REGISTER", 11) == 0) {
+					success = 1;
+					pos = newline + 1;
+					continue;
+				}
+				display_message(pos);
+				pos = newline + 1;
+			}
+
+			if (success) {
 				printf(COLOR_GREEN "✅ Registration successful!" COLOR_RESET "\n\n");
 				return 1;
 			}
@@ -153,7 +196,7 @@ void display_message(const char *line)
 	} else if (strncmp(line, "ALLUSERS:", 9) == 0) {
 		printf("\n" COLOR_BRIGHT_CYAN "📋 Registered Users" COLOR_RESET "\n");
 		printf(COLOR_BRIGHT_CYAN "─────────────────────────────────────────" COLOR_RESET "\n");
-	} else if (strncmp(line, "ALLUSERS:", 9) != 0 && strlen(line) > 0 && line[0] != '[' && strchr(line, '|')) {
+	} else if (strchr(line, '|') && strchr(line, ':')) {
 		printf(COLOR_DIM "  %s" COLOR_RESET "\n", line);
 	} else if (strncmp(line, "ERR:", 4) == 0) {
 		printf(COLOR_RED "❌ Error: %s" COLOR_RESET "\n", line + 4);

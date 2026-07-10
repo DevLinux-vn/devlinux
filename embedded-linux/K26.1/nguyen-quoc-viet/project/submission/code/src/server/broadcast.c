@@ -3,14 +3,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <pthread.h>
-
-#define MAX_CLIENTS 100
-
-typedef struct {
-	int fd;
-	char username[64];
-	int authenticated;
-} client_t;
+#include "chat.h"
 
 extern client_t clients[MAX_CLIENTS];
 extern pthread_mutex_t clients_mutex;

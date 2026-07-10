@@ -7,16 +7,9 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include "chat.h"
 
-#define MAX_CLIENTS 100
 #define ACCOUNTS_FILE "accounts.db"
-
-typedef struct {
-	int fd;
-	char username[64];
-	int authenticated;
-	struct sockaddr_in addr;
-} client_t;
 
 extern client_t clients[MAX_CLIENTS];
 extern pthread_mutex_t clients_mutex;
