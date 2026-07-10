@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Setup new class folder structure
-# Usage: ./setup-new-class.sh <subject> <course>
-# Example: ./setup-new-class.sh embedded-linux K26.2
+# Usage: ./setup_new_class.sh <subject> <course>
+# Example: ./setup_new_class.sh embedded-linux K26.2
 
 set -e
 
@@ -64,15 +64,12 @@ if [ ! -f "$CLASS_DIR/class.json" ]; then
     echo -e "${GREEN}Creating class.json template...${NC}"
     cat > "$CLASS_DIR/class.json" << 'EOF'
 {
-  "subject": "SUBJECT_NAME",
-  "course": "COURSE_NAME",
-  "students": [
-    {
-      "name": "Học viên 1",
-      "username": "hoc-vien-1",
-      "github": "github-username-1"
-    }
-  ]
+  "sessions": 20,
+  "students": {
+    "nguyen-van-a": "nguyenvana_github",
+    "tran-thi-b":   "tranthib_github",
+    "le-van-c":     "levanc_github"
+  }
 }
 EOF
     echo -e "${YELLOW}Note: Please update class.json with actual student data${NC}"
