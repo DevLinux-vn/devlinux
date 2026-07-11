@@ -29,8 +29,10 @@ void log_init(void)
 
     log_file = fopen(LOG_FILE, "a");
 
-    if (log_file == NULL)
+    if (log_file == NULL) {
         perror("fopen");
+        return;
+    }
 }
 
 void log_write(const char *msg) {
@@ -50,7 +52,7 @@ void log_timestamp(void) {
         return;
     }
 
-    write_current_timestamp(log_file);
+    write_current_timestamp();
 
     fprintf(log_file, "\n");
 
@@ -62,7 +64,7 @@ void log_error(const char *msg) {
         return;
     }
 
-    write_current_timestamp(log_file);
+    write_current_timestamp();
 
     fprintf(log_file, " [ERROR] %s\n", msg);
 

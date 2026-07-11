@@ -11,7 +11,7 @@ int main(void) {
 
     char msg[256];
 
-    log_init()
+    log_init();
     log_write("Application started");
     log_timestamp();
 
@@ -47,7 +47,7 @@ int main(void) {
 
     log_write("Application finished");
 
-    log_close()
+    log_close();
 
     return 0;
 }
