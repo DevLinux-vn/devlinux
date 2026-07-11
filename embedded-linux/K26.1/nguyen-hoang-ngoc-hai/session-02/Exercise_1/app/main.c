@@ -5,10 +5,18 @@ int main() {
     int a, b, n;
 
     printf("Enter two integers: ");
-    scanf("%d %d", &a, &b);
+    int ret = scanf("%d %d", &a, &b);
+    if (ret != 2) {
+        fprintf(stderr, "Error: Invalid input\n");
+        return 1;
+    }
 
     printf("Enter a non-negative integer for factorial: ");
-    scanf("%d", &n);
+    ret = scanf("%d", &n);
+    if (ret != 1) {
+        fprintf(stderr, "Error: Invalid input\n");
+        return 1;
+    }
 
     printf("Add: %d\n", math_add(a, b));
     printf("Subtract: %d\n", math_sub(a, b));

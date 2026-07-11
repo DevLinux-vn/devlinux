@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
 
     char buffer[1024];
 
+    /* Safely copy argv[1] to buffer, leaving room for null terminator */
     strncpy(buffer, argv[1], sizeof(buffer) - 1);
     buffer[sizeof(buffer) - 1] = '\0';
 

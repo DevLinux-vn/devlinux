@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude
+CFLAGS = -Wall -Wextra -Iinclude -std=gnu99 -Werror
 
 OBJ_DIR = obj
 LIB_DIR = lib

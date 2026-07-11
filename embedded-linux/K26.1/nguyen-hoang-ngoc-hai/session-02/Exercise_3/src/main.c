@@ -11,14 +11,15 @@ int main(void) {
 
     char msg[256];
 
+    log_init()
+    log_write("Application started");
+    log_timestamp();
+
     float add_result = calc_add(a, b);
     float sub_result = calc_sub(a, b);
     float mul_result = calc_mul(a, b);
     float div_result = calc_div(a, b);
     float div_zero_result = calc_div(a, zero);
-
-    log_write("Application started");
-    log_timestamp();
 
     snprintf(msg, sizeof(msg), "Add result: %.2f + %.2f = %.2f", a, b, add_result);
     log_write(msg);
@@ -45,6 +46,8 @@ int main(void) {
     printf("Div zero : NAN, error written to app.log\n");
 
     log_write("Application finished");
+
+    log_close()
 
     return 0;
 }

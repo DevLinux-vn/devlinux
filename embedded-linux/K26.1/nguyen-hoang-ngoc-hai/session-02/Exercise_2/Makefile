@@ -1,6 +1,6 @@
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Iinclude -fPIC
+CFLAGS = -Wall -Wextra -Iinclude -fPIC -Werror -std=gnu99
 
 BUILD_DIR = build
 BIN_DIR = bin

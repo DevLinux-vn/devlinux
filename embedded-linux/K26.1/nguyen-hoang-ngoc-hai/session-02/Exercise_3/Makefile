@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude
+CFLAGS = -Wall -Wextra -Iinclude -Werror -std=gnu99
 PICFLAGS = -fPIC
 
 OBJ_DIR = obj
