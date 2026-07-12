@@ -26,13 +26,14 @@ typedef struct st_packet_util
 } st_packet_util_t;
 
 /**
- * @brief Create and return opaque handle to console display configuration.
- * 
- * Initializes static storage with specified baud_rate.
- * The returned pointer is valid for the entire program lifetime.
- * 
- * @param[in] baud_rate UART baud rate configuration.
- * @return Opaque handle to configuration (never NULL).
+ * @brief Initialize the packet utility system.
+ *
+ * Initializes the packet pool and configures the HAL object with the packet
+ * allocation and release functions. The HAL object address is returned
+ * through the output parameter.
+ *
+ * @param[out] pp_hal_obj Pointer to the variable that receives the HAL object
+ *                       address.
  */
 // NOLINTNEXTLINE(readability-identifier-naming)
 void init_sys(void **const pp_hal_obj);

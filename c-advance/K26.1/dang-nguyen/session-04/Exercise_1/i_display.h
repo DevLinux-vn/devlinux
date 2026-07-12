@@ -23,10 +23,20 @@ typedef enum e_errcode {
  */
 typedef struct st_i_display
 {
-    /** @brief Initialize display with configuration */
+    /**
+     * @brief Initialize the display using the specified configuration.
+     * 
+     * @param[in] p_cfg_hdl Opaque handle to the display configuration.
+     * 
+     * @return Result of the initialization.
+     * @retval DL_RET_OK Display initialized successfully.
+     * @retval DL_RET_INVALID_PARAM The configuration handle is invalid.
+     */
     e_errcode_t (*init)(display_config_handle_t p_cfg_hdl);
 
-    /** @brief Draw pixel at (x, y) with given colour */
+    /**
+     * @brief Draw pixel at (x, y) with given colour
+     */
     void (*draw_pixel)(const uint16_t x, const uint16_t y, const uint8_t colour);
 } st_i_display_t;
 

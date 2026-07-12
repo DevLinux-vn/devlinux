@@ -15,19 +15,34 @@ static st_network_packet_t packet_pool[POOL_SIZE];
 static bool packet_in_use[POOL_SIZE];
 
 /**
- * @brief Initialize the object pool (mark all as free)
+ * @brief Initialize the packet pool.
+ *
+ * Assigns an identifier to each packet and marks every packet slot as
+ * available.
  */
 static void pool_init(void);
 
 /**
- * @brief Allocate a packet from the pool.
- * @return Pointer to packet, or NULL if pool is full.
+ * @brief Allocate an available packet from the packet pool.
+ *
+ * Searches the packet pool for the first available packet, marks it as
+ * in use, and returns its handle.
+ *
+ * @return Handle to the allocated packet.
+ * @retval NULL No packet is currently available in the pool.
  */
 static packet_handle_t packet_alloc(void);
 
 /**
- * @brief Free a packet back to the pool.
- * @param p_packet Pointer to the packet to free.
+ * @brief Release a packet back to the packet pool.
+ *
+ * Searches the packet pool for the specified packet and marks the
+ * corresponding pool entry as available.
+ *
+ * If the packet handle is NULL or does not refer to an element in the packet
+ * pool, an error message is printed and no pool entry is modified.
+ *
+ * @param[in] p_packet Handle to the packet to release.
  */
 static void packet_free(const packet_handle_t p_packet);
 
@@ -61,13 +76,20 @@ void packet_free(const packet_handle_t p_packet)
 {
     if (NULL != p_packet)
     {
-        for (uint32_t idx = 0U; idx < POOL_SIZE; idx++)
+        uint32_t idx;
+
+        for (idx = 0U; idx < POOL_SIZE; idx++)
         {
             if (p_packet == &packet_pool[idx])
             {
                 packet_in_use[idx] = false;
                 break;
             }
+        }
+
+        if (POOL_SIZE == idx)
+        {
+            printf("[ERROR] %s: p_packet does not belong to packet_pool!\n", __func__);
         }
     }
     else

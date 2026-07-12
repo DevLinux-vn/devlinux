@@ -7,7 +7,29 @@ typedef struct st_display_config
     uint32_t baud_rate;
 } st_display_config_t;
 
+/**
+ * @brief Initialize the console display.
+ *
+ * Converts the opaque configuration handle to the console display
+ * configuration type and validates it before initialization.
+ *
+ * @param[in] p_cfg_hdl Opaque handle to the console display configuration.
+ *
+ * @return Result of the initialization.
+ * @retval DL_RET_OK            Initialization completed successfully.
+ * @retval DL_RET_INVALID_PARAM The configuration handle is NULL.
+ */
 static e_errcode_t console_display_init(const display_config_handle_t p_cfg_hdl);
+
+/**
+ * @brief Draw a pixel on the console display.
+ *
+ * Prints the pixel coordinates and colour value to the console.
+ *
+ * @param[in] x      Horizontal coordinate of the pixel.
+ * @param[in] y      Vertical coordinate of the pixel.
+ * @param[in] colour Pixel colour value.
+ */
 static void console_display_draw_pixel(const uint16_t x, const uint16_t y, const uint8_t colour);
 
 /**
