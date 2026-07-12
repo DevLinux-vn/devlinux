@@ -98,17 +98,15 @@ static int32_t process(
     else
     {
         api_ret = p_type->init(p_hdl);
-    }
 
-    if (APP_SUCCESS == ret)
-    {
-        if (DL_RET_OK == api_ret)
+        if (DL_RET_OK != api_ret)
         {
-            ret = draw_rectangle(p_type);
+            printf("[ERROR] Display init failed with code %u\n", api_ret);
+            ret = APP_FAILURE;
         }
         else
         {
-            ret = APP_FAILURE;
+            ret = draw_rectangle(p_type);
         }
     }
 

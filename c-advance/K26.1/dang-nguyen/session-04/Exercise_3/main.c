@@ -1,8 +1,11 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define BYTE_LEN    (8U)
-#define APP_SUCCESS (0)
+#define BYTE_LEN        (8U)
+#define APP_SUCCESS     (0)
+#define BUFFER_LEN      (6U)
+
+#define ARRAY_SIZE(a)   (uint32_t)(sizeof(a) / sizeof((a)[0]))
 
 typedef struct st_sensor_data {
     uint16_t temperature;
@@ -13,11 +16,12 @@ typedef struct st_sensor_data {
  * @brief Parses big-endian raw sensor data into a struct safely.
  *
  * @param[in]  p_buffer    Pointer to the 6-byte raw payload array.
+ * @param[in]  buff_len     The number of p_buffer's elements.
  * @param[out] p_out_data  Pointer to the struct to populate.
  */
-void parse_sensor_data(const uint8_t *p_buffer, st_sensor_data_t *const p_out_data);
+void parse_sensor_data(const uint8_t *p_buffer, const uint32_t buff_len, st_sensor_data_t *const p_out_data);
 
-void parse_sensor_data(const uint8_t *p_buffer, st_sensor_data_t *const p_out_data)
+void parse_sensor_data(const uint8_t *p_buffer, const uint32_t buff_len, st_sensor_data_t *const p_out_data)
 {
     if (NULL == p_buffer)
     {
@@ -26,6 +30,10 @@ void parse_sensor_data(const uint8_t *p_buffer, st_sensor_data_t *const p_out_da
     else if (NULL == p_out_data)
     {
         printf("[ERROR] %s: p_out_data is NULL!\n", __func__);
+    }
+    else if (BUFFER_LEN < buff_len)
+    {
+        printf("[ERROR] %s: buff_len %u is larger than %u!\n", __func__, buff_len, BUFFER_LEN);
     }
     else
     {
@@ -56,7 +64,7 @@ int32_t main(void)
         .timestamp   = 0U
     };
 
-    parse_sensor_data(buffer, &output);
+    parse_sensor_data(buffer, ARRAY_SIZE(buffer), &output);
 
     printf("Temperature: %u\n", output.temperature);
     printf("Timestamp: %u\n", output.timestamp);
