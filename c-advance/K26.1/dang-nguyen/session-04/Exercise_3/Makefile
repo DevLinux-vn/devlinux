@@ -1,7 +1,7 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -pedantic -Werror -std=c99
-TARGET := pixel_app
-SRC := main.c console_display.c dummy_display.c
+TARGET := change_endian
+SRC := main.c
 INC := -I.
 
 .PHONY: all clean run clang_tidy cpp_check
@@ -14,7 +14,7 @@ $(TARGET): $(SRC)
 run: $(TARGET)
 	$(shell pwd)/$<
 
-clang_tidy: $(SRC) dummy_display.h console_display.h i_display.h
+clang_tidy: $(SRC)
 	clang-tidy $^ -checks='clang-analyzer-*,cert-*,bugprone-*' -- -std=c99
 
 cpp_check: $(SRC)

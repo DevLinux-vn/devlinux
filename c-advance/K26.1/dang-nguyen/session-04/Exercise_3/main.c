@@ -1,94 +1,65 @@
-#include "console_display.h"
-#include "dummy_display.h"
+#include <stdint.h>
+#include <stdio.h>
 
-#define BAUD_RATE   (10U)
-#define PIXEL_NUM   (4U)
+#define BYTE_LEN    (8U)
+#define APP_SUCCESS (0)
 
-#define APP_SUCCESS (0U)
-#define APP_FAILURE (1U)
+typedef struct st_sensor_data {
+    uint16_t temperature;
+    uint32_t timestamp;
+} st_sensor_data_t;
 
-typedef struct st_pixel_info
+/**
+ * @brief Parses big-endian raw sensor data into a struct safely.
+ *
+ * @param[in]  p_buffer    Pointer to the 6-byte raw payload array.
+ * @param[out] p_out_data  Pointer to the struct to populate.
+ */
+void parse_sensor_data(const uint8_t *p_buffer, st_sensor_data_t *const p_out_data);
+
+void parse_sensor_data(const uint8_t *p_buffer, st_sensor_data_t *const p_out_data)
 {
-    uint16_t x;
-    uint16_t y;
-    uint8_t  colour;
-} st_pixel_info_t;
-
-static int32_t draw_rectangle(st_i_display_t *p_disp);
-
-st_display_config_t *p_display_config;
-
-static int32_t draw_rectangle(st_i_display_t *p_disp)
-{
-    static st_pixel_info_t pixel_info[PIXEL_NUM] =
+    if (NULL == p_buffer)
     {
-        [0] = { .x = 0, .y = 0, .colour = 1 },
-        [1] = { .x = 1, .y = 0, .colour = 1 },
-        [2] = { .x = 0, .y = 1, .colour = 1 },
-        [3] = { .x = 1, .y = 1, .colour = 1 }
-    };
-    int32_t ret = APP_SUCCESS;
-
-    if (NULL == p_disp)
-    {
-        printf("[%s]: p_disp is NULL!\n", __func__);
-        ret = APP_FAILURE;
+        printf("[ERROR] %s: p_buffer is NULL!\n", __func__);
     }
-    else if (NULL == p_disp->draw_pixel)
+    else if (NULL == p_out_data)
     {
-        printf("[%s]: p_disp->draw_pixel is NULL!\n", __func__);
-        ret = APP_FAILURE;
+        printf("[ERROR] %s: p_out_data is NULL!\n", __func__);
     }
     else
     {
-        for (uint32_t i = 0U; i < PIXEL_NUM; i++)
-        {
-            p_disp->draw_pixel(pixel_info[i].x, pixel_info[i].y, pixel_info[i].colour);
-        }
-    }
+        /*
+         * NOT allowed to cast the uint8_t* buffer to a uint16_t* or uint32_t*.
+         * This is strictly forbidden as it causes Unaligned Memory Access hardware faults.
+         * 
+         * Must use bitwise shifts (<<, >>) and bitwise OR (|) to reconstruct the
+         * integers byte-by-byte. This guarantees endian-safe execution.
+         */
+        /* Reorder the bytes for temperature: 0x2C01 -> 0x012C */
+        p_out_data->temperature = (((uint16_t)p_buffer[0]) << BYTE_LEN) | (uint16_t)p_buffer[1];    // NOLINT(readability-magic-numbers)
 
-    return ret;
+        /* Reorder the bytes for timestamp: 0x0A1A0000 -> 0x00001A0A */
+        p_out_data->timestamp = (((uint32_t)p_buffer[2]) << (3 * BYTE_LEN)) |   // NOLINT(readability-magic-numbers)
+                                (((uint32_t)p_buffer[3]) << (2 * BYTE_LEN)) |   // NOLINT(readability-magic-numbers)
+                                (((uint32_t)p_buffer[4]) << (1 * BYTE_LEN)) |   // NOLINT(readability-magic-numbers)
+                                (uint32_t)p_buffer[5];                          // NOLINT(readability-magic-numbers)
+    }
 }
 
 int32_t main(void)
 {
-    int32_t ret = APP_SUCCESS;
-
-    if (NULL == console_display.init)
+    uint8_t buffer[] = {0x01, 0x2C, 0x00, 0x00, 0x1A, 0x0A};    // NOLINT(readability-magic-numbers)
+    st_sensor_data_t output =
     {
-        printf("console_display.init() is not set!\n");
-        ret = APP_FAILURE;
-    }
-    else if (NULL == dummy_display.init)
-    {
-        printf("dummy_display.init() is not set!\n");
-        ret = APP_FAILURE;
-    }
-    else
-    {
-        p_display_config = console_config_create(BAUD_RATE);
+        .temperature = 0U,
+        .timestamp   = 0U
+    };
 
-        if (NULL != p_display_config)
-        {
-            console_display.init(p_display_config);
-            ret = draw_rectangle(&console_display);
-        
-            if (APP_SUCCESS == ret)
-            {
-                dummy_display.init(p_display_config);
-                ret = draw_rectangle(&dummy_display);
-                printf("Dummy display was called %u times.\n", get_draw_count());
-            }
-        
-            console_config_destroy(p_display_config);
-            p_display_config = NULL;
-        }
-        else
-        {
-            printf("Failed to allocate display_config!\n");
-            ret = APP_FAILURE;
-        }
-    }
+    parse_sensor_data(buffer, &output);
 
-    return ret;
+    printf("Temperature: %u\n", output.temperature);
+    printf("Timestamp: %u\n", output.timestamp);
+
+    return APP_SUCCESS;
 }
