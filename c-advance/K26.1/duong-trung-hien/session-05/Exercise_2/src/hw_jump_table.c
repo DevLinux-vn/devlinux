@@ -1,22 +1,29 @@
 #include "hw_jump_table.h"
 
-void draw_menu(uint8_t index)
+static void draw_menu(uint8_t index)
 {
     (void)index;
     printf("Drawing Main Menu...\n");
 }
 
-void draw_settings(uint8_t index)
+static void draw_settings(uint8_t index)
 {
     (void)index;
     printf("Drawing Settings Menu...\n");
 }
-void draw_about(uint8_t index)
+static void draw_about(uint8_t index)
 {
     (void)index;
     printf("Drawing About Menu...\n");
 }
 
+__attribute__((section(".my_dispatch_table"))) 
+static const menu_handler_t p_draw[] =
+{
+    [MENU_MAIN]    = draw_menu,
+    [MENU_SETTING] = draw_settings,
+    [MENU_ABOUT]   = draw_about
+};
 
 void dispatch_ui(uint8_t menu_index)
 {
@@ -25,10 +32,12 @@ void dispatch_ui(uint8_t menu_index)
         printf("Error: Invalid menu index!\n");
         return;
     }
-    else
+
+    if (p_draw[menu_index] == NULL)
     {
-        p_draw[menu_index](menu_index);
+        printf("Error: NULL handler!\n");
+        return;
     }
 
-    return;
+    p_draw[menu_index](menu_index);
 }
