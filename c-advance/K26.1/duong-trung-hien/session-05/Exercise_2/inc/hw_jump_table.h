@@ -47,12 +47,13 @@ typedef void (*menu_handler_t)(uint8_t index);
  * corresponding drawing function. The table is indexed using
  * values of ::menu_t.
  */
-static const menu_handler_t p_draw[] =
-{
-    [MENU_MAIN]    = draw_menu,
-    [MENU_SETTING] = draw_settings,
-    [MENU_ABOUT]   = draw_about
-};
+    __attribute__((section(".my_dispatch_table"))) 
+    static const menu_handler_t p_draw[] =
+    {
+        [MENU_MAIN]    = draw_menu,
+        [MENU_SETTING] = draw_settings,
+        [MENU_ABOUT]   = draw_about
+    };
 
 /**
  * @brief Dispatch a UI menu request.
