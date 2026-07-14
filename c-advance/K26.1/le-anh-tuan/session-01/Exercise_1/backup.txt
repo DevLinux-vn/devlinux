@@ -1,0 +1,233 @@
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <inttypes.h>
+
+#define IPV4_OCTET_COUNT             (4U)
+#define IPV4_MAX_OCTET_VALUE         (255U)
+#define IPV4_MAX_DIGITS_PER_OCTET    (3U)
+#define IPV4_DECIMAL_BASE            (10U)
+
+#define PARSE_IPV4_SUCCESS           ((int8_t)0)
+#define PARSE_IPV4_ERROR             ((int8_t)-1)
+
+
+/**
+ * @brief Check whether a character is an ASCII decimal digit.
+ *
+ * @param[in] character Character to check.
+ * @return true if the character is between '0' and '9', otherwise false.
+ */
+
+
+static bool is_ascii_digit(char character){
+    bool is_digit = false;
+
+    if ((character >= '0') && (character <= '9'))
+        is_digit = true;
+    
+    return is_digit;
+}
+
+
+/**
+ * @brief Parse an IPv4 address string into a 32-bit unsigned integer.
+ *
+ * @param[in]  ip_str    Null-terminated ASCII string (e.g., "192.168.1.50").
+ * @param[out] p_ip_out  Pointer to store the parsed 32-bit IP address.
+ * @return 0 on success, -1 on invalid input.
+ */
+
+ // Function prototype
+int8_t parse_ipv4(const char *ip_str, uint32_t *p_ip_out);
+
+
+int8_t parse_ipv4(const char *ip_str, uint32_t *p_ip_out){
+    const char *p_current = ip_str;
+    uint32_t ip_value = 0U;
+    uint32_t octet_value = 0U;
+    uint32_t digit = 0U;
+    uint8_t octet_count = 0U;
+    uint8_t digit_count = 0U;
+    bool is_valid = true;
+    int8_t status = PARSE_IPV4_ERROR;
+
+    if ((ip_str != NULL) && (p_ip_out != NULL)){
+        while ((true == is_valid) && (octet_count < IPV4_OCTET_COUNT)){
+            octet_value = 0U;
+            digit_count = 0U;
+
+            while ((true == is_valid) && (true == is_ascii_digit(*p_current))){
+                digit = (uint32_t)(*p_current - '0');
+
+                if (digit_count >= IPV4_MAX_DIGITS_PER_OCTET){
+                    is_valid = false;
+                }
+                else if (octet_value > ((IPV4_MAX_OCTET_VALUE - digit) / IPV4_DECIMAL_BASE)){
+                    is_valid = false;
+                }
+                else{
+                    octet_value = (octet_value * IPV4_DECIMAL_BASE) + digit;
+                    digit_count++;
+                    p_current++;
+                }
+            }
+
+            if ((true == is_valid) && (digit_count > 0U)){
+                ip_value = (ip_value << 8U) | octet_value;
+                octet_count++;
+
+                if (octet_count < IPV4_OCTET_COUNT){
+                    if ('.' == *p_current){
+                        p_current++;
+                    }
+                    else{
+                        is_valid = false;
+                    }
+                }
+                else{
+                    if ('\0' == *p_current){
+                        *p_ip_out = ip_value;
+                        status = PARSE_IPV4_SUCCESS;
+                    }
+                    else{
+                        is_valid = false;
+                    }
+                }
+            }
+            else{
+                is_valid = false;
+            }
+        }
+    }
+
+    return status;
+}
+
+typedef struct{
+    const char *p_input;
+    int8_t expected_status;
+    uint32_t expected_ip;
+} ipv4_test_case_t;
+
+int main(void){
+    static const ipv4_test_case_t test_cases[] = {
+        {"192.168.1.50", PARSE_IPV4_SUCCESS, 0xC0A80132U},
+        { "256.0.0.1", PARSE_IPV4_ERROR, 0U},
+        { NULL, PARSE_IPV4_ERROR, 0U},
+        { "192.168.1", PARSE_IPV4_ERROR, 0U},
+        { "192.168.1.50.2", PARSE_IPV4_ERROR, 0U},
+        { "192..1.50", PARSE_IPV4_ERROR, 0U},
+        { "192.168.abc.50", PARSE_IPV4_ERROR, 0U},
+        { "0.0.0.0", PARSE_IPV4_SUCCESS, 0x00000000U},
+        { "255.255.255.255", PARSE_IPV4_SUCCESS, 0xFFFFFFFFU},
+        { "1.2.3.4", PARSE_IPV4_SUCCESS, 0x01020304U}
+    };
+
+    uint32_t ip_out = 0U;
+    uint32_t passed_count = 0U;
+    size_t index = 0U;
+    const size_t test_count = sizeof(test_cases) / sizeof(test_cases[0]);
+    int exit_code = 0;
+
+    for (index = 0U; index < test_count; index++){
+        const char *p_display = test_cases[index].p_input;
+        int8_t status = PARSE_IPV4_ERROR;
+        bool passed = false;
+
+        if (p_display == NULL){
+            p_display = "NULL";
+        }
+
+        ip_out = 0U;
+        status = parse_ipv4(test_cases[index].p_input, &ip_out);
+
+        if (status == test_cases[index].expected_status){
+            if (status == PARSE_IPV4_SUCCESS){
+                if (ip_out == test_cases[index].expected_ip){
+                    passed = true;
+                }
+            }
+            else{
+                passed = true;
+            }
+        }   
+
+        if (true == passed){
+            passed_count++;
+        }
+
+        else{
+            exit_code = 1;
+        }
+        
+        printf("Test %zu: %-18s -> return %d", index + 1U, p_display, (int)status);
+
+        if (status == PARSE_IPV4_SUCCESS){
+            printf(", ip_out = 0x%08" PRIX32 " (%" PRIu32 ")", ip_out, ip_out);
+        }
+
+        if (true == passed){
+            printf(" [PASSED]\n");
+        }
+
+        else{
+            printf(" [FAILED]\n");
+        }
+    }
+
+    printf("Pass: %", PRIu32 "/%zu\n", passed_count, test_count);
+
+    return exit_code;
+}
+
+
+
+
+
+
+
+int main(void){
+    uint32_t ip_out = 0U;
+    int8_t result = IPV4_ERROR;
+
+    // Testcase 1:
+    ip_out = 0U;
+    result = parse_ipv4("192.168.1.50", &ip_out);
+
+    printf("parse_ipv4(\"192.168.1.50\", &ip_out)  -> returns %d", (int)result);
+
+    if (result == IPV4_OK){
+        printf(", ip_out = 0x%08X (%u)", (unsigned int)ip_out, (unsigned int)ip_out);
+    }
+
+    printf("\n");
+
+
+    // Testcase 2:
+    ip_out = 0U;
+    result = parse_ipv4("256.0.0.1", &ip_out);
+
+    printf("parse_ipv4(\"256.0.0.1\", &ip_out)  -> returns %d", (int)result);
+
+    if (result == IPV4_ERROR){
+        printf("  (octet out of range)");
+    }
+
+    printf("\n");
+
+
+    // Testcase 3:
+    ip_out = 0U;
+    result = parse_ipv4(NULL, &ip_out);
+
+    printf("parse_ipv4(NULL, &ip_out)  -> returns %d", (int)result);
+
+    if (result == IPV4_ERROR){
+        printf("  (NULL input)");
+    }
+
+    printf("\n");
+
+    return 0;
+}
