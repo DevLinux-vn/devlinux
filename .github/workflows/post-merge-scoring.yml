@@ -67,15 +67,7 @@ jobs:
           else
             echo "📝 Committing SCORE.json..."
             git add "**/SCORE.json"
-            git commit -m "ci: auto-generate SCORE.json with approval tracking
-
-This file is auto-generated post-merge and contains:
-- Claude review score & verdict
-- GitHub approvals (who approved, when)
-- Merge information (merged by, when, commit hash)
-- Timestamp when locked
-
-SCORE.json is immutable (locked) after merge."
+            git commit -m "ci: auto-generate SCORE.json after merge"
             git push origin ${{ github.base_ref }}
             echo "✅ SCORE.json committed and pushed"
           fi
