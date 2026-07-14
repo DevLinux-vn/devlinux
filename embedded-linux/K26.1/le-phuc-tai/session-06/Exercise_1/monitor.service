@@ -1,0 +1,16 @@
+[Unit]
+Description=Industrial Background Monitor Service
+#Tối đa 3 lần restart trong vòng 30 giây
+StartLimitIntervalSec=30
+StartLimitBurst=3
+
+[Service]
+Type=simple
+# Đường dẫn thực thi giả định khi cài đặt lên hệ thống thực tế
+ExecStart=/usr/local/bin/monitor
+# Cơ chế tự phục hồi khi ứng dụng bị crash (ví dụ: bị kill đột ngột)
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

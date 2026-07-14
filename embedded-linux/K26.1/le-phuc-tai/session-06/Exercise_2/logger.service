@@ -1,0 +1,14 @@
+[Unit]
+Description=Systemd Log Level and Crash Simulation Service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/logger
+# Điều hướng trực tiếp dòng dữ liệu vào hệ thống lưu trữ log tập trung
+StandardOutput=journal
+StandardError=journal
+# Không tự động khởi động lại để giữ nguyên trạng thái hiện trường phục vụ điều tra (Post-mortem analysis)
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
