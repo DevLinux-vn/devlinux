@@ -1,24 +1,31 @@
-CC = gcc
+CC := gcc
+CFLAGS := -Wall -Wextra -pedantic -Werror -std=c99
 
-CFLAGS = -Wall -Wextra -Wpedantic -Werror -std=c99 -Iinc
+BUILD_DIR := build
+TARGET := $(BUILD_DIR)/output
 
-SRC = src/*.c test/*.c
+SRC := test/main.c src/hw_jump_table.c
+HDR := inc/hw_jump_table.h
+INC := -Iinc
 
-BUILD_DIR = build
-
-TARGET = $(BUILD_DIR)/output
+.PHONY: all clean run clang_tidy cpp_check
 
 all: $(TARGET)
+
+$(TARGET): $(SRC) $(HDR) $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(INC) $(SRC) -o $@
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(TARGET): $(SRC) $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+run: $(TARGET)
+	./$<
 
-analyze:
-	cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem inc src test -Iinc
-	clang-tidy src/*.c test/*.c -- -Iinc -std=c99
+clang_tidy: $(SRC) $(HDR)
+	clang-tidy $(SRC) -- $(INC) -std=c99
+
+cpp_check: $(SRC)
+	cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem $^ $(INC)
 
 clean:
 	rm -rf $(BUILD_DIR)
