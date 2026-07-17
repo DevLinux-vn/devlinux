@@ -1,26 +1,31 @@
 #include <stdint.h>
 #include <stdio.h>
-#include "dispatch.h"
+#include "adc.h"
 
-#define APP_SUCCESS     (0)
-#define APP_FAILURE     (1)
+#define ADC_SAMPLE_RATE     (44100U)
+#define ADC_CHANNEL         (2U)
 
-#define ARRAY_SIZE(a)   (uint32_t)(sizeof(a) / sizeof((a)[0]))
+#define APP_SUCCESS         (0)
 
 int32_t main(void)
 {
-    int32_t ret = APP_SUCCESS;
-    int8_t cmd[] = { MAIN_MENU, SETTINGS_MENU, ABOUT_MENU, CMD_COUNT };
+    (void)adc_init(ADC_SAMPLE_RATE);
 
-    for (uint32_t idx = 0U; idx < ARRAY_SIZE(cmd); idx++)
-    {
-        ret = ((dispatch_ui(cmd[idx]) == ERR_OK) ? APP_SUCCESS : APP_FAILURE);
+    // adc_ctx.active_channel = 99;  // COMPILE ERROR
 
-        if (APP_SUCCESS != ret)
-        {
-            break;
-        }
-    }
+    (void)adc_init(ADC_SAMPLE_RATE);
 
-    return ret;
+    printf("Channel: %u\n", adc_get_channel());
+    printf("Sample rate: %u Hz\n", adc_get_sample_rate());
+    printf("Init status: %s\n", (true == adc_is_initialized()) ? "YES" : "NO");
+
+    (void)adc_set_channel(ADC_CHANNEL);
+
+    printf("Result: %u mV\n", adc_read());
+
+    (void)adc_deinit();
+
+    printf("Is initialized? %s\n", (true == adc_is_initialized()) ? "YES" : "NO");
+
+    return APP_SUCCESS;
 }

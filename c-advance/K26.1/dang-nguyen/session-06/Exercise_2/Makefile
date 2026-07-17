@@ -1,8 +1,8 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -pedantic -Werror -std=c99
-TARGET := hw_jump_table
-SRC := main.c dispatch.c
-HDR := dispatch.h
+TARGET := adc
+SRC := main.c adc.c
+HDR := adc.h
 INC := -I.
 
 .PHONY: all clean run clang_tidy cpp_check
