@@ -1,8 +1,8 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -pedantic -Werror -std=c99
-TARGET := hw_jump_table
-SRC := main.c dispatch.c
-HDR := dispatch.h
+TARGET := func_ptr_fsm
+SRC := main.c func_ptr_fsm.c
+HDR := func_ptr_fsm.h
 INC := -I.
 
 .PHONY: all clean run clang_tidy cpp_check

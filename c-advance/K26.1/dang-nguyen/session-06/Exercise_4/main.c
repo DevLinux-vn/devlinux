@@ -1,26 +1,19 @@
-#include <stdint.h>
-#include <stdio.h>
-#include "dispatch.h"
+#include "func_ptr_fsm.h"
 
-#define APP_SUCCESS     (0)
-#define APP_FAILURE     (1)
+#define TICK_NUM        (10U)
 
 #define ARRAY_SIZE(a)   (uint32_t)(sizeof(a) / sizeof((a)[0]))
 
+#define APP_SUCCESS     (0)
+
 int32_t main(void)
 {
-    int32_t ret = APP_SUCCESS;
-    int8_t cmd[] = { MAIN_MENU, SETTINGS_MENU, ABOUT_MENU, CMD_COUNT };
+    e_traffic_state_t light = RED;
 
-    for (uint32_t idx = 0U; idx < ARRAY_SIZE(cmd); idx++)
+    for (uint32_t tick = 1U; tick <= TICK_NUM; tick++)
     {
-        ret = ((dispatch_ui(cmd[idx]) == ERR_OK) ? APP_SUCCESS : APP_FAILURE);
-
-        if (APP_SUCCESS != ret)
-        {
-            break;
-        }
+        run_traffic_fsm(tick, &light);
     }
 
-    return ret;
+    return APP_SUCCESS;
 }
