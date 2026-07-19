@@ -118,7 +118,7 @@ void dispatch_command(const char *const p_received_cmd)
         /* Report an unsupported command if no matching entry was found. */
         if (ARRAY_SIZE(cmd_table) == cmd_idx)
         {
-            printf("[CMD] Unknown command: REBOOT\n");
+            printf("[CMD] Unknown command: %s\n", p_received_cmd);
         }
     }
 }

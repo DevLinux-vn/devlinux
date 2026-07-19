@@ -30,7 +30,11 @@ int32_t main(void)
     {
         if ((WIFI_ERRCODE_SUCCESS == api_ret) || (WIFI_ERRCODE_WAITING == api_ret))
         {
-            printf("[Step %u] State: %s\t\t\t| input = %u\n", step, state_str[state], input_data[step]);
+            printf("[Step %u] %s State: %s\t\t\t| input = %u\n",
+                    step,
+                    (WIFI_ERROR == state) ? "(auto)" : "",
+                    state_str[state],
+                    input_data[step]);
             api_ret = run_state_machine(input_data[step], &state);
             printf("\n");
         }

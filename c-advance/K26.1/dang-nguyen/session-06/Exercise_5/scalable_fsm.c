@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <stdio.h>
-
 #include "scalable_fsm.h"
 
 /**

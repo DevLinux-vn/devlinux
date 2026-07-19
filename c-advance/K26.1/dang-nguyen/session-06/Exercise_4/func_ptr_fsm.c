@@ -136,7 +136,7 @@ static void state_green(const uint32_t tick, e_traffic_state_t *const p_next_sta
 {
     if (true == validate_state(p_next_state, __func__, "p_next_state"))
     {
-        printf("[GREEN]  Tick %u — Go! Holding for 3 ticks.\n", tick);
+        printf("[GREEN]  Tick %u — Go!  Holding for 3 ticks.\n", tick);
 
         if ((tick % LIGHT_PERIOD) == 0U)
         {

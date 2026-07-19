@@ -1,5 +1,7 @@
 #include "adc.h"
 
+#define SIM_ADC_VALUE   (300U)
+
 /**
  * @brief Stores the internal ADC driver state.
  *
@@ -32,8 +34,7 @@ static st_adc_info_t adc_ctx =
  * This value represents the sample returned by adc_read() when the ADC
  * module has been initialized.
  */
-// NOLINTNEXTLINE(readability-magic-numbers)
-static uint32_t g_adc_value = 300U;
+static uint32_t g_adc_value = SIM_ADC_VALUE;
 
 /**
  * @brief Initialize the ADC module.

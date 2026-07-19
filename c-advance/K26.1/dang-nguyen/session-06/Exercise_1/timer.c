@@ -1,5 +1,7 @@
 #include "timer.h"
 
+#define INITIAL_TICK 0U
+
 typedef struct st_timer
 {
     uint32_t         expire_at_tick; /**< Tick count at which the callback fires. */
@@ -17,8 +19,8 @@ static inline bool timer_is_running(void);
 /* Internal timer state — static, invisible to other modules */
 static st_timer_t my_timer =
 {
-    .expire_at_tick = 0U,
-    .current_tick   = 0U,
+    .expire_at_tick = INITIAL_TICK,
+    .current_tick   = INITIAL_TICK,
     .on_expire      = NULL,
     .is_running     = false
 };
@@ -47,14 +49,18 @@ void timer_register(const uint32_t expire_at_tick, const timer_callback_t callba
     {
         my_timer.expire_at_tick = expire_at_tick;
         my_timer.on_expire      = callback;
-        my_timer.current_tick   = 0U;
+        my_timer.current_tick   = INITIAL_TICK;
         my_timer.is_running     = true;
     }
 }
 
 void timer_tick(void)
 {
-    if (true == timer_is_running())
+    if (0U == my_timer.expire_at_tick)
+    {
+        printf("[ERROR] expire_at_tick is 0!\n");
+    }
+    else if (true == timer_is_running())
     {
         my_timer.current_tick++;
 
@@ -69,7 +75,10 @@ void timer_tick(void)
 
             my_timer.is_running = false;
         }
-
+    }
+    else
+    {
+        ;   /**< Do nothing */
     }
 }
 
