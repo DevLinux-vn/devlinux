@@ -6,12 +6,17 @@
 #define APP_SUCCESS     (0)
 #define APP_FAILURE     (-1)
 
+#define WIFI_INIT_STR        ("WIFI_INIT")
+#define WIFI_CONNECTING_STR  ("WIFI_CONNECTING")
+#define WIFI_CONNECTED_STR   ("WIFI_CONNECTED")
+#define WIFI_ERROR_STR       ("WIFI_ERROR")
+
 static const char *state_str[WIFI_MAX_STATES] =
 {
-    [WIFI_INIT]       = "WIFI_INIT",
-    [WIFI_CONNECTING] = "WIFI_CONNECTING",
-    [WIFI_CONNECTED]  = "WIFI_CONNECTED",
-    [WIFI_ERROR]      = "WIFI_ERROR"
+    [WIFI_INIT]       = WIFI_INIT_STR,
+    [WIFI_CONNECTING] = WIFI_CONNECTING_STR,
+    [WIFI_CONNECTED]  = WIFI_CONNECTED_STR,
+    [WIFI_ERROR]      = WIFI_ERROR_STR
 };
 
 int32_t main(void)

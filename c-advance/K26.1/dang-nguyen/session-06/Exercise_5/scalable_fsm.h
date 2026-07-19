@@ -26,10 +26,21 @@ typedef enum e_errcode
 } e_errcode_t;
 
 /**
- * @brief Run one step of the WiFi FSM.
- * @param[in]     input     Hardware/event input (1 = link up, 0 = link down/fail).
- * @param[in,out] p_state   Pointer to the current state; updated on transition.
- * @return 0 on success, 0xFF on invalid state.
+ * @brief Execute one step of the Wi-Fi finite-state machine.
+ *
+ * Validates the current state, invokes the corresponding state handler,
+ * and updates the state when a transition condition is met.
+ *
+ * @param[in]     input   Wi-Fi event input: 1 indicates that the link is up;
+ *                        0 indicates that the link is down or the connection
+ *                        attempt failed.
+ * @param[in,out] p_state Pointer to the current Wi-Fi state. The state may be
+ *                        updated by the executed state handler.
+ *
+ * @return FSM execution result.
+ * @retval WIFI_ERRCODE_SUCCESS The current state was processed successfully.
+ * @retval WIFI_ERRCODE_WAITING The FSM is waiting for another connection attempt.
+ * @retval WIFI_ERRCODE_FAILURE The state pointer, state value, or input is invalid.
  */
 e_errcode_t run_state_machine(const uint8_t input, e_wifi_state_t *const p_state);
 

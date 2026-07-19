@@ -30,6 +30,24 @@
 typedef e_errcode_t (*wifi_handler_t)(const uint8_t input, e_wifi_state_t *const p_state);
 
 /**
+ * @brief Validate a Wi-Fi state pointer and its current state.
+ *
+ * Checks that the state pointer is not NULL and that the current state
+ * matches the state expected by the calling state handler.
+ *
+ * @param[in] p_state        Pointer to the current Wi-Fi state.
+ * @param[in] expected_state State expected by the calling handler.
+ * @param[in] p_func_name    Name of the calling function used in error messages.
+ *
+ * @return State validation result.
+ * @retval WIFI_ERRCODE_SUCCESS The state pointer is valid and the current
+ *                              state matches the expected state.
+ * @retval WIFI_ERRCODE_FAILURE The state pointer is NULL or the current
+ *                              state does not match the expected state.
+ */
+static e_errcode_t validate_state(const e_wifi_state_t *const p_state, const e_wifi_state_t expected_state, const char *const p_func_name);
+
+/**
  * @brief Handle the Wi-Fi initialization state.
  *
  * Initializes the Wi-Fi state machine and transitions from
@@ -111,6 +129,28 @@ static const wifi_handler_t wifi_fsm[] =
     [WIFI_ERROR]      = &wifi_state_error
 };
 
+static e_errcode_t validate_state(const e_wifi_state_t *const p_state, const e_wifi_state_t expected_state, const char *const p_func_name)
+{
+    e_errcode_t result = WIFI_ERRCODE_SUCCESS;
+
+    if (NULL == p_state)
+    {
+        printf("[ERROR] %s: p_state is NULL!\n", p_func_name);
+        result = WIFI_ERRCODE_FAILURE;
+    }
+    else if (*p_state != expected_state)
+    {
+        printf("[ERROR] %s: Unexpected state: %d (Expected %d)!\n", p_func_name, *p_state, expected_state);
+        result = WIFI_ERRCODE_FAILURE;
+    }
+    else
+    {
+        ; /**< Do nothing */
+    }
+
+    return result;
+}
+
 static e_errcode_t wifi_state_init(const uint8_t input, e_wifi_state_t *const p_state)
 {
     e_errcode_t result = WIFI_ERRCODE_SUCCESS;
@@ -118,17 +158,9 @@ static e_errcode_t wifi_state_init(const uint8_t input, e_wifi_state_t *const p_
     /* Unused */
     (void)input;
 
-    if (NULL == p_state)
-    {
-        printf("[ERROR] %s: p_state is NULL!\n", __func__);
-        result = WIFI_ERRCODE_FAILURE;
-    }
-    else if (WIFI_INIT != *p_state)
-    {
-        printf("[ERROR] %s: state is not WIFI_INIT!\n", __func__);
-        result = WIFI_ERRCODE_FAILURE;
-    }
-    else
+    result = validate_state(p_state, WIFI_INIT, __func__);
+
+    if (WIFI_ERRCODE_SUCCESS == result)
     {
         printf("[INIT] Initializing... -> CONNECTING\n");
         *p_state = WIFI_CONNECTING;
@@ -139,35 +171,28 @@ static e_errcode_t wifi_state_init(const uint8_t input, e_wifi_state_t *const p_
 
 static e_errcode_t wifi_state_connecting(const uint8_t input, e_wifi_state_t *const p_state)
 {
-    static uint8_t s_attempts = 0U;
-    e_errcode_t result        = WIFI_ERRCODE_SUCCESS;
+    e_errcode_t result = WIFI_ERRCODE_SUCCESS;
+    
+    result = validate_state(p_state, WIFI_CONNECTING, __func__);
 
-    if (NULL == p_state)
+    if (WIFI_ERRCODE_SUCCESS == result)
     {
-        printf("[ERROR] %s: p_state is NULL!\n", __func__);
-        result = WIFI_ERRCODE_FAILURE;
-    }
-    else if (WIFI_CONNECTING != *p_state)
-    {
-        printf("[ERROR] %s: state is not WIFI_CONNECTING!\n", __func__);
-        result = WIFI_ERRCODE_FAILURE;
-    }
-    else if ((0U != input) && (CONNECTED_SIGNAL != input))
-    {
-        printf("[ERROR] %s: Incorrect input. Should be 0 or 1!\n", __func__);
-        result = WIFI_ERRCODE_FAILURE;
-    }
-    else
-    {
-        if (CONNECTED_SIGNAL == input)
+        static uint8_t s_attempts = 0U;
+
+        if ((0U != input) && (CONNECTED_SIGNAL != input))
+        {
+            printf("[ERROR] %s: Incorrect input. Should be 0 or 1!\n", __func__);
+            result = WIFI_ERRCODE_FAILURE;
+        }
+        else if (CONNECTED_SIGNAL == input)
         {
             printf("[CONNECTING] Connected! Retry count reset.\n");
-
+            
             /* Wi-Fi connected. */
             *p_state  = WIFI_CONNECTED;
             s_attempts = 0U;
         }
-        else
+        else    /**< Input = 0 */
         {
             /* Retry until the maximum number of attempts is reached. */
             s_attempts++;
@@ -195,17 +220,9 @@ static e_errcode_t wifi_state_connected(const uint8_t input, e_wifi_state_t *con
 {
     e_errcode_t result = WIFI_ERRCODE_SUCCESS;
 
-    if (NULL == p_state)
-    {
-        printf("[ERROR] %s: p_state is NULL!\n", __func__);
-        result = WIFI_ERRCODE_FAILURE;
-    }
-    else if (WIFI_CONNECTED != *p_state)
-    {
-        printf("[ERROR] %s: state is not WIFI_CONNECTED!\n", __func__);
-        result = WIFI_ERRCODE_FAILURE;
-    }
-    else
+    result = validate_state(p_state, WIFI_CONNECTED, __func__);
+
+    if (WIFI_ERRCODE_SUCCESS == result)
     {
         if (0U == input)
         {
@@ -224,17 +241,9 @@ static e_errcode_t wifi_state_error(const uint8_t input, e_wifi_state_t *const p
     /* Unused */
     (void)input;
 
-    if (NULL == p_state)
-    {
-        printf("[ERROR] %s: p_state is NULL!\n", __func__);
-        result = WIFI_ERRCODE_FAILURE;
-    }
-    else if (WIFI_ERROR != *p_state)
-    {
-        printf("[ERROR] %s: state is not WIFI_ERROR!\n", __func__);
-        result = WIFI_ERRCODE_FAILURE;
-    }
-    else
+    result = validate_state(p_state, WIFI_ERROR, __func__);
+
+    if (WIFI_ERRCODE_SUCCESS == result)
     {
         printf("[ERROR] Recovery. Restarting -> INIT\n");
         *p_state = WIFI_INIT;
