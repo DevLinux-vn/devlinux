@@ -37,6 +37,6 @@ typedef enum {
  * - 0U   : State machine executed successfully.
  * - 0xFF : Invalid state or dispatch error.
  */
-uint32_t RunStateMachine(uint8_t input, wifi_state_t *p_state);
+uint32_t Wifi_RunStateMachine(uint8_t input, wifi_state_t *p_state);
 
 #endif /* WIFI_MANAGE_H */

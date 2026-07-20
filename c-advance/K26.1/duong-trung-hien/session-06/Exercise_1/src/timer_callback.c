@@ -16,8 +16,9 @@ static struct {
 
 void Timer_Register(uint32_t expire_at_tick, timer_callback_t callback)
 {
-    if (callback == NULL)
+    if (NULL == callback)
     {
+        printf("[WARN] Timer callback is NULL!\n");
         return;
     }
     

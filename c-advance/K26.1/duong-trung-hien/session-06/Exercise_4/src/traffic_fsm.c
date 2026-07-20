@@ -5,6 +5,17 @@
 #define LIGHT_PERIOD (3U)
 
 /**
+ * @brief Current tick of the traffic light state machine.
+ *
+ * Stores the current system tick used by the traffic light FSM to determine
+ * state transition timing. The value is incremented after each execution
+ * cycle and is initialized to 1.
+ *
+ * Declared as `static` to restrict its visibility to this source file.
+ */
+static uint32_t s_state_tick = 1U;
+
+/**
  * @brief Function pointer type for traffic light state handlers.
  *
  * Each state handler executes the logic of one traffic light state and
@@ -24,6 +35,7 @@ typedef void (*traffic_handler_t)(uint32_t tick, traffic_state_t *p_next_state);
  *
  * @param[in] p_state Pointer to the current traffic light state.
  *
+ * @return Validation result.
  * @retval true  The state is valid.
  * @retval false The pointer is NULL or the state is out of range.
  */
@@ -98,17 +110,11 @@ static void State_Red(uint32_t tick, traffic_state_t *p_next_state)
 {
     if (validate(p_next_state))
     {
-        static uint32_t state_tick = 1U;
         printf("[RED]    Tick %u — Stop! Holding for 3 ticks.\n", tick);
 
-        if ((state_tick % LIGHT_PERIOD) == 0)
+        if ((s_state_tick % LIGHT_PERIOD) == 0)
         {
             *p_next_state = GREEN;
-            state_tick = 1U;
-        }
-        else
-        {
-            state_tick++;
         }
     }
 }
@@ -117,17 +123,11 @@ static void State_Green(uint32_t tick, traffic_state_t *p_next_state)
 {
     if (validate(p_next_state))
     {
-        static uint32_t state_tick = 1U;
         printf("[GREEN]  Tick %u — Go!  Holding for 3 ticks.\n", tick);
 
-        if ((state_tick % LIGHT_PERIOD) == 0)
+        if ((s_state_tick % LIGHT_PERIOD) == 0)
         {
             *p_next_state = YELLOW;
-            state_tick = 1U;
-        }
-        else
-        {
-            state_tick++;
         }
     }
 }
@@ -145,6 +145,16 @@ void RunTrafficFSM(uint32_t tick, traffic_state_t *p_state)
 {
     if (validate(p_state))
     {
+        traffic_state_t rev_state = *p_state;
         TrafficFSM[*p_state](tick, p_state);
+
+        if (rev_state != *p_state)
+        {
+            s_state_tick = 1U;
+        }
+        else
+        {
+            s_state_tick++;
+        }
     }
 }

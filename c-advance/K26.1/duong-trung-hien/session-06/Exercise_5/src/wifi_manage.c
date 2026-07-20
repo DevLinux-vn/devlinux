@@ -1,6 +1,14 @@
 #include "wifi_manage.h"
 
 /**
+ * @brief Retry counter for WiFi connection attempts.
+ *
+ * Tracks consecutive failed connection attempts and is reset whenever a
+ * new connection cycle starts or a connection is successfully established.
+ */
+static uint8_t s_retry_count = 0U;
+
+/**
  * @brief Function pointer type for a WiFi state handler.
  *
  * Each state handler processes the current input, determines the next state,
@@ -24,6 +32,7 @@ typedef uint32_t (*wifi_handler_t)(uint8_t input, wifi_state_t *p_next_state);
  *
  * @param[in] p_state Pointer to the current WiFi state.
  *
+ * @return Validation result.
  * @retval true  The state is valid.
  * @retval false The state pointer is NULL or the state is invalid.
  */
@@ -142,25 +151,24 @@ static uint32_t wifi_state_connecting(uint8_t input, wifi_state_t *p_next_state)
 {
     if (validate(p_next_state))
     {
-        static uint8_t retry_count = 0U;
         if (input == 1U)
         {
-            retry_count = 0U;
+            s_retry_count = 0U;
             *p_next_state = WIFI_CONNECTED;
             printf("[CONNECTING] Connected! Retry count reset.\n");
         }
         else
         {
-            retry_count++;
-            if (retry_count >= 3U)
+            s_retry_count++;
+            if (s_retry_count >= 3U)
             {
-                printf("[CONNECTING] Attempt %u failed. -> ERROR\n", retry_count);
-                retry_count = 0U;
+                printf("[CONNECTING] Attempt %u failed. -> ERROR\n", s_retry_count);
+                s_retry_count = 0U;
                 *p_next_state = WIFI_ERROR;
                 return WIFI_TIMEOUT;
             }
 
-            printf("[CONNECTING] Attempt %u failed. Retrying...\n", retry_count);
+            printf("[CONNECTING] Attempt %u failed. Retrying...\n", s_retry_count);
             return WIFI_RECONNECT;
         }
     }
@@ -183,6 +191,7 @@ static uint32_t wifi_state_connected(uint8_t input, wifi_state_t *p_next_state)
         else
         {
             *p_next_state = WIFI_CONNECTING;
+            s_retry_count = 0U;
             printf("[CONNECTED] Link dropped. Reconnecting...\n");
             return WIFI_RECONNECT;
         }
@@ -211,7 +220,7 @@ static uint32_t wifi_state_error(uint8_t input, wifi_state_t *p_next_state)
     return WIFI_OK;
 }
 
-uint32_t RunStateMachine(uint8_t input, wifi_state_t *p_state)
+uint32_t Wifi_RunStateMachine(uint8_t input, wifi_state_t *p_state)
 {
     if (validate(p_state))
     {
