@@ -13,7 +13,7 @@ int main()
 
     for (uint32_t i = 0U; i < ARRAY_SIZE(input_test); i++)
     {
-        RunStateMachine(input_test[i], &state);
+        Wifi_RunStateMachine(input_test[i], &state);
     }
 
     return APP_SUCCESS;
