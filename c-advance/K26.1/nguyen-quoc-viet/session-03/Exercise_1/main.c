@@ -13,6 +13,7 @@ void my_second_alarm(void);
 
 uint32_t alarm_point = 0U;
 int test;
+int test1;
 
 void my_alarm(void)
 {
