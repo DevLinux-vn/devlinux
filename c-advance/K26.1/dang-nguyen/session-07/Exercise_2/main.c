@@ -15,7 +15,15 @@ typedef struct st_stats
     int32_t average;
 } st_stats_t;
 
-st_stats_t compute_stats(uint32_t count, ...)
+/**
+ * @brief Calculate min, max, and average of variadic integer arguments.
+ * @param count Number of arguments to process.
+ * @param ... Variadic int arguments (promoted from int32_t).
+ * @return st_stats_t struct containing min, max, and average values.
+ */
+static st_stats_t compute_stats(uint32_t count, ...);
+
+static st_stats_t compute_stats(uint32_t count, ...)
 {
     st_stats_t result =
     {
