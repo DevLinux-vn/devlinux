@@ -14,8 +14,8 @@ struct device {
 #define DEFINE_DEVICE(name, id)  \
     struct device device##_##name##_##id = { .dev_id = (id) }
 
-#define STRINGFY(x)     #x
-#define TO_STRING(x)    STRINGFY(x)
+#define STRINGIFY(x)     #x
+#define TO_STRING(x)    STRINGIFY(x)
 #define FW_VERSION_STRING               \
     TO_STRING(FW_VERSION_MAJOR) "."     \
     TO_STRING(FW_VERSION_MINOR) "."     \
