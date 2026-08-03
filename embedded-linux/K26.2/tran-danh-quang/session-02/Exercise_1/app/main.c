@@ -6,15 +6,23 @@ int main() {
     int a, b, n;
 
     printf("Enter two integers for add and subtract (e.g. 10 5): ");
-    while (scanf("%d %d", &a, &b) != 2) {
-        if (errno == EINTR) continue;
-        return 1;
+    while (1) {
+        int ret = scanf("%d %d", &a, &b);
+        if (ret == 2) break;
+        if (errno != EINTR) {
+            fprintf(stderr, "Invalid input\n");
+            return 1;
+        }
     }
 
     printf("Enter a non-negative integer for factorial (e.g. 5): ");
-    while (scanf("%d", &n) != 1) {
-        if (errno == EINTR) continue;
-        return 1;
+    while (1) {
+        int ret = scanf("%d", &n);
+        if (ret == 1) break;
+        if (errno != EINTR) {
+            fprintf(stderr, "Invalid input\n");
+            return 1;
+        }
     }
 
     if (n < 0) {

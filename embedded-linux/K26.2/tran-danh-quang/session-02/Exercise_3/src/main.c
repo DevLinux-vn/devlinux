@@ -14,13 +14,21 @@ int main() {
     log_write("Application started");
 
     float add_res = calc_add(a, b);
-    snprintf(log_buf, sizeof(log_buf), "Add: %.2f + %.2f = %.2f", a, b, add_res);
+    int ret1 = snprintf(log_buf, sizeof(log_buf), "Add: %.2f + %.2f = %.2f", a, b, add_res);
+    if (ret1 < 0 || ret1 >= (int)sizeof(log_buf)) {
+        log_error("snprintf truncation");
+        return 1;
+    }
     log_write(log_buf);
     printf("%s\n", log_buf);
 
     float div_res = calc_div(a, c);
     if (isnan(div_res)) {
-        snprintf(log_buf, sizeof(log_buf), "Division by zero attempted (%.2f / %.2f)", a, c);
+        int ret2 = snprintf(log_buf, sizeof(log_buf), "Division by zero attempted (%.2f / %.2f)", a, c);
+        if (ret2 < 0 || ret2 >= (int)sizeof(log_buf)) {
+            log_error("snprintf truncation");
+            return 1;
+        }
         log_error(log_buf);
         printf("%s\n", log_buf);
     }
