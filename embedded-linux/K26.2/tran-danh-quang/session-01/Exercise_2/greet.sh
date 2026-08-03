@@ -1,4 +1,9 @@
 #!/bin/bash
+# ------------------------------------------------------------------
+# Script: greet.sh
+# Purpose: Accepts 2 parameters (name and age) and greets the user.
+# Usage: ./greet.sh <name> <age>
+# ------------------------------------------------------------------
 
 if [ "$#" -lt 2 ]; then
     echo "Usage: $0 <name> <age>"

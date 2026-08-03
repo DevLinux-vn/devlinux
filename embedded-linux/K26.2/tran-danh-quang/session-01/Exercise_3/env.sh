@@ -14,10 +14,14 @@ echo "USER: $USER"
 echo "SHELL: $SHELL"
 echo "-----------------------------"
 
-# Count how many directories are in $PATH
+echo
+# 2. Count how many directories are in $PATH
+# (Use -n to print the label on the same line as the count result)
 echo -n "Number of directories in PATH: "
 echo "$PATH" | tr ':' '\n' | wc -l
 
-# Use printenv to list all environment variables and count how many there are
+echo
+# 3. Use printenv to list all environment variables and count how many there are
+# (Use -n to print the label on the same line as the count result)
 echo -n "Total environment variables: "
 printenv | wc -l
