@@ -57,6 +57,12 @@ void* producer(void* arg) {
 
         // enqueue
         queue[tail] = doc;
+        /*
+         * CIRCULAR BUFFER DESIGN:
+         * We use modulo arithmetic (tail = (tail + 1) % MAX_QUEUE_SIZE) to wrap the 
+         * index back to 0 when it reaches the end of the array. This is more efficient 
+         * and cleaner than using an if-else statement (e.g., if (tail == MAX) tail = 0).
+         */
         tail = (tail + 1) % MAX_QUEUE_SIZE;
         count++;
         docs_submitted++;
@@ -94,6 +100,7 @@ void* printer(void* arg) {
 
         // dequeue
         Document doc = queue[head];
+        // Using modulo for circular buffer wrap-around (avoids branching / if-else)
         head = (head + 1) % MAX_QUEUE_SIZE;
         count--;
         
@@ -158,6 +165,11 @@ int main(void) {
 
     pthread_mutex_lock(&q_lock);
     all_sent = 1;
+    /*
+     * NOTE: all_sent MUST be set BEFORE broadcasting. This ensures that when the printer 
+     * thread wakes up from cond_wait, it sees all_sent=1 and can exit gracefully, 
+     * avoiding an infinite wait.
+     */
     pthread_cond_broadcast(&not_empty); // wake up printer if it is stuck waiting for empty
     pthread_mutex_unlock(&q_lock);
 

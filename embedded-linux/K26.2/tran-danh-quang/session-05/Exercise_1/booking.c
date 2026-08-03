@@ -29,7 +29,8 @@ void* book_ticket(void* arg) {
            req->agent_id, pthread_self(), req->seats_wanted, req->customer);
 
     // Sleep to force concurrency as requested
-    sleep(1);
+    // usleep(100000) used instead of sleep(1) to reduce test time while still proving concurrency.
+    usleep(100000);
 
     pthread_mutex_lock(&seat_lock);
 
