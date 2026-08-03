@@ -15,7 +15,10 @@ int main() {
 
     float add_res = calc_add(a, b);
     int ret1 = snprintf(log_buf, sizeof(log_buf), "Add: %.2f + %.2f = %.2f", a, b, add_res);
-    if (ret1 < 0 || ret1 >= (int)sizeof(log_buf)) {
+    if (ret1 < 0) {
+        log_error("snprintf encoding error");
+        return 1;
+    } else if (ret1 >= (int)sizeof(log_buf)) {
         log_error("snprintf truncation");
         return 1;
     }
@@ -25,7 +28,10 @@ int main() {
     float div_res = calc_div(a, c);
     if (isnan(div_res)) {
         int ret2 = snprintf(log_buf, sizeof(log_buf), "Division by zero attempted (%.2f / %.2f)", a, c);
-        if (ret2 < 0 || ret2 >= (int)sizeof(log_buf)) {
+        if (ret2 < 0) {
+            log_error("snprintf encoding error");
+            return 1;
+        } else if (ret2 >= (int)sizeof(log_buf)) {
             log_error("snprintf truncation");
             return 1;
         }

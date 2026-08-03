@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <time.h>
 
-#define LOG_TIMESTAMP_PREFIX "[INFO] Timestamp: "
+#define LOG_PREFIX "[INFO] Timestamp: "
+#define LOG_TIMESTAMP_FMT "%Y-%m-%d %H:%M:%S"
 
 static void append_to_file(const char *msg) {
     FILE *f = fopen("app.log", "a");
@@ -40,7 +41,7 @@ void log_timestamp(void) {
         return;
     }
     char buf[128];
-    strftime(buf, sizeof(buf), LOG_TIMESTAMP_PREFIX "%Y-%m-%d %H:%M:%S", t);
+    strftime(buf, sizeof(buf), LOG_PREFIX LOG_TIMESTAMP_FMT, t);
     append_to_file(buf);
 }
 

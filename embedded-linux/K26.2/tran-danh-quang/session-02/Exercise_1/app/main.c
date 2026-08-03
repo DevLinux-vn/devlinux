@@ -13,10 +13,6 @@ int main() {
             fprintf(stderr, "EOF encountered\n");
             return 1;
         }
-        if (ret != EOF && errno == EINTR) {
-            errno = 0;
-            continue;  /* retry on EINTR */
-        }
         /* clear input buffer */
         int c;
         while ((c = getchar()) != EOF && c != '\n') {}
@@ -30,10 +26,6 @@ int main() {
         if (ret == EOF) {
             fprintf(stderr, "EOF encountered\n");
             return 1;
-        }
-        if (ret != EOF && errno == EINTR) {
-            errno = 0;
-            continue;  /* retry on EINTR */
         }
         /* clear input buffer */
         int c;
