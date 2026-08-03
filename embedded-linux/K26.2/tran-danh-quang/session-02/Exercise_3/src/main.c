@@ -4,7 +4,10 @@
 #include "logger.h"
 
 int main() {
-    float a = 10.0f, b = 2.0f, c = 0.0f;
+#define OPERAND_A 10.0f
+#define OPERAND_B 2.0f
+#define OPERAND_C 0.0f
+    float a = OPERAND_A, b = OPERAND_B, c = OPERAND_C;
     char log_buf[256];
 
     log_timestamp();

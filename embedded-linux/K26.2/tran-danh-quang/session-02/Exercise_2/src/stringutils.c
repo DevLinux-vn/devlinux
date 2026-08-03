@@ -21,7 +21,8 @@ int str_count(const char *s) {
 
 void str_reverse(char *s) {
     if (!s) return;
-    int len = str_count(s);
+    int len = 0;
+    while (s[len]) len++;
     for (int i = 0; i < len / 2; i++) {
         char temp = s[i];
         s[i] = s[len - 1 - i];

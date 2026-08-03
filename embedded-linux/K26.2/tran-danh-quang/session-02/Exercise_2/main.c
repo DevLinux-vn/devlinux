@@ -9,6 +9,10 @@ int main(int argc, char *argv[]) {
     }
 
     char str[1024];
+    if (strlen(argv[1]) >= sizeof(str)) {
+        fprintf(stderr, "String too long\n");
+        return 1;
+    }
     strncpy(str, argv[1], sizeof(str) - 1);
     str[sizeof(str) - 1] = '\0';
 
