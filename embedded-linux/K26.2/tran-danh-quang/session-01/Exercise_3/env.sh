@@ -1,6 +1,12 @@
 #!/bin/bash
+# ------------------------------------------------------------------
+# Script: env.sh
+# Purpose: Demonstrates working with environment variables,
+#          printing specific ones, counting directories in PATH, and 
+#          counting total environment variables in the system.
+# ------------------------------------------------------------------
 
-# Print the value of $PATH, $HOME, $USER, $SHELL
+# 1. Print variables: $PATH, $HOME, $USER, $SHELL
 echo "--- Environment Variables ---"
 echo "PATH: $PATH"
 echo "HOME: $HOME"
