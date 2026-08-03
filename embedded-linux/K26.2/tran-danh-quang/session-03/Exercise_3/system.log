@@ -1,0 +1,4 @@
+[PID:86151] [2026-08-03 15:23:47] [INFO] Test message from flock 1
+[PID:86152] [2026-08-03 15:23:47] [INFO] Test message from flock 2
+[PID:86156] [2026-08-03 15:23:47] [INFO] Test message from fcntl 1
+[PID:86157] [2026-08-03 15:23:47] [INFO] Test message from fcntl 2
