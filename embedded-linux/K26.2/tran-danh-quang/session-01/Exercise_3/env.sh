@@ -17,8 +17,9 @@ echo "-----------------------------"
 echo
 # 2. Count how many directories are in $PATH
 # (Use -n to print the label on the same line as the count result)
+# (Use grep -c . instead of wc -l to avoid counting the trailing empty newline from tr)
 echo -n "Number of directories in PATH: "
-echo "$PATH" | tr ':' '\n' | wc -l
+echo "$PATH" | tr ':' '\n' | grep -c .
 
 echo
 # 3. Use printenv to list all environment variables and count how many there are
