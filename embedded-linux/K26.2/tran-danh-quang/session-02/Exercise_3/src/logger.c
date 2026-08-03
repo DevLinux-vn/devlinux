@@ -12,7 +12,8 @@ static void append_to_file(const char *msg) {
     }
     if (fprintf(f, "%s\n", msg) < 0) {
         perror("fprintf");
-        fclose(f);
+        int ret_close = fclose(f);
+        if (ret_close != 0) perror("fclose");
         return;
     }
     if (fclose(f) < 0) {
