@@ -50,15 +50,18 @@ int main(void) {
         }
         if (printf("[WORKER] Sent READY signal to gateway\n") < 0) {
             perror("printf");
+            exit(1);
         }
         exit(7);
     } else {
         // Parent
         if (printf("[GATEWAY] Worker PID = %d\n", pid) < 0) {
             perror("printf");
+            exit(1);
         }
 
-        // Block SIGUSR1
+        // Block SIGUSR1 for 5 seconds (simulating system initialization)
+        // Any SIGUSR1 from child will be queued (pending) and delivered after unblock
         if (sigprocmask(SIG_BLOCK, &block_set, NULL) == -1) {
             perror("sigprocmask block");
             return 1;
@@ -80,6 +83,7 @@ int main(void) {
         if (sigusr1_received) {
             if (printf("[GATEWAY] Worker reported READY signal received\n") < 0) {
                 perror("printf");
+                exit(1);
             }
             sigusr1_received = 0;
         }
@@ -93,6 +97,7 @@ int main(void) {
         if (WIFEXITED(status)) {
             if (printf("[GATEWAY] Worker exited with code %d\n", WEXITSTATUS(status)) < 0) {
                 perror("printf");
+                exit(1);
             }
         }
     }
