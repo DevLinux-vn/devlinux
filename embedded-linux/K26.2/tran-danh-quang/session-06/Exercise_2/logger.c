@@ -4,6 +4,7 @@
 #include <time.h>
 #include <errno.h>
 #include <string.h>
+#include <fcntl.h>
 
 #define LOG_ERR     "<3>"
 #define LOG_WARNING "<4>"
@@ -25,8 +26,17 @@ int main(void) {
         fprintf(stderr, LOG_ERR "Failed to get current time\n");
         return 1;
     }
-    // Chấp nhận cho bài này — time-based seed đủ cho rand() demo
-    srand((unsigned int)start_time);
+    /* Sufficient for demo purposes */
+    int fd = open("/dev/urandom", O_RDONLY);
+    if (fd != -1) {
+        unsigned int seed;
+        if (read(fd, &seed, sizeof(seed)) > 0) {
+            srand(seed);
+        }
+        close(fd);
+    } else {
+        srand((unsigned int)start_time);
+    }
 
     while (1) {
         cycle++;

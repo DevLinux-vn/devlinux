@@ -6,6 +6,7 @@ StartLimitBurst=3
 
 [Service]
 Type=simple
+# Note: Create user with: useradd -r -s /bin/false monitor
 User=monitor
 Group=monitor
 ExecStart=/usr/local/bin/monitor

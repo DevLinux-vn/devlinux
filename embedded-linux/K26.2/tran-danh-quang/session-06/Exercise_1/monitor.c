@@ -13,10 +13,7 @@ void handle_sigterm(int sig) {
 }
 
 int main(void) {
-    if (setvbuf(stdout, NULL, _IONBF, 0) != 0) {
-        fprintf(stderr, "setvbuf failed: %s\n", strerror(errno));
-        return 1;
-    }
+    setbuf(stdout, NULL);
 
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
