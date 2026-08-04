@@ -1,0 +1,41 @@
+=== 1. Full service log ===
+Aug 04 14:00:00 hostname systemd[1]: Started Logger Service.
+Aug 04 14:00:00 hostname logger[1234]: Service running normally, cycle 1
+Aug 04 14:00:00 hostname logger[1234]: Memory usage high: 85%
+Aug 04 14:00:00 hostname logger[1234]: Failed to connect to database, retry 1
+Aug 04 14:00:02 hostname logger[1234]: Service running normally, cycle 2
+Aug 04 14:00:02 hostname logger[1234]: Memory usage high: 90%
+Aug 04 14:00:02 hostname logger[1234]: Failed to connect to database, retry 2
+Aug 04 14:00:30 hostname logger[1234]: Simulating a crash after 30 seconds...
+Aug 04 14:00:30 hostname systemd[1]: logger.service: Main process exited, code=killed, status=6/ABRT
+Aug 04 14:00:30 hostname systemd[1]: logger.service: Failed with result 'signal'.
+
+=== 2. Warning level and above ===
+Aug 04 14:00:00 hostname logger[1234]: Memory usage high: 85%
+Aug 04 14:00:00 hostname logger[1234]: Failed to connect to database, retry 1
+Aug 04 14:00:02 hostname logger[1234]: Memory usage high: 90%
+Aug 04 14:00:02 hostname logger[1234]: Failed to connect to database, retry 2
+Aug 04 14:00:30 hostname logger[1234]: Simulating a crash after 30 seconds...
+Aug 04 14:00:30 hostname systemd[1]: logger.service: Failed with result 'signal'.
+
+=== 3. Error level and above ===
+Aug 04 14:00:00 hostname logger[1234]: Failed to connect to database, retry 1
+Aug 04 14:00:02 hostname logger[1234]: Failed to connect to database, retry 2
+Aug 04 14:00:30 hostname logger[1234]: Simulating a crash after 30 seconds...
+Aug 04 14:00:30 hostname systemd[1]: logger.service: Failed with result 'signal'.
+
+=== 4. Log from the last 1 minute ===
+Aug 04 14:00:00 hostname systemd[1]: Started Logger Service.
+Aug 04 14:00:00 hostname logger[1234]: Service running normally, cycle 1
+Aug 04 14:00:00 hostname logger[1234]: Memory usage high: 85%
+Aug 04 14:00:00 hostname logger[1234]: Failed to connect to database, retry 1
+Aug 04 14:00:02 hostname logger[1234]: Service running normally, cycle 2
+Aug 04 14:00:02 hostname logger[1234]: Memory usage high: 90%
+Aug 04 14:00:02 hostname logger[1234]: Failed to connect to database, retry 2
+Aug 04 14:00:30 hostname logger[1234]: Simulating a crash after 30 seconds...
+Aug 04 14:00:30 hostname systemd[1]: logger.service: Main process exited, code=killed, status=6/ABRT
+Aug 04 14:00:30 hostname systemd[1]: logger.service: Failed with result 'signal'.
+
+=== 5. Crash point ===
+Aug 04 14:00:30 hostname logger[1234]: Simulating a crash after 30 seconds...
+Aug 04 14:00:30 hostname systemd[1]: logger.service: Failed with result 'signal'.
