@@ -28,7 +28,8 @@ int main(void) {
 
     while (keep_running) {
         printf("Monitor service is running...\n");
-        sleep(1);
+        int ret = sleep(1);
+        if (ret == 0 && !keep_running) break;  // sleep xong, check flag
     }
 
     printf("Service shutting down...\n");

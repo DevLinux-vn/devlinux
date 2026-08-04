@@ -26,25 +26,35 @@ int main(void) {
         fprintf(stderr, LOG_ERR "Failed to get current time\n");
         return 1;
     }
-    /* Sufficient for demo purposes */
+    /* Seed PRNG from /dev/urandom for better randomness; fallback to time() if unavailable */
     int fd = open("/dev/urandom", O_RDONLY);
-    if (fd != -1) {
+    if (fd >= 0) {
         unsigned int seed;
-        if (read(fd, &seed, sizeof(seed)) > 0) {
+        if (read(fd, &seed, sizeof(seed)) == sizeof(seed)) {
             srand(seed);
         }
-        close(fd);
+        if (close(fd) == -1) {
+            perror("close");
+        }
     } else {
         srand((unsigned int)start_time);
     }
 
     while (1) {
         cycle++;
-        // Return value không check vì bài không yêu cầu xử lý lỗi write
         // Trong production, nên check: if (fprintf(...) < 0) { ... }
-        if (fprintf(stderr, LOG_INFO "Service running normally, cycle %d\n", cycle) < 0) { perror("fprintf"); }
-        if (fprintf(stderr, LOG_WARNING "Memory usage high: %d%%\n", 80 + rand() % 15) < 0) { perror("fprintf"); }
-        if (fprintf(stderr, LOG_ERR "Failed to connect to database, retry %d\n", cycle) < 0) { perror("fprintf"); }
+        if (fprintf(stderr, LOG_INFO "Service running normally, cycle %d\n", cycle) < 0) {
+            perror("fprintf");
+            exit(1);
+        }
+        if (fprintf(stderr, LOG_WARNING "Memory usage high: %d%%\n", 80 + rand() % 15) < 0) {
+            perror("fprintf");
+            exit(1);
+        }
+        if (fprintf(stderr, LOG_ERR "Failed to connect to database, retry %d\n", cycle) < 0) {
+            perror("fprintf");
+            exit(1);
+        }
 
         sleep(2);
 

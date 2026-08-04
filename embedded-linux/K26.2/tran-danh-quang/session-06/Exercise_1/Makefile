@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -O2
+CFLAGS = -Wall -Wextra -Werror -std=gnu99 -O2 -g
 
 TARGET = monitor
 SRCS = monitor.c
