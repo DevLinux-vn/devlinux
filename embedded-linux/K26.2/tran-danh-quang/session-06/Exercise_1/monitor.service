@@ -6,7 +6,9 @@ StartLimitBurst=3
 
 [Service]
 Type=simple
-ExecStart=/opt/monitor/monitor
+User=monitor
+Group=monitor
+ExecStart=/usr/local/bin/monitor
 Restart=on-failure
 RestartSec=5
 

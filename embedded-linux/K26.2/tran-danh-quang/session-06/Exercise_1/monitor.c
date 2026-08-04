@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #include <unistd.h>
 #include <signal.h>
 
@@ -11,15 +13,19 @@ void handle_sigterm(int sig) {
 }
 
 int main(void) {
-    setbuf(stdout, NULL);
+    if (setvbuf(stdout, NULL, _IONBF, 0) != 0) {
+        fprintf(stderr, "setvbuf failed: %s\n", strerror(errno));
+        return 1;
+    }
 
     struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
     sa.sa_handler = handle_sigterm;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
 
     if (sigaction(SIGTERM, &sa, NULL) == -1) {
-        perror("sigaction");
+        fprintf(stderr, "sigaction failed: %s\n", strerror(errno));
         return 1;
     }
 

@@ -4,7 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/opt/logger/logger
+User=logger
+Group=logger
+ExecStart=/usr/local/bin/logger
 StandardOutput=journal
 StandardError=journal
 Restart=no
