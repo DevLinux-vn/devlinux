@@ -28,10 +28,11 @@ int main(void) {
 
     while (keep_running) {
         printf("Monitor service is running...\n");
-        int ret = sleep(1);
-        if (ret == 0 && !keep_running) break;  // sleep xong, check flag
+        sleep(1);
     }
 
-    printf("Service shutting down...\n");
+    if (printf("Service shutting down...\n") < 0) {
+        fprintf(stderr, "printf failed: %s\n", strerror(errno));
+    }
     return 0;
 }

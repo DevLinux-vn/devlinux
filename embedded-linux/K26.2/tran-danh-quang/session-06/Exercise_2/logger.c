@@ -26,11 +26,14 @@ int main(void) {
         fprintf(stderr, LOG_ERR "Failed to get current time\n");
         return 1;
     }
-    /* Seed PRNG from /dev/urandom for better randomness; fallback to time() if unavailable */
+    /* Seed PRNG from /dev/urandom for better randomness in simulated memory % values.
+     * Fallback to time() if /dev/urandom unavailable. */
     int fd = open("/dev/urandom", O_RDONLY);
     if (fd >= 0) {
         unsigned int seed;
-        if (read(fd, &seed, sizeof(seed)) == sizeof(seed)) {
+        ssize_t n;
+        while ((n = read(fd, &seed, sizeof(seed))) == -1 && errno == EINTR);
+        if (n == sizeof(seed)) {
             srand(seed);
         }
         if (close(fd) == -1) {
@@ -42,7 +45,7 @@ int main(void) {
 
     while (1) {
         cycle++;
-        // Trong production, nên check: if (fprintf(...) < 0) { ... }
+        /* Check fprintf() return to catch I/O errors; all three log lines within same cycle should be checked consistently */
         if (fprintf(stderr, LOG_INFO "Service running normally, cycle %d\n", cycle) < 0) {
             perror("fprintf");
             exit(1);
