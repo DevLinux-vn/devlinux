@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <sys/time.h>
 #include <signal.h>
 #include <errno.h>
 
@@ -112,6 +113,11 @@ int main(void) {
         }
 
         printf("[Daemon] Client connected.\n");
+        
+        struct timeval tv;
+        tv.tv_sec = 30;
+        tv.tv_usec = 0;
+        setsockopt(client_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
         char buffer[BUFFER_SIZE];
         while (keep_running) {

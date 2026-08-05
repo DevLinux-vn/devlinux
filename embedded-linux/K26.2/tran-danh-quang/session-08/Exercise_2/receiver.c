@@ -97,8 +97,7 @@ int main(void) {
 
         char client_ip[INET_ADDRSTRLEN];
         if (inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN) == NULL) {
-            perror("inet_ntop");
-            continue;
+            snprintf(client_ip, sizeof(client_ip), "UNKNOWN");
         }
         
         int client_port = ntohs(client_addr.sin_port);

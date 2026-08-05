@@ -5,10 +5,13 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
 #define COLLECTOR_IP "127.0.0.1"
 #define COLLECTOR_PORT 9000
 #define BUFFER_SIZE 256
+#define TEMP_BASE 40.0
+#define TEMP_LOAD_FACTOR 10.0
 
 static int read_temp_simulated(double *temp) {
     FILE *f = fopen("/proc/loadavg", "r");
@@ -22,7 +25,7 @@ static int read_temp_simulated(double *temp) {
         return -1;
     }
     fclose(f);
-    *temp = 40.0 + load1 * 10.0;
+    *temp = TEMP_BASE + load1 * TEMP_LOAD_FACTOR;
     return 0;
 }
 
@@ -90,8 +93,13 @@ int main(void) {
             continue;
         }
 
-        if (sendto(client_fd, message, strlen(message), 0,
-                   (struct sockaddr *)&collector_addr, sizeof(collector_addr)) == -1) {
+        ssize_t ret;
+        do {
+            ret = sendto(client_fd, message, strlen(message), 0,
+                         (struct sockaddr *)&collector_addr, sizeof(collector_addr));
+        } while (ret == -1 && errno == EINTR);
+
+        if (ret == -1) {
             perror("sendto");
             continue;
         }
