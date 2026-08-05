@@ -92,14 +92,14 @@ int main(void) {
 
     while (keep_running) {
         double load1 = 0.0;
-        if (read_loadavg(&load1) == 0) {
-            shm_ptr->cpu_temp = 40.0 + load1 * 10.0;
+        double ram_used_pct = 0.0;
+        if (read_loadavg(&load1) != 0 || read_meminfo(&ram_used_pct) != 0) {
+            sleep(SLEEP_INTERVAL_SEC);
+            continue;
         }
 
-        double ram_used_pct = 0.0;
-        if (read_meminfo(&ram_used_pct) == 0) {
-            shm_ptr->ram_used_pct = ram_used_pct;
-        }
+        shm_ptr->cpu_temp = 40.0 + load1 * 10.0;
+        shm_ptr->ram_used_pct = ram_used_pct;
 
         shm_ptr->timestamp = time(NULL);
 
@@ -116,6 +116,7 @@ int main(void) {
 
     if (shmctl(shmid, IPC_RMID, NULL) == -1) {
         perror("shmctl");
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

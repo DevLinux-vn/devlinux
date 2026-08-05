@@ -50,13 +50,8 @@ int main(void) {
 
     while (keep_running) {
         /* Print config mapping from values */
-        const char *log_str = "UNKNOWN";
-        switch (cfg->log_level) {
-            case 0: log_str = "OFF"; break;
-            case 1: log_str = "ERROR"; break;
-            case 2: log_str = "INFO"; break;
-            case 3: log_str = "DEBUG"; break;
-        }
+        static const char *names[] = {"OFF", "ERROR", "INFO", "DEBUG"};
+        const char *log_str = (cfg->log_level >= 0 && cfg->log_level <= 3) ? names[cfg->log_level] : "UNKNOWN";
 
         printf("baud_rate=%d  sampling_rate=%d Hz  log_level=%s\n",
                cfg->baud_rate, cfg->sampling_rate_hz, log_str);

@@ -7,13 +7,10 @@
 #include <signal.h>
 #include <errno.h>
 
+#include "device_state.h"
+
 #define SHM_NAME "/device_shm"
 #define SLEEP_INTERVAL_SEC 1
-
-typedef struct {
-    pthread_mutex_t mutex;
-    int             status;  /* 0 = OFF, 1 = ON */
-} device_state_t;
 
 volatile sig_atomic_t keep_running = 1;
 

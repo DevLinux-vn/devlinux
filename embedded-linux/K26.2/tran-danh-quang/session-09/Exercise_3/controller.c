@@ -8,13 +8,10 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+#include "device_state.h"
+
 #define SHM_NAME "/device_shm"
 #define INPUT_BUFFER_SIZE 256
-
-typedef struct {
-    pthread_mutex_t mutex;
-    int             status;  /* 0 = OFF, 1 = ON */
-} device_state_t;
 
 void clear_stdin(void) {
     int c;
@@ -81,6 +78,9 @@ int main(void) {
 
     if (pthread_mutexattr_destroy(&attr) != 0) {
         perror("pthread_mutexattr_destroy");
+        munmap(state, sizeof(device_state_t));
+        shm_unlink(SHM_NAME);
+        return EXIT_FAILURE;
     }
 
     /* Initialize status */
