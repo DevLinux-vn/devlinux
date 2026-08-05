@@ -86,4 +86,4 @@ MODULE_INFO(depends, "");
 MODULE_ALIAS("of:N*T*Cpham-anh-quan,led-blink");
 MODULE_ALIAS("of:N*T*Cpham-anh-quan,led-blinkC*");
 
-MODULE_INFO(srcversion, "BDEB4E09F19C4CF3981B284");
+MODULE_INFO(srcversion, "2852070DA0ED519DF733158");

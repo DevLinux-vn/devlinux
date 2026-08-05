@@ -35,13 +35,10 @@ static ssize_t led_read(struct file *file, char __user *buf, size_t count, loff_
     int val;
     char state_char;
 
-    if (*ppos > 0) return 0; // EOF
+    if (*ppos >= 1) return 0; // EOF chuẩn POSIX
 
-    if (!led_gpio) {
-        return -EIO;
-    }
+    if (!led_gpio) return -EIO;
 
-    // Đọc trạng thái thực tế từ phần cứng qua GPIO descriptor
     val = gpiod_get_value(led_gpio);
     state_char = (val > 0) ? '1' : '0';
 
@@ -62,9 +59,7 @@ static ssize_t led_write(struct file *file, const char __user *buf, size_t count
         return -EFAULT;
     }
 
-    if (!led_gpio) {
-        return -EIO;
-    }
+    if (!led_gpio) return -EIO;
 
     if (kbuf == '1') {
         gpiod_set_value(led_gpio, 1);
@@ -91,7 +86,7 @@ static int led_probe(struct platform_device *pdev) {
 
     dev_info(dev, "Probing led_blink platform driver...\n");
 
-    // Lấy GPIO descriptor từ Device Tree (tên phím GPIO là "led")
+    // Match với 'led-gpios' trong Device Tree Overlay
     led_gpio = devm_gpiod_get(dev, "led", GPIOD_OUT_LOW);
     if (IS_ERR(led_gpio)) {
         ret = PTR_ERR(led_gpio);
@@ -99,7 +94,6 @@ static int led_probe(struct platform_device *pdev) {
         return ret;
     }
 
-    // Cấp phát Major/Minor device number
     ret = alloc_chrdev_region(&dev_num, 0, 1, DEVICE_NAME);
     if (ret < 0) {
         dev_err(dev, "Failed to allocate chrdev region\n");
@@ -118,7 +112,7 @@ static int led_probe(struct platform_device *pdev) {
     led_class = class_create(CLASS_NAME);
     if (IS_ERR(led_class)) {
         ret = PTR_ERR(led_class);
-        dev_err(dev, "Failed to create class\n");
+        dev_err(dev, "Failed to create class: %d\n", ret);
         goto fail_cdev_del;
     }
 
@@ -151,7 +145,6 @@ static int led_remove(struct platform_device *pdev) {
     cdev_del(&led_cdev);
     unregister_chrdev_region(dev_num, 1);
 
-    // devm_gpiod_get sẽ tự động giải phóng tài nguyên GPIO
     return 0;
 }
 

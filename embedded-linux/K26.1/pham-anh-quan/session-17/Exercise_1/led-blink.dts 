@@ -5,17 +5,18 @@
     compatible = "brcm,bcm2835";
 
     fragment@0 {
-        target-path = "/";
+        target = <&gpio>;
         __overlay__ {
-            led_blink_node {
+            led_blink_node: led_blink_node {
                 compatible = "pham-anh-quan,led-blink";
-                /* 
-                 * Sử dụng GPIO17, cờ GPIO_ACTIVE_HIGH (0): 
-                 * Logic 1 sẽ xuất điện thế HIGH (3.3V) làm sáng LED mắc kiểu Sinking/Active-High.
-                 */
-                led-gpios = <&gpio 17 0>; 
+                led-gpios = <&gpio 17 0>;
                 label = "led-blink";
             };
         };
     };
+};
+
+/* Định nghĩa dummy gpio node nếu target base tree chưa có phím &gpio */
+&gpio {
+    #gpio-cells = <2>;
 };
