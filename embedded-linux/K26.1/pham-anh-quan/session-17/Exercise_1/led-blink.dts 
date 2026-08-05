@@ -1,0 +1,21 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2835";
+
+    fragment@0 {
+        target-path = "/";
+        __overlay__ {
+            led_blink_node {
+                compatible = "pham-anh-quan,led-blink";
+                /* 
+                 * Sử dụng GPIO17, cờ GPIO_ACTIVE_HIGH (0): 
+                 * Logic 1 sẽ xuất điện thế HIGH (3.3V) làm sáng LED mắc kiểu Sinking/Active-High.
+                 */
+                led-gpios = <&gpio 17 0>; 
+                label = "led-blink";
+            };
+        };
+    };
+};
