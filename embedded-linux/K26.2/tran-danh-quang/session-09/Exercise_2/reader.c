@@ -43,13 +43,13 @@ int main(void) {
 
     if (close(fd) == -1) {
         perror("close");
-        /* Continue execution */
+        return EXIT_FAILURE;
     }
 
     printf("[Config Reader] Polling %s every %ds...\n", CFG_FILE_PATH, SLEEP_INTERVAL_SEC);
 
     while (keep_running) {
-        /* Print config mapping from values */
+        /* Convert log_level int to string for better readability in output log */
         static const char *names[] = {"OFF", "ERROR", "INFO", "DEBUG"};
         const char *log_str = (cfg->log_level >= 0 && cfg->log_level <= 3) ? names[cfg->log_level] : "UNKNOWN";
 

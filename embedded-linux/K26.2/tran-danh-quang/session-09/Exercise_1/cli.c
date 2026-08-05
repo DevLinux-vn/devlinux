@@ -24,6 +24,11 @@ int main(void) {
     printf("CPU Temp  : %.2f C\n", shm_ptr->cpu_temp);
     printf("RAM Used  : %.2f %%\n", shm_ptr->ram_used_pct);
 
+    time_t current_time = time(NULL);
+    if (current_time - shm_ptr->timestamp > 5) {
+        fprintf(stderr, "Warning: Sensor data might be stale. Is daemon running?\n");
+    }
+
     if (shmdt(shm_ptr) == -1) {
         perror("shmdt");
         return EXIT_FAILURE;

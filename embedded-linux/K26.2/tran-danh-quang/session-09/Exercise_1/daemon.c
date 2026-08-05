@@ -13,6 +13,7 @@
 #define PROC_LOADAVG_PATH "/proc/loadavg"
 #define PROC_MEMINFO_PATH "/proc/meminfo"
 #define SLEEP_INTERVAL_SEC 2
+#define PROC_LINE_BUFSIZE 256
 
 volatile sig_atomic_t keep_running = 1;
 
@@ -43,7 +44,7 @@ int read_meminfo(double *ram_used_pct) {
         return -1;
     }
     
-    char line[256];
+    char line[PROC_LINE_BUFSIZE];
     long mem_total = 0, mem_free = 0;
     while (fgets(line, sizeof(line), fp)) {
         if (strncmp(line, "MemTotal:", 9) == 0) {
@@ -63,20 +64,24 @@ int read_meminfo(double *ram_used_pct) {
     return 0;
 }
 
-int main(void) {
+sensor_data_t *init_daemon(int *shmid_out) {
     struct sigaction sa;
     sa.sa_handler = sigint_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     if (sigaction(SIGINT, &sa, NULL) == -1) {
         perror("sigaction");
-        return EXIT_FAILURE;
+        return NULL;
     }
 
-    int shmid = shmget(SHM_KEY, sizeof(sensor_data_t), IPC_CREAT | 0666);
+    int shmid = shmget(SHM_KEY, sizeof(sensor_data_t), IPC_CREAT | IPC_EXCL | 0666);
     if (shmid == -1) {
-        perror("shmget");
-        return EXIT_FAILURE;
+        if (errno == EEXIST) {
+            fprintf(stderr, "shmget: Shared memory already exists. Is another daemon running?\n");
+        } else {
+            perror("shmget");
+        }
+        return NULL;
     }
 
     sensor_data_t *shm_ptr = (sensor_data_t *)shmat(shmid, NULL, 0);
@@ -85,10 +90,20 @@ int main(void) {
         if (shmctl(shmid, IPC_RMID, NULL) == -1) {
             perror("shmctl IPC_RMID");
         }
-        return EXIT_FAILURE;
+        return NULL;
     }
 
     printf("[Daemon] Shared memory created. Key=0x%x\n", SHM_KEY);
+    *shmid_out = shmid;
+    return shm_ptr;
+}
+
+int main(void) {
+    int shmid = -1;
+    sensor_data_t *shm_ptr = init_daemon(&shmid);
+    if (shm_ptr == NULL) {
+        return EXIT_FAILURE;
+    }
 
     while (keep_running) {
         double load1 = 0.0;

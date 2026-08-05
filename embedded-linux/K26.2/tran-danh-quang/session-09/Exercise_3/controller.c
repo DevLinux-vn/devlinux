@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <pthread.h>
 #include <sys/stat.h>
-#include <errno.h>
+#include <pthread.h>
 
 #include "device_state.h"
 
@@ -39,47 +40,67 @@ int get_user_input(char *buffer, size_t size) {
     return 0;
 }
 
-int main(void) {
+device_state_t *init_controller(void) {
     int fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0666);
     if (fd == -1) {
         perror("shm_open");
-        return EXIT_FAILURE;
+        return NULL;
     }
 
     if (ftruncate(fd, sizeof(device_state_t)) == -1) {
         perror("ftruncate");
         close(fd);
-        return EXIT_FAILURE;
+        return NULL;
     }
 
     device_state_t *state = mmap(NULL, sizeof(device_state_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (state == MAP_FAILED) {
         perror("mmap");
         close(fd);
-        return EXIT_FAILURE;
+        return NULL;
     }
-    close(fd);
+    
+    if (close(fd) == -1) {
+        perror("close");
+        /* fd no longer needed after successful mmap, close failure is non-fatal */
+    }
 
     pthread_mutexattr_t attr;
     if (pthread_mutexattr_init(&attr) != 0) {
         perror("pthread_mutexattr_init");
-        return EXIT_FAILURE;
+        munmap(state, sizeof(device_state_t));
+        shm_unlink(SHM_NAME);
+        return NULL;
     }
 
     if (pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED) != 0) {
         perror("pthread_mutexattr_setpshared");
-        return EXIT_FAILURE;
+        pthread_mutexattr_destroy(&attr);
+        munmap(state, sizeof(device_state_t));
+        shm_unlink(SHM_NAME);
+        return NULL;
     }
 
     if (pthread_mutex_init(&state->mutex, &attr) != 0) {
         perror("pthread_mutex_init");
-        return EXIT_FAILURE;
+        pthread_mutexattr_destroy(&attr);
+        munmap(state, sizeof(device_state_t));
+        shm_unlink(SHM_NAME);
+        return NULL;
     }
 
     if (pthread_mutexattr_destroy(&attr) != 0) {
         perror("pthread_mutexattr_destroy");
         munmap(state, sizeof(device_state_t));
         shm_unlink(SHM_NAME);
+        return NULL;
+    }
+    return state;
+}
+
+int main(void) {
+    device_state_t *state = init_controller();
+    if (state == NULL) {
         return EXIT_FAILURE;
     }
 

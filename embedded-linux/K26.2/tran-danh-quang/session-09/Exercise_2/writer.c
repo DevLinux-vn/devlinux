@@ -11,7 +11,6 @@
 #include "device_cfg.h"
 
 #define CFG_FILE_PATH "/tmp/device.cfg"
-#define INPUT_BUFFER_SIZE 256
 
 void clear_stdin(void) {
     int c;
@@ -26,6 +25,7 @@ void clear_stdin(void) {
 int get_user_input(char *buffer, size_t size) {
     while (fgets(buffer, size, stdin) == NULL) {
         if (errno == EINTR) {
+            /* Retry on EINTR */
             continue;
         }
         return -1;
@@ -57,6 +57,16 @@ int main(void) {
         perror("mmap");
         close(fd);
         return EXIT_FAILURE;
+    }
+    
+    /* Initialize default values if uninitialized */
+    if (cfg->baud_rate == 0) {
+        cfg->baud_rate = 9600;
+        cfg->sampling_rate_hz = 100;
+        cfg->log_level = 2;  /* INFO */
+        if (msync(cfg, sizeof(device_cfg_t), MS_SYNC) == -1) {
+            perror("msync");
+        }
     }
     
     if (close(fd) == -1) {
