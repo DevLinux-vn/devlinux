@@ -8,6 +8,7 @@
 
 #define COLLECTOR_IP "127.0.0.1"
 #define COLLECTOR_PORT 9000
+#define BUFFER_SIZE 256
 
 static int read_temp_simulated(double *temp) {
     FILE *f = fopen("/proc/loadavg", "r");
@@ -82,8 +83,12 @@ int main(void) {
             continue;
         }
 
-        char message[256];
-        snprintf(message, sizeof(message), "id=sensor-01 temp=%.1f mem_used=%.1f%%", temp, mem_used_pct);
+        char message[BUFFER_SIZE];
+        int n = snprintf(message, sizeof(message), "id=sensor-01 temp=%.1f mem_used=%.1f%%", temp, mem_used_pct);
+        if (n < 0 || n >= (int)sizeof(message)) {
+            fprintf(stderr, "snprintf truncated\n");
+            continue;
+        }
 
         if (sendto(client_fd, message, strlen(message), 0,
                    (struct sockaddr *)&collector_addr, sizeof(collector_addr)) == -1) {

@@ -66,7 +66,7 @@ static int setup_server_socket(void) {
     struct sockaddr_un addr;
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path) - 1);
+    snprintf(addr.sun_path, sizeof(addr.sun_path), "%s", SOCKET_PATH);
 
     unlink(SOCKET_PATH);
 
@@ -105,7 +105,7 @@ int main(void) {
         int client_fd = accept(server_fd, NULL, NULL);
         if (client_fd == -1) {
             if (errno == EINTR) {
-                break;
+                continue;
             }
             perror("accept");
             continue;
@@ -118,7 +118,7 @@ int main(void) {
             ssize_t bytes_read = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
             if (bytes_read == -1) {
                 if (errno == EINTR) {
-                    break;
+                    continue;
                 }
                 perror("recv");
                 break;
@@ -151,9 +151,18 @@ int main(void) {
                 snprintf(response, sizeof(response), "ERROR: unknown command\n");
             }
 
-            if (send(client_fd, response, strlen(response), 0) == -1) {
-                perror("send");
-                break;
+            size_t total_sent = 0;
+            size_t response_len = strlen(response);
+            while (total_sent < response_len) {
+                ssize_t sent_bytes = send(client_fd, response + total_sent, response_len - total_sent, 0);
+                if (sent_bytes == -1) {
+                    if (errno == EINTR) {
+                        continue;
+                    }
+                    perror("send");
+                    break;
+                }
+                total_sent += sent_bytes;
             }
         }
         close(client_fd);

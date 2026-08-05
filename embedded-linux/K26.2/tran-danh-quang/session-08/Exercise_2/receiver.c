@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <time.h>
 #include <signal.h>
+#include <errno.h>
 
 #define COLLECTOR_PORT 9000
 #define BUFFER_SIZE 512
@@ -64,8 +65,8 @@ int main(void) {
         
         if (bytes_read == -1) {
             // Check if we were interrupted by a signal
-            if (keep_running == 0) {
-                break;
+            if (errno == EINTR) {
+                continue;
             }
             perror("recvfrom");
             continue;
