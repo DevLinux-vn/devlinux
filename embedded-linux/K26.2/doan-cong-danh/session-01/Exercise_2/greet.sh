@@ -1,5 +1,5 @@
 #!/bin/bash
-if [$# -lt 2]; then
+if [ $# -lt 2]; then
     echo "Usage: $0 <name> <age>"
     exit 1
 fi
