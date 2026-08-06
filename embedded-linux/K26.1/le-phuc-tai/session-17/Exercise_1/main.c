@@ -1,6 +1,6 @@
 /**
  * @file main.c
- * @brief Platform driver controlling an LED via GPIO Descriptor API and Device Tree.
+ * @brief Thread-safe platform driver for Linux Kernel 6.17+ using GPIO Descriptors.
  * @date 2026-08-06
  */
 
@@ -15,21 +15,23 @@
 #include <linux/uaccess.h>
 #include <linux/err.h>
 #include <linux/slab.h>
+#include <linux/mutex.h>
 
 #define DRIVER_NAME     "led_blink_driver"
 #define DEVICE_NAME     "led_blink"
 #define CLASS_NAME      "led_blink_class"
-#define COMPATIBLE_STR  "phuctai,led-blink"
+#define COMPATIBLE_STR  "thaonguyen,led-blink"
 
 #define LED_CMD_ON      '1'
 #define LED_CMD_OFF     '0'
 #define MINOR_BASE      0
 #define DEV_COUNT       1
+#define TRANSFER_SIZE   ((size_t)1)
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Phuc Tai");
-MODULE_DESCRIPTION("Platform Driver for LED Control using GPIO Descriptors");
-MODULE_VERSION("1.0");
+MODULE_AUTHOR("Senior Embedded Systems Engineer");
+MODULE_DESCRIPTION("Platform Driver compatible with Linux Kernel 6.17+");
+MODULE_VERSION("2.0");
 
 struct led_dev_priv {
 	struct gpio_desc *gpiod;
@@ -37,6 +39,7 @@ struct led_dev_priv {
 	struct cdev cdev;
 	struct class *class;
 	struct device *device;
+	struct mutex lock;
 };
 
 static int led_open(struct inode *inode, struct file *filep)
@@ -65,15 +68,18 @@ static ssize_t led_read(struct file *filep, char __user *buffer, size_t len, lof
 	int gpio_val;
 
 	if (*offset > 0) {
-		return 0; /* EOF check */
+		*offset = 0; /* Reset offset to allow continuous status polling */
+		return 0;
 	}
 
-	if (len < 1) {
+	if (len < TRANSFER_SIZE) {
 		return -EINVAL;
 	}
 
-	/* Direct physical hardware state acquisition via Descriptor API */
+	mutex_lock(&priv->lock);
 	gpio_val = gpiod_get_value(priv->gpiod);
+	mutex_unlock(&priv->lock);
+
 	if (gpio_val < 0) {
 		dev_err(priv->device, "Failed to read hardware GPIO status: %d\n", gpio_val);
 		return gpio_val;
@@ -81,13 +87,13 @@ static ssize_t led_read(struct file *filep, char __user *buffer, size_t len, lof
 
 	state_char = (gpio_val == 1) ? LED_CMD_ON : LED_CMD_OFF;
 
-	if (copy_to_user(buffer, &state_char, 1) != 0) {
+	if (copy_to_user(buffer, &state_char, TRANSFER_SIZE) != 0) {
 		dev_err(priv->device, "Failed to copy GPIO status to user space\n");
 		return -EFAULT;
 	}
 
-	*offset += 1;
-	return 1;
+	*offset += TRANSFER_SIZE;
+	return (ssize_t)TRANSFER_SIZE;
 }
 
 static ssize_t led_write(struct file *filep, const char __user *buffer, size_t len, loff_t *offset)
@@ -101,11 +107,12 @@ static ssize_t led_write(struct file *filep, const char __user *buffer, size_t l
 		return 0;
 	}
 
-	if (copy_from_user(&cmd_char, buffer, 1) != 0) {
+	if (copy_from_user(&cmd_char, buffer, TRANSFER_SIZE) != 0) {
 		dev_err(priv->device, "Failed to copy command from user space\n");
 		return -EFAULT;
 	}
 
+	mutex_lock(&priv->lock);
 	if (cmd_char == LED_CMD_ON) {
 		gpiod_set_value(priv->gpiod, 1);
 		dev_info(priv->device, "LED state set to HIGH (ON)\n");
@@ -113,9 +120,11 @@ static ssize_t led_write(struct file *filep, const char __user *buffer, size_t l
 		gpiod_set_value(priv->gpiod, 0);
 		dev_info(priv->device, "LED state set to LOW (OFF)\n");
 	} else {
+		mutex_unlock(&priv->lock);
 		dev_err(priv->device, "Invalid command character received: 0x%02x\n", cmd_char);
 		return -EINVAL;
 	}
+	mutex_unlock(&priv->lock);
 
 	return len;
 }
@@ -127,6 +136,52 @@ static const struct file_operations led_fops = {
 	.read    = led_read,
 	.write   = led_write,
 };
+
+static int led_probe_init_cdev(struct led_dev_priv *priv, struct platform_device *pdev)
+{
+	int ret;
+
+	ret = alloc_chrdev_region(&priv->dev_num, MINOR_BASE, DEV_COUNT, DEVICE_NAME);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "Failed to allocate character device region\n");
+		return ret;
+	}
+
+	cdev_init(&priv->cdev, &led_fops);
+	priv->cdev.owner = THIS_MODULE;
+
+	ret = cdev_add(&priv->cdev, priv->dev_num, DEV_COUNT);
+	if (ret < 0) {
+		dev_err(&pdev->dev, "Failed to add cdev structure\n");
+		unregister_chrdev_region(priv->dev_num, DEV_COUNT);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int led_probe_init_device(struct led_dev_priv *priv, struct platform_device *pdev)
+{
+	int ret;
+
+	/* FIX: Kernel 6.4+ class_create takes only 1 argument (CLASS_NAME) */
+	priv->class = class_create(CLASS_NAME);
+	if (IS_ERR(priv->class)) {
+		ret = PTR_ERR(priv->class);
+		dev_err(&pdev->dev, "Failed to create sysfs class\n");
+		return ret;
+	}
+
+	priv->device = device_create(priv->class, &pdev->dev, priv->dev_num, NULL, DEVICE_NAME);
+	if (IS_ERR(priv->device)) {
+		ret = PTR_ERR(priv->device);
+		dev_err(&pdev->dev, "Failed to create device node /dev/%s\n", DEVICE_NAME);
+		class_destroy(priv->class);
+		return ret;
+	}
+
+	return 0;
+}
 
 static int led_probe(struct platform_device *pdev)
 {
@@ -140,7 +195,8 @@ static int led_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 
-	/* Acquire GPIO Descriptor mapped from Device Tree (Initial state: LOW) */
+	mutex_init(&priv->lock);
+
 	priv->gpiod = devm_gpiod_get(&pdev->dev, NULL, GPIOD_OUT_LOW);
 	if (IS_ERR(priv->gpiod)) {
 		ret = PTR_ERR(priv->gpiod);
@@ -148,51 +204,26 @@ static int led_probe(struct platform_device *pdev)
 		return ret;
 	}
 
-	ret = alloc_chrdev_region(&priv->dev_num, MINOR_BASE, DEV_COUNT, DEVICE_NAME);
+	ret = led_probe_init_cdev(priv, pdev);
 	if (ret < 0) {
-		dev_err(&pdev->dev, "Failed to allocate character device region\n");
 		return ret;
 	}
 
-	cdev_init(&priv->cdev, &led_fops);
-	priv->cdev.owner = THIS_MODULE;
-
-	ret = cdev_add(&priv->cdev, priv->dev_num, DEV_COUNT);
+	ret = led_probe_init_device(priv, pdev);
 	if (ret < 0) {
-		dev_err(&pdev->dev, "Failed to add cdev structure to system\n");
-		goto fail_unregister_region;
-	}
-
-	priv->class = class_create(THIS_MODULE, CLASS_NAME);
-	if (IS_ERR(priv->class)) {
-		ret = PTR_ERR(priv->class);
-		dev_err(&pdev->dev, "Failed to create sysfs class\n");
-		goto fail_cdev_del;
-	}
-
-	priv->device = device_create(priv->class, &pdev->dev, priv->dev_num, NULL, DEVICE_NAME);
-	if (IS_ERR(priv->device)) {
-		ret = PTR_ERR(priv->device);
-		dev_err(&pdev->dev, "Failed to create device node /dev/%s\n", DEVICE_NAME);
-		goto fail_class_destroy;
+		cdev_del(&priv->cdev);
+		unregister_chrdev_region(priv->dev_num, DEV_COUNT);
+		return ret;
 	}
 
 	platform_set_drvdata(pdev, priv);
-
 	dev_info(&pdev->dev, "LED Platform Driver probed successfully. Major: %d, Minor: %d\n",
 	         MAJOR(priv->dev_num), MINOR(priv->dev_num));
 	return 0;
-
-fail_class_destroy:
-	class_destroy(priv->class);
-fail_cdev_del:
-	cdev_del(&priv->cdev);
-fail_unregister_region:
-	unregister_chrdev_region(priv->dev_num, DEV_COUNT);
-	return ret;
 }
 
-static int led_remove(struct platform_device *pdev)
+/* FIX: Kernel 6.11+ platform_driver.remove callback signature returns void */
+static void led_remove(struct platform_device *pdev)
 {
 	struct led_dev_priv *priv = platform_get_drvdata(pdev);
 
@@ -203,10 +234,10 @@ static int led_remove(struct platform_device *pdev)
 		class_destroy(priv->class);
 		cdev_del(&priv->cdev);
 		unregister_chrdev_region(priv->dev_num, DEV_COUNT);
+		mutex_destroy(&priv->lock);
 	}
 
 	dev_info(&pdev->dev, "LED Platform Driver removed cleanly\n");
-	return 0;
 }
 
 static const struct of_device_id led_of_match[] = {

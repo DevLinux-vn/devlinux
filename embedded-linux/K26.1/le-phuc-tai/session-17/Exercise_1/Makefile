@@ -11,3 +11,5 @@ all:
 
 clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
+
+.PHONY: all clean

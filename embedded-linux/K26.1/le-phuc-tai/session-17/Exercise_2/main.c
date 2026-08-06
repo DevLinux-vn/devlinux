@@ -1,6 +1,6 @@
 /**
  * @file main.c
- * @brief User-space LED blinking application utilizing timerfd and state confirmation.
+ * @brief User-space LED application with robust status query and timerfd handling.
  * @date 2026-08-06
  */
 
@@ -15,14 +15,15 @@
 #include <stdint.h>
 #include <sys/timerfd.h>
 
-#define DEVICE_PATH      "/dev/led_blink"
-#define BLINK_PERIOD_SEC 5
-#define TIME_BUF_SIZE    64
+#define DEVICE_PATH          "/dev/led_blink"
+#define BLINK_PERIOD_SEC     5
+#define TIME_BUF_SIZE        64
+#define REQUIRED_WRITE_BYTES 1
 
-#define CMD_ON           '1'
-#define CMD_OFF          '0'
-#define SUCCESS_CODE     0
-#define ERROR_CODE       1
+#define CMD_ON               '1'
+#define CMD_OFF              '0'
+#define SUCCESS_CODE         0
+#define ERROR_CODE           1
 
 static volatile sig_atomic_t g_keep_running = 1;
 
@@ -47,19 +48,47 @@ static void get_timestamp(char *buf, size_t size)
 	}
 }
 
-static char read_led_status_exact(int fd)
+static int read_led_status_exact(int fd, char *out_status)
 {
-	char status = '0';
 	ssize_t ret;
 
-	/* Pre-positioned read at offset 0 to query the driver state directly */
-	ret = pread(fd, &status, 1, 0);
-	if (ret < 0) {
-		perror("[APP] ERROR: Failed to read status from device node");
-		return 'E';
+	if (!out_status) {
+		return -1;
 	}
 
-	return status;
+	do {
+		ret = pread(fd, out_status, 1, 0);
+	} while (ret < 0 && errno == EINTR && g_keep_running);
+
+	if (ret < 0) {
+		perror("[APP] ERROR: Failed to read status from device node");
+		return -1;
+	}
+
+	return 0;
+}
+
+static int write_cmd_robust(int fd, char cmd)
+{
+	ssize_t written = 0;
+	ssize_t s_ret;
+
+	while (written < REQUIRED_WRITE_BYTES && g_keep_running) {
+		s_ret = write(fd, &cmd + written, REQUIRED_WRITE_BYTES - written);
+		if (s_ret < 0) {
+			if (errno == EINTR) {
+				continue;
+			}
+			perror("[APP] ERROR: Failed to write command to LED device");
+			return -1;
+		}
+		if (s_ret == 0) {
+			break;
+		}
+		written += s_ret;
+	}
+
+	return (written == REQUIRED_WRITE_BYTES) ? 0 : -1;
 }
 
 int main(void) {
@@ -69,6 +98,7 @@ int main(void) {
 	struct itimerspec its;
 	char current_cmd = CMD_ON;
 	char time_str[TIME_BUF_SIZE];
+	char read_back = CMD_OFF;
 	uint64_t expirations;
 	ssize_t s_ret;
 
@@ -85,12 +115,14 @@ int main(void) {
 		return ERROR_CODE;
 	}
 
-	/* Read and output initial state right after opening the device */
-	char initial_status = read_led_status_exact(dev_fd);
+	if (read_led_status_exact(dev_fd, &read_back) < 0) {
+		fprintf(stderr, "[APP] ERROR: Initial status acquisition failed\n");
+		close(dev_fd);
+		return ERROR_CODE;
+	}
 	get_timestamp(time_str, sizeof(time_str));
-	printf("[%s] [APP] Initial LED status: %c\n", time_str, initial_status);
+	printf("[%s] [APP] Initial LED status: %c\n", time_str, read_back);
 
-	/* Initialize high-precision timerfd with 5-second interval */
 	timer_fd = timerfd_create(CLOCK_MONOTONIC, 0);
 	if (timer_fd < 0) {
 		perror("[APP] ERROR: Failed to create timerfd instance");
@@ -110,24 +142,25 @@ int main(void) {
 	}
 
 	while (g_keep_running) {
-		s_ret = read(timer_fd, &expirations, sizeof(expirations));
+		do {
+			s_ret = read(timer_fd, &expirations, sizeof(expirations));
+		} while (s_ret < 0 && errno == EINTR && g_keep_running);
+
+		if (!g_keep_running) break;
+
 		if (s_ret < 0) {
-			if (errno == EINTR) {
-				continue;
-			}
 			perror("[APP] ERROR: timerfd read operation failed");
 			break;
 		}
 
-		/* Send state toggle command */
-		s_ret = write(dev_fd, &current_cmd, 1);
-		if (s_ret < 0) {
-			perror("[APP] ERROR: Failed to write command to LED device");
+		if (write_cmd_robust(dev_fd, current_cmd) < 0) {
 			break;
 		}
 
-		/* Hardware confirmation via immediate read-back */
-		char read_back = read_led_status_exact(dev_fd);
+		if (read_led_status_exact(dev_fd, &read_back) < 0) {
+			fprintf(stderr, "[APP] ERROR: Read-back status failed\n");
+			break;
+		}
 		get_timestamp(time_str, sizeof(time_str));
 
 		if (read_back != current_cmd) {
@@ -138,7 +171,6 @@ int main(void) {
 			       time_str, (current_cmd == CMD_ON) ? "ON" : "OFF", read_back);
 		}
 
-		/* Toggle target command for next 5-second iteration */
 		current_cmd = (current_cmd == CMD_ON) ? CMD_OFF : CMD_ON;
 	}
 
