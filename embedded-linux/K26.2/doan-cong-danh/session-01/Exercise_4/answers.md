@@ -17,7 +17,7 @@ exit
 # Step 4 — modify variable inside child shell
 bash
 MY_NAME="Alice"
-echo $MY_NAME        # what do you see inside child shell? 
+echo $MY_NAME        # what do you see inside child shell
 exit
 echo $MY_NAME        # back in parent shell — what do you see? why?
 ## child shell: Alice
