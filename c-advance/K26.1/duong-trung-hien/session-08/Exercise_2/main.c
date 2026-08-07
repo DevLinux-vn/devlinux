@@ -4,6 +4,17 @@
 
 #define APP_SUCCESS (0)
 
+/**
+ * @brief Logs the status of a device safely.
+ *
+ * Creates a formatted status message containing the specified device
+ * name and prints it to the console. The message is constructed using
+ * snprintf() to prevent buffer overflow, and is printed using a fixed
+ * format string to avoid format string vulnerabilities.
+ *
+ * @param device_name Pointer to a null-terminated string containing the
+ *                    device name to be logged.
+ */
 void log_device_status(const char* device_name) {
     char untrusted_buffer[128];
     snprintf(untrusted_buffer, sizeof(untrusted_buffer), "Device online: %s", device_name);

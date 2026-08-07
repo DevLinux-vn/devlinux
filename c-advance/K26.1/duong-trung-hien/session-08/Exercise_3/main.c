@@ -5,12 +5,32 @@
 #define MAX_PAYLOAD_SIZE 64
 #define START_BYTE 0xAA
 
+/**
+ * @brief Represents a parsed UART packet.
+ *
+ * Stores the payload length and payload data extracted from a UART
+ * packet after validation.
+ */
 typedef struct {
-    uint8_t length;
-    uint8_t payload[MAX_PAYLOAD_SIZE];
+    uint8_t length;                          /**< Number of bytes in the payload. */
+    uint8_t payload[MAX_PAYLOAD_SIZE];       /**< Payload data buffer. */
 } packet_t;
 
-void parse_packet(const uint8_t* raw_data) {
+/**
+ * @brief Parses and validates a UART packet.
+ *
+ * This function verifies that the packet begins with the expected start
+ * byte and that the payload length does not exceed the maximum supported
+ * payload size. If the packet is valid, the payload is copied into a
+ * local packet structure. Invalid packets are safely rejected without
+ * performing any memory copy.
+ *
+ * @param raw_data Pointer to the raw UART packet data. The expected
+ *                 packet format is:
+ *                 [START_BYTE][LENGTH_BYTE][PAYLOAD...][CHECKSUM]
+ */
+void parse_packet(const uint8_t *raw_data)
+{
     packet_t pkt;
 
     if (raw_data[0] != START_BYTE) {
