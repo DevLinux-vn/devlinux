@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ $# -lt 2 ]; then
 	echo "Usage ./greet.sh <name> <age>"
 	exit 1
