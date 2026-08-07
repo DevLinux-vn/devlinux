@@ -1,0 +1,26 @@
+(gdb) b main.c:9
+Breakpoint 1 at 0x11f8: file main.c, line 9.
+(gdb) r
+Starting program: /home/hien/devlinux/c-advance/K26.1/duong-trung-hien/session-08/Exercise_2/deb/debug 
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) n
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Breakpoint 1, log_device_status (device_name=0x555555556016 "Sensor_%x_%x_%x_%x") at main.c:9
+9           printf(status_message);
+(gdb) i locals
+status_message = "Device online: Sensor_%x_%x_%x_%x\000\000\000\000\000\000\000\000\000\300\000\000\000\000\000\000\000\300\000\000\000\000\000\000\000\004\000\000\000\000\000\000\200\000\000\000\000\000\000X\330\377\377\377\177\000\000\006\000\000\000\236", '\000' <repeats 42 times>
+(gdb) x/16x $sp
+0x7fffffffd7d0: 0xffffffff      0xffffffff      0x55556016      0x00005555
+0x7fffffffd7e0: 0x69766544      0x6f206563      0x6e696c6e      0x53203a65
+0x7fffffffd7f0: 0x6f736e65      0x78255f72      0x5f78255f      0x255f7825
+0x7fffffffd800: 0x00000078      0x00000000      0x00c00000      0x00000000
+(gdb) c
+Continuing.
+Device online: Sensor_55556015_0_0_73
+[Inferior 1 (process 31207) exited normally]

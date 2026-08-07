@@ -1,0 +1,22 @@
+(gdb) b main.c:15
+Breakpoint 1 at 0x11de: file main.c, line 15.
+(gdb) r
+Starting program: /home/hien/devlinux/c-advance/K26.1/duong-trung-hien/session-08/Exercise_1/db/debug 
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) n
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+Enter admin password: AAAAAAAAAAAA
+
+Breakpoint 1, main () at main.c:15
+15          if (strcmp(password, "secret") == 0) {
+(gdb) print password
+$1 = "AAAAAAAA"
+(gdb) print is_admin
+$2 = 65
+
+
