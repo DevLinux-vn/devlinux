@@ -1,5 +1,8 @@
+.PHONY: all libs static shared run clean rebuild
+
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
+LDFLAGS = -Llib
 
 OBJ = obj
 LIB = lib
@@ -21,27 +24,32 @@ static: $(STATIC_LIB)
 
 shared: $(SHARED_LIB)
 
-$(OBJ)/%.o: src/%.c
-	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+$(OBJ) $(LIB) $(BIN):
+	mkdir -p $@
 
-$(STATIC_LIB): $(CALC_OBJ)
-	ar rcs $@ $^
-
-$(SHARED_LIB): $(LOGGER_OBJ)
-	$(CC) -shared -o $@ $^
-
-$(MAIN_OBJ): src/main.c include/calc.h include/logger.h
+$(CALC_OBJ): src/calc.c include/calc.h | $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(TARGET): $(MAIN_OBJ) $(STATIC_LIB) $(SHARED_LIB)
-	$(CC) $(MAIN_OBJ) -L$(LIB) -Wl,-Bstatic -lcalc -Wl,-Bdynamic -llogger -Wl,-rpath,'$$ORIGIN/../lib' -lm -o $@
+$(LOGGER_OBJ): src/logger.c include/logger.h | $(OBJ)
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
 
-run: $(TARGET)
+$(MAIN_OBJ): src/main.c include/calc.h include/logger.h | $(OBJ)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(STATIC_LIB): $(CALC_OBJ) | $(LIB)
+	ar rcs $@ $^
+
+$(SHARED_LIB): $(LOGGER_OBJ) | $(LIB)
+	$(CC) -shared -o $@ $^
+
+$(TARGET): $(MAIN_OBJ) $(STATIC_LIB) $(SHARED_LIB) | $(BIN)
+	$(CC) $(MAIN_OBJ) $(STATIC_LIB) -L$(LIB) -llogger -lm \
+		-Wl,-rpath,'$$ORIGIN/../lib' -o $@
+
+run: all
 	./$(TARGET)
 
 clean:
-	rm -rf $(OBJ)/* $(LIB)/* $(BIN)/* app.log
+	rm -rf $(OBJ) $(LIB) $(BIN) app.log
 
 rebuild: clean all
-
-.PHONY: all libs static shared run clean rebuild

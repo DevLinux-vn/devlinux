@@ -1,6 +1,8 @@
+.PHONY: all clean run
+
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
-LDFLAGS = -Lbin -Wl,-rpath,'$$ORIGIN' -lstringutils
+LDFLAGS = -Lbin -Wl,-rpath,'$$ORIGIN'
 
 OBJ = build/stringutils.o
 LIB = bin/libstringutils.so
@@ -8,19 +10,20 @@ TARGET = bin/main
 
 all: $(TARGET)
 
-$(OBJ): src/stringutils.c include/stringutils.h
-	$(CC) $(CFLAGS) -fPIC -c src/stringutils.c -o $(OBJ)
+build bin:
+	mkdir -p $@
 
-$(LIB): $(OBJ)
-	$(CC) -shared -o $(LIB) $(OBJ)
+$(OBJ): src/stringutils.c include/stringutils.h | build
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
 
-$(TARGET): main.c $(LIB)
-	$(CC) $(CFLAGS) main.c $(LDFLAGS) -o $(TARGET)
+$(LIB): $(OBJ) | bin
+	$(CC) -shared -o $@ $^
 
-run: $(TARGET)
-	./$(TARGET) "Hello Linux"
+$(TARGET): main.c $(LIB) | bin
+	$(CC) $(CFLAGS) $< -Lbin -lstringutils -Wl,-rpath,'$$ORIGIN' -o $@
+
+run: all
+	./$(TARGET) "hello embedded linux"
 
 clean:
-	rm -rf build/* bin/*
-
-.PHONY: all clean run
+	rm -rf build bin

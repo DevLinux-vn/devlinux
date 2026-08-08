@@ -1,23 +1,28 @@
+.PHONY: all clean run
+
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
 
+TARGET = main
 OBJ = obj/mathutils.o
 LIB = lib/libmathutils.a
-TARGET = main
 
 all: $(TARGET)
 
-$(OBJ): src/mathutils.c include/mathutils.h
-	$(CC) $(CFLAGS) -c src/mathutils.c -o obj/mathutils.o
+obj lib:
+	mkdir -p $@
 
-$(LIB): $(OBJ)
-	ar rcs $(LIB) $(OBJ)
+$(OBJ): src/mathutils.c include/mathutils.h | obj
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(LIB): $(OBJ) | lib
+	ar rcs $@ $^
 
 $(TARGET): app/main.c $(LIB)
-	$(CC) $(CFLAGS) app/main.c -Llib -lmathutils -o $(TARGET)
+	$(CC) $(CFLAGS) $< -Llib -lmathutils -o $@
 
-run: $(TARGET)
+run: all
 	./$(TARGET)
 
 clean:
-	rm -rf obj/* lib/* $(TARGET)
+	rm -rf obj lib $(TARGET)

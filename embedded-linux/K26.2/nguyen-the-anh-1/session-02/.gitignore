@@ -1,0 +1,15 @@
+# Build files
+Exercise_1/obj/
+Exercise_1/lib/
+Exercise_1/main
+
+Exercise_2/build/
+Exercise_2/bin/
+
+Exercise_3/obj/
+Exercise_3/lib/
+Exercise_3/bin/
+Exercise_3/app.log
+
+# Vim temporary files
+*.swp
