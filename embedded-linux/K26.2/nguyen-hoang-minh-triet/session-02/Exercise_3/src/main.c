@@ -4,13 +4,14 @@
 #include <math.h>
 #include <stdio.h>
 
-int main(void)
-{
+#define MSG_BUFFER_SIZE 128
+
+int main(void)  {
     float add_result;
     float sub_result;
     float mul_result;
     float div_result;
-    char message[128];
+    char message[MSG_BUFFER_SIZE];
 
     add_result = calc_add(10.0f, 5.0f);
     sub_result = calc_sub(10.0f, 5.0f);

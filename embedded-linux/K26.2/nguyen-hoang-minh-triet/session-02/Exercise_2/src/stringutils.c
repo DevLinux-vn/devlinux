@@ -1,9 +1,11 @@
 #include "stringutils.h"
 
+#define CHAR_CASE_DIFF 32
+
 void str_to_upper(char *s) {
     while (*s) {
         if (*s >= 'a' && *s <= 'z') {
-            *s = *s - 32;
+            *s = *s - CHAR_CASE_DIFF;
         }
         s++;
     }
