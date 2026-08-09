@@ -1,6 +1,5 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
-LDFLAGS = -Lbin -lstringutils
 
 TARGET = bin/main
 LIB = bin/libstringutils.so
@@ -10,8 +9,8 @@ OBJ = build/stringutils.o
 
 all: $(TARGET)
 
-$(TARGET): main.c $(LIB)
-	$(CC) $(CFLAGS) main.c $(LDFLAGS) -o $(TARGET)
+$(TARGET): app/main.c $(LIB)
+	$(CC) $(CFLAGS) app/main.c -Lbin -lstringutils -o $(TARGET)
 
 $(LIB): $(OBJ)
 	mkdir -p bin
