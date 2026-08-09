@@ -1,20 +1,19 @@
-```c
 #include "logger.h"
 
 #include <stdio.h>
 #include <time.h>
 
-#define base_tm_year 1900
-#define base_tm_mon 1
-#define base_tm_mday 1
-#define base_tm_hour 0
-#define base_tm_min 0
-#define base_tm_sec 0
+// Base values for struct tm fields
+#define base_tm_year 1900 // The year in struct tm is represented as years since 1900
+#define base_tm_mon 1 // The month in struct tm is 0-11, so we add 1
+#define base_tm_mday 1 // The day of the month in struct tm is 1-31
+#define base_tm_hour 0 // The hour in struct tm is 0-23
+#define base_tm_min 0 // The minute in struct tm is 0-59
+#define base_tm_sec 0 // The second in struct tm is 0-59
 
 #define LOG_FILE "app.log"
 
-static int write_timestamp(FILE *file)
-{
+static int write_timestamp(FILE *file)  {
     time_t current_time;
     struct tm *time_info;
 
@@ -47,8 +46,7 @@ static int write_timestamp(FILE *file)
     return 1;
 }
 
-void log_write(const char *msg)
-{
+void log_write(const char *msg) {
     FILE *file;
 
     file = fopen(LOG_FILE, "a");
@@ -101,8 +99,7 @@ void log_timestamp(void)
     }
 }
 
-void log_error(const char *msg)
-{
+void log_error(const char *msg) {
     FILE *file;
 
     file = fopen(LOG_FILE, "a");
@@ -127,4 +124,5 @@ void log_error(const char *msg)
         fprintf(stderr, "Error: cannot close %s\n", LOG_FILE);
     }
 }
+
 
