@@ -1,11 +1,10 @@
 #include <math.h>
+#include <limits.h>
 
 #include "mathutils.h"
 
-#define INT_MAX 2147483647
-#define INT_MIN -2147483648
-#define INT_MAX_FACTORIAL 12
-#define INT_MIN_FACTORIAL 0
+#define INT_MAX_FACTORIAL 12 // Giới hạn trên cho phép tính giai thừa
+#define INT_MIN_FACTORIAL 0   // Giới hạn dưới cho phép tính giai thừa
 
 #define MATH_ERROR_NEGATIVE_INPUT -1
 #define MATH_ERROR_OVERFLOW -2
@@ -20,17 +19,36 @@ int math_sub(int a, int b) {
 }
 
 
-int math_factorial(int n) {
-    // 1. Kiểm tra số âm
+int math_factorial(int n)   {
+    int factorial_result;
+
     if (n < 0) {
-        return MATH_ERROR_NEGATIVE_INPUT; // Mã lỗi: Đầu vào âm
-    }
-    
-    if (n > INT_MAX_FACTORIAL) {
-        return MATH_ERROR_OVERFLOW; // Mã lỗi: Tràn số (Overflow - n > 12)
+        return MATH_ERROR_NEGATIVE_INPUT;
     }
 
-    return n * math_factorial(n - 1);
+    if (n > INT_MAX_FACTORIAL) {
+        return MATH_ERROR_OVERFLOW;
+    }
+
+    if (n == 0) {
+        return 1;
+    }
+
+    if (n == 1) {
+        return 1;
+    }
+
+    factorial_result = math_factorial(n - 1);
+
+    if (factorial_result < 0) {
+        return factorial_result;
+    }
+
+    if (factorial_result > (INT_MAX / n)) {
+        return MATH_ERROR_OVERFLOW;
+    }
+
+    return n * factorial_result;
 }
 
 

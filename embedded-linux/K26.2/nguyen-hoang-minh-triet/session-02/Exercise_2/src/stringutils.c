@@ -1,5 +1,6 @@
 #include "stringutils.h"
 
+// Define the difference between uppercase and lowercase ASCII characters
 #define CHAR_CASE_DIFF 32
 
 void str_to_upper(char *s) {

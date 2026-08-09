@@ -1,7 +1,7 @@
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra -I$(INC_DIR)
+CFLAGS = -Wall -Wextra -I$(INC_DIR) -std=c99
 
 # Directories
 SRC_DIR = src

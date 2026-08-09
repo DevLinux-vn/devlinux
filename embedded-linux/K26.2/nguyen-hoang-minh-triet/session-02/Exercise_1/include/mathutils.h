@@ -9,6 +9,7 @@
     extern "C" {
 #endif
 
+
 /*
  * Function: math_add
  * ------------------
@@ -40,7 +41,7 @@ int math_sub(int a, int b);
  *
  * n: the integer for which to calculate the factorial
  *
- * Returns: the factorial of n
+ * Returns: -1 if n is negative, -2 if n is greater than 12 (to prevent overflow), or the factorial of n otherwise
  */
 int math_factorial(int n);
 
