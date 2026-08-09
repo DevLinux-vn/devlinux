@@ -19,15 +19,13 @@ static int write_timestamp(FILE *file)  {
 
     current_time = time(NULL);
 
-    if (current_time == (time_t)-1)
-    {
+    if (current_time == (time_t)-1) {
         return 0;
     }
 
     time_info = localtime(&current_time);
 
-    if (time_info == NULL)
-    {
+    if (time_info == NULL) {
         return 0;
     }
 
@@ -51,50 +49,41 @@ void log_write(const char *msg) {
 
     file = fopen(LOG_FILE, "a");
 
-    if (file == NULL)
-    {
+    if (file == NULL)   {
         fprintf(stderr, "Error: cannot open %s\n", LOG_FILE);
         return;
     }
 
-    if (write_timestamp(file) == 0)
-    {
+    if (write_timestamp(file) == 0) {
         fprintf(stderr, "Error: cannot write timestamp\n");
     }
-    else if (fprintf(file, " %s\n", msg) < 0)
-    {
+    else if (fprintf(file, " %s\n", msg) < 0) {
         fprintf(stderr, "Error: cannot write log message\n");
     }
 
-    if (fclose(file) != 0)
-    {
+    if (fclose(file) != 0)  {
         fprintf(stderr, "Error: cannot close %s\n", LOG_FILE);
     }
 }
 
-void log_timestamp(void)
-{
+void log_timestamp(void) {
     FILE *file;
 
     file = fopen(LOG_FILE, "a");
 
-    if (file == NULL)
-    {
+    if (file == NULL) {
         fprintf(stderr, "Error: cannot open %s\n", LOG_FILE);
         return;
     }
 
-    if (write_timestamp(file) == 0)
-    {
+    if (write_timestamp(file) == 0) {
         fprintf(stderr, "Error: cannot write timestamp\n");
     }
-    else if (fprintf(file, "\n") < 0)
-    {
+    else if (fprintf(file, "\n") < 0) {
         fprintf(stderr, "Error: cannot write newline\n");
     }
 
-    if (fclose(file) != 0)
-    {
+    if (fclose(file) != 0){
         fprintf(stderr, "Error: cannot close %s\n", LOG_FILE);
     }
 }
@@ -104,23 +93,20 @@ void log_error(const char *msg) {
 
     file = fopen(LOG_FILE, "a");
 
-    if (file == NULL)
-    {
+    if (file == NULL) {
         fprintf(stderr, "Error: cannot open %s\n", LOG_FILE);
         return;
     }
 
-    if (write_timestamp(file) == 0)
-    {
+    if (write_timestamp(file) == 0) {
         fprintf(stderr, "Error: cannot write timestamp\n");
     }
-    else if (fprintf(file, " [ERROR] %s\n", msg) < 0)
-    {
+
+    else if (fprintf(file, " [ERROR] %s\n", msg) < 0) {
         fprintf(stderr, "Error: cannot write error message\n");
     }
 
-    if (fclose(file) != 0)
-    {
+    if (fclose(file) != 0) {
         fprintf(stderr, "Error: cannot close %s\n", LOG_FILE);
     }
 }
