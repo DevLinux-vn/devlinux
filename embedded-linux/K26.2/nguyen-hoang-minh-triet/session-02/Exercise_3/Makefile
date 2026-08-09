@@ -33,7 +33,7 @@ MAIN_OBJ = $(OBJ_DIR)/main.o
 
 # Libraries
 STATIC_LIB = $(LIB_DIR)/libcalc.a
-SHARED_LIB = $(BIN_DIR)/liblogger.so
+SHARED_LIB = $(LIB_DIR)/liblogger.so
 
 # Default target
 .PHONY: all
@@ -56,7 +56,7 @@ $(STATIC_LIB): $(CALC_OBJ)
 shared: $(SHARED_LIB)
 
 $(SHARED_LIB): $(LOGGER_OBJ)
-	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(LIB_DIR)
 	$(CC) -shared -o $@ $^
 
 # Pattern rule
@@ -67,7 +67,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 # Build executable
 $(TARGET): $(MAIN_OBJ) $(STATIC_LIB) $(SHARED_LIB)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(MAIN_OBJ) $(STATIC_LIB) -L$(BIN_DIR) -llogger -Wl,-rpath,'$$ORIGIN/../lib' -o $@ -lm
+	$(CC) $(MAIN_OBJ) $(STATIC_LIB) -L$(LIB_DIR) -llogger -Wl,-rpath,'$$ORIGIN/../lib' -o $@ -lm
 
 # Run application
 .PHONY: run

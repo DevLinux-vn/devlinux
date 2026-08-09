@@ -1,5 +1,5 @@
-#ifndef __INCLUDE_STR_H_
-#define __INCLUDE_STR_H_
+#ifndef __INCLUDE_CALC_H_
+#define __INCLUDE_CALC_H_
 
 #pragma once
 
@@ -45,5 +45,5 @@ float calc_div(float a, float b);
     }
 #endif
 
-#endif /*__INCLUDE_STR_H_*/
+#endif /*__INCLUDE_CALC_H_*/
 

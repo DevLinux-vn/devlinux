@@ -17,7 +17,7 @@ float calc_mul(float a, float b) {
 float calc_div(float a, float b) {
     
     if (b == 0.0f) {
-        return NAN;
+        return NAN;  // Error: division by zero
     }
     
     return a / b;
