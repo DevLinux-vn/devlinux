@@ -3,8 +3,8 @@
 
 #include "mathutils.h"
 
-#define INT_MAX_FACTORIAL 12 // Giới hạn trên cho phép tính giai thừa
-#define INT_MIN_FACTORIAL 0   // Giới hạn dưới cho phép tính giai thừa
+#define INT_MAX_FACTORIAL 12  //top limit for factorial calculation to avoid integer overflow
+#define INT_MIN_FACTORIAL 0   //bottom limit for factorial calculation
 
 #define MATH_ERROR_NEGATIVE_INPUT -1
 #define MATH_ERROR_OVERFLOW -2
