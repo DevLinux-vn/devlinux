@@ -1,5 +1,6 @@
-echo "Exercise_1"
+#!/bin/bash
+
 echo Hello, "$(whoami)"!
-echo Your home directory is: ~
-echo Your shell is: $0
+echo Your home directory is: $HOME
+echo Your shell is: $SHELL
 echo Current directory: "$(pwd)"
