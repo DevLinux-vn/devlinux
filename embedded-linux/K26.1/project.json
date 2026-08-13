@@ -5,7 +5,8 @@
     "le-phuc-tai": "P2",
     "pham-dac-tam": "P3",
     "pham-anh-quan": "P3",
-    "bui-quang-huy": "P3"
+    "bui-quang-huy": "P3",
+    "pham-quang-dung": "P3"
   },
   "reviewers": ["DevLinux-vn"]
 }
