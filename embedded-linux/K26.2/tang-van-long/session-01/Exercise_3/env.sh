@@ -5,10 +5,9 @@ echo "HOME = $HOME"
 echo "USER = $USER"
 echo "SHELL = $SHELL"
 
-n=$(echo "$PATH" | tr ':' '\n' | wc -l)
+n=$(echo "$PATH" | tr ':' '\n' | grep -v '^$' | wc -l)
 echo "Number of directories in PATH: $n"
 
 m=$(printenv | wc -l)
-printenv
-echo "Number of emvironment variables: $m"
+echo "Number of environment variables: $m"
 
