@@ -1,3 +1,12 @@
+/*
+ * fcntl vs flock comparison:
+ * | Property | flock | fcntl |
+ * |----------|-------|-------|
+ * | Lock granularity | Whole file only | Byte range supported |
+ * | Works over NFS | No | Yes |
+ * | Inherited across fork | Yes | No |
+ * | Best used when | Simple local file locking | Network FS or byte-range locking |
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -53,12 +62,11 @@ int main(int argc, char *argv[])
                           timestamp,
                           argv[1]);
 
-    if (write(fd, log_line, length) == -1) {
+    ssize_t written = write(fd, log_line, length);
+    if (written != length) {
         perror("write");
-
         lock.l_type = F_UNLCK;
         fcntl(fd, F_SETLK, &lock);
-
         close(fd);
         return 1;
     }

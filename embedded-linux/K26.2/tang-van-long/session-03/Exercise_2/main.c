@@ -5,9 +5,11 @@
 #include <string.h>
 #include <stddef.h>
 
+#define NAMELEN 64
+
 typedef struct {
     int    id;
-    char   name[64];
+    char   name[NAMELEN];
     int    quantity;
     double price;
 } Product;
@@ -123,6 +125,23 @@ void show_product(void)
 
     off_t offset = (off_t)index * sizeof(Product);
 
+    // Check file size
+    off_t file_size = lseek(fd, 0, SEEK_END);
+
+    if (file_size == (off_t)-1) {
+        perror("lseek");
+        close(fd);
+        return;
+    }
+
+    // Check if index is out of bounds
+    if (offset >= file_size) {
+        printf("Product not found (index out of bounds).\n");
+        close(fd);
+        return;
+    }
+
+    // Move to product position
     if (lseek(fd, offset, SEEK_SET) == (off_t)-1) {
         perror("lseek");
         close(fd);

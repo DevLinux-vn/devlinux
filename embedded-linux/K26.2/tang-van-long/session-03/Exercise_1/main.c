@@ -3,10 +3,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
+
+#define NAMELEN 64
 
 typedef struct {
     int   id;
-    char  name[64];
+    char  name[NAMELEN];
     int   age;
     float gpa;
 } Student;
@@ -62,7 +65,8 @@ void add_student(void)
 
     fd = open("students.dat", O_WRONLY | O_CREAT | O_APPEND, 0644);
 
-    if (fd == -1) {
+    if (fd == -1)
+    {
         perror("open");
         return;
     }
@@ -71,7 +75,7 @@ void add_student(void)
     scanf("%d", &student.id);
 
     printf("Enter name: ");
-    getchar();
+    getchar(); 
     fgets(student.name, sizeof(student.name), stdin);
     student.name[strcspn(student.name, "\n")] = '\0';
 
@@ -81,10 +85,27 @@ void add_student(void)
     printf("Enter GPA: ");
     scanf("%f", &student.gpa);
 
-    ssize_t bytes = write(fd, &student, sizeof(Student));
+    ssize_t bytes_written = 0;
+    ssize_t total = sizeof(Student);
 
-    if (bytes != sizeof(Student)) {
-        perror("write");
+    while (bytes_written < total)
+    {
+        ssize_t ret = write(fd,
+                            (char *)&student + bytes_written,
+                            total - bytes_written);
+
+        if (ret <= 0)
+        {
+            perror("write");
+            break;
+        }
+
+        bytes_written += ret;
+    }
+
+    if (bytes_written != total)
+    {
+        printf("Write failed\n");
         close(fd);
         return;
     }
@@ -101,8 +122,17 @@ void list_students(void)
 
     fd = open("students.dat", O_RDONLY);
 
-    if (fd == -1) {
-        perror("open");
+    if (fd == -1)
+    {
+        if (errno == ENOENT)
+        {
+            printf("No students yet.\n");
+        }
+        else
+        {
+            perror("open");
+        }
+
         return;
     }
 
@@ -129,7 +159,8 @@ void find_student(void)
 
     fd = open("students.dat", O_RDONLY);
 
-    if (fd == -1) {
+    if (fd == -1)
+    {
         perror("open");
         return;
     }
