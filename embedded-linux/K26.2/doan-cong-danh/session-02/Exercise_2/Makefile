@@ -1,6 +1,6 @@
 CC = gcc
-CFLAG = -Wall -Werror -fPIC -Iinclude
-.PHONY: clean run
+CFLAG = -Wall -Werror -fPIC -Iinclude -std=gnu99
+.PHONY: clean run verify all
 BIN_DIR = bin
 BUILD_DIR = build
 
@@ -9,8 +9,10 @@ BIN = $(BIN_DIR)/libstringutils.so
 BUILD = $(BUILD_DIR)/stringutils.o
 
 $(BUILD): src/stringutils.c include/stringutils.h
+	mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAG) -c src/stringutils.c -o $(BUILD)
 $(BIN): $(BUILD)
+	mkdir -p $(BIN_DIR)
 	$(CC) -shared -o $(BIN_DIR)/libstringutils.so $(BUILD_DIR)/stringutils.o
 
 TARGET = $(BIN_DIR)/main 

@@ -2,13 +2,10 @@
 #include "calc.h"
 #include "logger.h"
 
-int main(void)
+static void run_calculator(float a , float b)
 {
-    float a = 10.0f;
-    float b = 5.0f;
     float result;
-
-    printf("=== Calculator Summary ===\n");
+      printf("=== Calculator Summary ===\n");
 
     result = calc_add(a, b);
     printf("%.2f + %.2f = %.2f\n", a, b, result);
@@ -41,6 +38,13 @@ int main(void)
 
     printf("\nCurrent timestamp: ");
     log_timestamp();
+}
+int main(void)
+{
+    float a = 10.0f;
+    float b = 5.0f;
+
+    run_calculator(a, b);
 
     return 0;
 }

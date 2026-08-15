@@ -1,7 +1,7 @@
 CC = gcc
 
-CFLAG = -Wall -Werror -Iinclude
-PICFLAG = -Wall -Werror -fPIC -Iinclude
+CFLAG = -Wall -Wextra -Werror -std=gnu99 -Iinclude
+CFLAGS_PIC = $(CFLAGS) -fPIC
 
 .PHONY: all clean run static shared rebuild
 

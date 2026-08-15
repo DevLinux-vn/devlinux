@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror -Iinclude
+CFLAGS = -Wall -Wextra -Werror -std=gnu99 -Iinclude
 .PHONY: clean run
 OBJ_DIR = obj
 LIB_DIR = lib
