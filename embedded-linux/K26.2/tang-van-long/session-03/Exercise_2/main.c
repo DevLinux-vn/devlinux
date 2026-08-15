@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stddef.h>
+#include <sys/types.h>
 
 #define NAMELEN 64
 
@@ -34,7 +35,11 @@ int main(void)
         printf("========================================\n");
         printf("Choose: ");
 
-        scanf("%d", &choice);
+        if (scanf("%d", &choice) != 1)
+        {
+            fprintf(stderr, "Invalid choice\n");
+            return 1;
+        }
 
         switch (choice)
         {
@@ -59,6 +64,7 @@ int main(void)
 
             default:
                 printf("Invalid choice.\n");
+                break;
         }
     }
 }
@@ -67,39 +73,92 @@ void add_product(void)
 {
     int fd;
     Product product;
+    ssize_t bytes;
 
-    fd = open("products.dat", O_WRONLY | O_CREAT | O_APPEND, 0644);
+    memset(&product, 0, sizeof(Product));
 
-    if (fd == -1) {
+    printf("Enter ID: ");
+
+    if (scanf("%d", &product.id) != 1)
+    {
+        fprintf(stderr, "Invalid ID\n");
+        return;
+    }
+
+    printf("Enter name: ");
+
+    /*
+     * Remove '\n' left by scanf()
+     */
+    getchar();
+
+    if (fgets(product.name, sizeof(product.name), stdin) == NULL)
+    {
+        fprintf(stderr, "Read error\n");
+        return;
+    }
+
+    product.name[strcspn(product.name, "\n")] = '\0';
+
+    printf("Enter quantity: ");
+
+    if (scanf("%d", &product.quantity) != 1)
+    {
+        fprintf(stderr, "Invalid quantity\n");
+        return;
+    }
+
+    printf("Enter price: ");
+
+    if (scanf("%lf", &product.price) != 1)
+    {
+        fprintf(stderr, "Invalid price\n");
+        return;
+    }
+
+    fd = open("products.dat",
+              O_WRONLY | O_CREAT | O_APPEND,
+              0644);
+
+    if (fd == -1)
+    {
         perror("open");
         return;
     }
 
-    printf("Enter ID: ");
-    scanf("%d", &product.id);
+    bytes = write(fd, &product, sizeof(Product));
 
-    printf("Enter name: ");
-    getchar();
-    fgets(product.name, sizeof(product.name), stdin);
-    product.name[strcspn(product.name, "\n")] = '\0';
-
-    printf("Enter quantity: ");
-    scanf("%d", &product.quantity);
-
-    printf("Enter price: ");
-    scanf("%lf", &product.price);
-
-    ssize_t bytes = write(fd, &product, sizeof(Product));
-
-    if (bytes != sizeof(Product)) {
+    if (bytes == -1)
+    {
         perror("write");
-        close(fd);
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
+        return;
+    }
+
+    if (bytes != (ssize_t)sizeof(Product))
+    {
+        fprintf(stderr, "Incomplete write\n");
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
+        return;
+    }
+
+    if (close(fd) == -1)
+    {
+        perror("close");
         return;
     }
 
     printf("Product added successfully.\n");
-
-    close(fd);
 }
 
 void show_product(void)
@@ -108,49 +167,104 @@ void show_product(void)
     int index;
     Product product;
 
-    printf("Enter product index: ");
-    scanf("%d", &index);
+    off_t offset;
+    off_t file_size;
 
-    if (index < 0) {
+    ssize_t bytes;
+
+    printf("Enter product index: ");
+
+    if (scanf("%d", &index) != 1)
+    {
+        fprintf(stderr, "Invalid index\n");
+        return;
+    }
+
+    if (index < 0)
+    {
         printf("Invalid index.\n");
         return;
     }
 
     fd = open("products.dat", O_RDONLY);
 
-    if (fd == -1) {
+    if (fd == -1)
+    {
         perror("open");
         return;
     }
 
-    off_t offset = (off_t)index * sizeof(Product);
+    offset = (off_t)index * (off_t)sizeof(Product);
 
-    // Check file size
-    off_t file_size = lseek(fd, 0, SEEK_END);
+    /*
+     * Get file size.
+     */
+    file_size = lseek(fd, 0, SEEK_END);
 
-    if (file_size == (off_t)-1) {
+    if (file_size == (off_t)-1)
+    {
         perror("lseek");
-        close(fd);
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
         return;
     }
 
-    // Check if index is out of bounds
-    if (offset >= file_size) {
+    /*
+     * Check index before seeking.
+     */
+    if (offset < 0 ||
+        offset >= file_size ||
+        file_size - offset < (off_t)sizeof(Product))
+    {
         printf("Product not found (index out of bounds).\n");
-        close(fd);
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
         return;
     }
 
-    // Move to product position
-    if (lseek(fd, offset, SEEK_SET) == (off_t)-1) {
+    if (lseek(fd, offset, SEEK_SET) == (off_t)-1)
+    {
         perror("lseek");
-        close(fd);
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
         return;
     }
 
-    if (read(fd, &product, sizeof(Product)) != sizeof(Product)) {
-        printf("Product not found.\n");
-        close(fd);
+    bytes = read(fd, &product, sizeof(Product));
+
+    if (bytes == -1)
+    {
+        perror("read");
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
+        return;
+    }
+
+    if (bytes != (ssize_t)sizeof(Product))
+    {
+        fprintf(stderr, "Incomplete product record\n");
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
         return;
     }
 
@@ -159,7 +273,11 @@ void show_product(void)
     printf("Quantity: %d\n", product.quantity);
     printf("Price: %.2f\n", product.price);
 
-    close(fd);
+    if (close(fd) == -1)
+    {
+        perror("close");
+        return;
+    }
 }
 
 void update_quantity(void)
@@ -168,67 +286,203 @@ void update_quantity(void)
     int index;
     int new_quantity;
 
-    printf("Enter product index: ");
-    scanf("%d", &index);
+    off_t offset;
+    off_t field_offset;
+    off_t file_size;
 
-    if (index < 0) {
+    ssize_t bytes;
+
+    printf("Enter product index: ");
+
+    if (scanf("%d", &index) != 1)
+    {
+        fprintf(stderr, "Invalid index\n");
+        return;
+    }
+
+    if (index < 0)
+    {
         printf("Invalid index.\n");
         return;
     }
 
     printf("Enter new quantity: ");
-    scanf("%d", &new_quantity);
+
+    if (scanf("%d", &new_quantity) != 1)
+    {
+        fprintf(stderr, "Invalid quantity\n");
+        return;
+    }
 
     fd = open("products.dat", O_RDWR);
 
-    if (fd == -1) {
+    if (fd == -1)
+    {
         perror("open");
         return;
     }
 
-    off_t offset = (off_t)index * sizeof(Product);
+    offset = (off_t)index * (off_t)sizeof(Product);
 
-    off_t field_offset =
-        offset + offsetof(Product, quantity);
+    /*
+     * Check file size before lseek().
+     */
+    file_size = lseek(fd, 0, SEEK_END);
 
-    if (lseek(fd, field_offset, SEEK_SET) == (off_t)-1) {
+    if (file_size == (off_t)-1)
+    {
         perror("lseek");
-        close(fd);
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
         return;
     }
 
-    if (write(fd, &new_quantity, sizeof(new_quantity))
-            != sizeof(new_quantity)) {
+    /*
+     * Prevent seeking outside the file.
+     */
+    if (offset < 0 ||
+        offset >= file_size ||
+        file_size - offset < (off_t)sizeof(Product))
+    {
+        printf("Product not found (index out of bounds).\n");
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
+        return;
+    }
+
+    /*
+     * Find the quantity field inside Product.
+     */
+    field_offset = offset + offsetof(Product, quantity);
+
+    if (lseek(fd, field_offset, SEEK_SET) == (off_t)-1)
+    {
+        perror("lseek");
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
+        return;
+    }
+
+    bytes = write(fd, &new_quantity, sizeof(new_quantity));
+
+    if (bytes == -1)
+    {
         perror("write");
-        close(fd);
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
+        return;
+    }
+
+    if (bytes != (ssize_t)sizeof(new_quantity))
+    {
+        fprintf(stderr, "Incomplete write\n");
+
+        if (close(fd) == -1)
+        {
+            perror("close");
+        }
+
+        return;
+    }
+
+    if (close(fd) == -1)
+    {
+        perror("close");
         return;
     }
 
     printf("Quantity updated successfully.\n");
-
-    close(fd);
 }
 
 void list_products(void)
 {
     int fd;
+    int index = 0;
+
     Product product;
+    ssize_t bytes;
 
     fd = open("products.dat", O_RDONLY);
 
-    if (fd == -1) {
+    if (fd == -1)
+    {
         perror("open");
         return;
     }
 
-    while (read(fd, &product, sizeof(Product)) == sizeof(Product))
+    while (1)
     {
+        bytes = read(fd, &product, sizeof(Product));
+
+        /*
+         * EOF: no more data.
+         */
+        if (bytes == 0)
+        {
+            break;
+        }
+
+        if (bytes == -1)
+        {
+            perror("read");
+
+            if (close(fd) == -1)
+            {
+                perror("close");
+            }
+
+            return;
+        }
+
+        /*
+         * File contains incomplete record.
+         */
+        if (bytes != (ssize_t)sizeof(Product))
+        {
+            fprintf(stderr, "Incomplete product record\n");
+
+            if (close(fd) == -1)
+            {
+                perror("close");
+            }
+
+            return;
+        }
+
+        printf("\nProduct index: %d\n", index);
         printf("ID: %d\n", product.id);
         printf("Name: %s\n", product.name);
         printf("Quantity: %d\n", product.quantity);
         printf("Price: %.2f\n", product.price);
         printf("--------------------\n");
+
+        index++;
     }
 
-    close(fd);
+    if (close(fd) == -1)
+    {
+        perror("close");
+        return;
+    }
+
+    if (index == 0)
+    {
+        printf("No products found.\n");
+    }
 }

@@ -33,7 +33,11 @@ int main(void)
         printf("========================================\n");
         printf("Choose: ");
 
-        scanf("%d", &choice);
+       if (scanf("%d", &choice) != 1) { 
+        fprintf(stderr, "Invalid input\n"); 
+        getchar(); 
+        continue; 
+    }
 
         switch (choice)
         {
@@ -72,18 +76,30 @@ void add_student(void)
     }
 
     printf("Enter ID: ");
-    scanf("%d", &student.id);
+    if (scanf("%d", &student.id) != 1) { 
+        fprintf(stderr, "Invalid ID\n"); 
+        return; 
+    }
 
     printf("Enter name: ");
     getchar(); 
-    fgets(student.name, sizeof(student.name), stdin);
+    if (!fgets(student.name, sizeof(student.name), stdin)) { 
+        fprintf(stderr, "Read error\n"); 
+        return; 
+    }
     student.name[strcspn(student.name, "\n")] = '\0';
 
     printf("Enter age: ");
-    scanf("%d", &student.age);
+    if (scanf("%d", &student.age) != 1) { 
+        fprintf(stderr, "Invalid age\n"); 
+        return; 
+    }
 
     printf("Enter GPA: ");
-    scanf("%f", &student.gpa);
+    if (scanf("%f", &student.gpa) != 1) { 
+        fprintf(stderr, "Invalid GPA\n"); 
+        return; 
+    }
 
     ssize_t bytes_written = 0;
     ssize_t total = sizeof(Student);
@@ -155,7 +171,10 @@ void find_student(void)
     Student student;
 
     printf("Enter ID to find: ");
-    scanf("%d", &target_id);
+    if (scanf("%d", &target_id) != 1) { 
+        fprintf(stderr, "Invalid ID\n"); 
+        return; 
+    }
 
     fd = open("students.dat", O_RDONLY);
 
