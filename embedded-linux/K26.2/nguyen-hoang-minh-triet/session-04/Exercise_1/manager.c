@@ -1,21 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
+// 1. Define the struct BEFORE using it
 typedef struct {
-    int   id; 
-    char  name[50]; 
-    int   quantity; 
+    int   id;
+    char  name[50];
+    int   quantity;
     float unit_price;
 } Order;
 
 /*
- *@brief Process an order in a child process.
- *@param o The order to be processed.
- *@return void
+ * @brief Process an order in a child process.
+ * @param o The order to be processed.
+ * @return void
  */
 void process_order(Order o) {
     float total = o.quantity * o.unit_price;
@@ -27,7 +27,6 @@ void process_order(Order o) {
 }
 
 int main(void) {
-
     Order orders[3] = {
         {1, "Backpack", 2, 350000},
         {2, "Shoes",    1, 500000},
@@ -45,9 +44,9 @@ int main(void) {
     printf("===================================================\n");
     printf("[MANAGER] PID: %d — spawning 3 child processes...\n\n", getpid());
 
-    // Loop 1: Spawn all child processes concurrently
+    /* Loop 1: Spawn all child processes concurrently */
     for (int i = 0; i < 3; i++) {
-        fflush(stdout); // Flush stdout buffer before fork to avoid duplicate logs
+        fflush(stdout); /* Avoid duplicate log buffer copies across fork */
         
         pid_t pid = fork();
         
@@ -55,13 +54,12 @@ int main(void) {
             perror("[MANAGER] fork failed");
             pids[i] = -1; /* Mark failure to handle gracefully in Loop 2 */
             failed++;
-            exit(EXIT_FAILURE);
         } else if (pid == 0) {
-            // Child Process
+            /* Child Process */
             process_order(orders[i]);
             exit(0);
         } else {
-            // Parent Process
+            /* Parent Process */
             pids[i] = pid;
             printf("[MANAGER] fork() order #%d → child PID: %d\n", orders[i].id, pid);
         }
@@ -69,12 +67,10 @@ int main(void) {
 
     printf("[MANAGER] All 3 children spawned. Starting waitpid()...\n\n");
 
-    // Loop 2: Wait for each child process and collect exit status
+    /* Loop 2: Wait for each child process and collect exit status */
     for (int i = 0; i < 3; i++) {
+        status = 0; /* Reset status variable for clarity */
 
-        //reset status variable before each waitpid call
-        status = 0;
-        
         if (pids[i] < 0) {
             printf("[MANAGER] Skipping waitpid for order #%d (fork failed)\n", orders[i].id);
             continue;
@@ -103,12 +99,12 @@ int main(void) {
         }
     }
 
-    // Print Summary Report
+    /* Print Summary Report */
     printf("\n================= SUMMARY =================\n");
     printf("  Total orders    : 3\n");
     printf("  Successful      : %d\n", successful);
     printf("  Failed          : %d\n", failed);
-    printf("  Total revenue   : %'.0f VND\n", total_revenue);
+    printf("  Total revenue   : %.0f VND\n", total_revenue);
     printf("===========================================\n");
 
     return 0;

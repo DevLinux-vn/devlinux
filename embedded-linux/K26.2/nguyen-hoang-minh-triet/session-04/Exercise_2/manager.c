@@ -21,25 +21,26 @@ int main(void) {
         printf("---------------------------------------------\n");
         printf("Student ID: ");
         if (fgets(input, sizeof(input), stdin) == NULL) {
+            printf("\n[MANAGER] EOF detected. Exiting. Goodbye!\n");
             break;
         }
 
-        // Remove trailing newline character
+        /* Remove trailing newline character */
         input[strcspn(input, "\r\n")] = '\0';
 
-        // Check for exit condition
+        /* Check for exit condition */
         if (strcmp(input, "quit") == 0) {
             printf("[MANAGER] Exiting. Goodbye!\n");
             break;
         }
 
-        // Skip empty inputs
+        /* Skip empty inputs */
         if (strlen(input) == 0) {
             continue;
         }
 
         printf("\n[MANAGER] fork() → ");
-        fflush(stdout); // Flush buffer before fork
+        fflush(stdout);
 
         pid_t pid = fork();
 
@@ -61,13 +62,12 @@ int main(void) {
              */
             perror("[MANAGER] execve failed");
             exit(2);
-
         } else {
             // Parent process
             printf("child PID: %d\n", pid);
             printf("[MANAGER] Waiting for child (waitpid)...\n\n");
 
-            int status;
+            int status = 0;
             if (waitpid(pid, &status, 0) > 0) {
                 if (WIFEXITED(status)) {
                     int exit_code = WEXITSTATUS(status);
@@ -95,5 +95,4 @@ int main(void) {
 
     return 0;
 }
-
 

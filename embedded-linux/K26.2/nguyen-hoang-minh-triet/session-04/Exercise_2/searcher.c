@@ -11,6 +11,7 @@ const char* get_grade(float gpa) {
 }
 
 int main(int argc, char *argv[]) {
+    
     // 1. Check command-line arguments (expects: ./searcher <student_id> <data_file>)
     if (argc < 3) {
         fprintf(stderr, "[SEARCHER] Usage: %s <student_id> <data_file>\n", argv[0]);
@@ -35,11 +36,12 @@ int main(int argc, char *argv[]) {
 
     // 3. Process line by line
     while (fgets(line, sizeof(line), file) != NULL) {
+
         // Remove trailing newline character
         line[strcspn(line, "\r\n")] = '\0';
 
         if (strlen(line) == 0) continue;
-
+        
         // Duplicate line because strtok modifies the input string
         char line_copy[256];
         strncpy(line_copy, line, sizeof(line_copy) - 1);
@@ -69,7 +71,9 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    fclose(file);
+    if (fclose(file) != 0) {
+        perror("[SEARCHER] Warning: fclose failed");
+    }
 
     // 4. Return exit status according to contract
     if (found) {
@@ -79,3 +83,5 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 }
+
+
