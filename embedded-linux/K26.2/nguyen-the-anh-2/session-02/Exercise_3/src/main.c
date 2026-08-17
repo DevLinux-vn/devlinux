@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "calc.h"
 #include "logger.h"
-
+#include <string.h>
 int main() {
     float a = 10.0;
     float b_valid = 2.0;
@@ -20,6 +20,11 @@ int main() {
 
     // 2. Phép chia hợp lệ
     float div_valid = calc_div(a, b_valid);
+    if(strlen(log_msg) > 100)
+    {
+        printf("Overflow");
+        return 1; 
+    }
     sprintf(log_msg, "Divided %.2f / %.2f = %.2f", a, b_valid, div_valid);
     log_timestamp();
     log_write(log_msg);

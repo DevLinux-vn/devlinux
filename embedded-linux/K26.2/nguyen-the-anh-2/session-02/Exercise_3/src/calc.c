@@ -14,13 +14,5 @@ float calc_mul(float a, float b)
 }
 float calc_div(float a, float b)
 {
-    if(b == 0)
-    {
-        printf("Khong chia duoc cho 0 \n");
-        return 0.0;
-    }
-    else 
-    {
-        return a/b;
-    }
+    return (b == 0) ? 0 : (a / b);
 }

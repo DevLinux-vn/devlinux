@@ -5,7 +5,9 @@
 // Ghi thời gian hiện tại vào file (không có \n để nội dung khác nối vào)
 void log_timestamp(void) {
     FILE *file = fopen("app.log", "a");
-    if (file) {
+    if(!file) return 1;
+    else
+    {
         time_t t = time(NULL);
         struct tm *tm_info = localtime(&t);
         char buffer[26];
