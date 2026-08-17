@@ -1,0 +1,5 @@
+[2026-08-17 23:36:14] Application started.
+[2026-08-17 23:36:14] Added 10.00 + 2.00 = 12.00
+[2026-08-17 23:36:14] Divided 10.00 / 2.00 = 5.00
+[2026-08-17 23:36:14] [ERROR] Attempted to divide by zero!
+[2026-08-17 23:36:14] Application finished.
