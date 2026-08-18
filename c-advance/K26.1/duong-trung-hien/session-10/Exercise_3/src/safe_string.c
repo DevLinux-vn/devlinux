@@ -8,7 +8,6 @@ void safe_concat(char *p_dst, size_t dst_size, const char *p_src) {
     }
 
     size_t len = strlen(p_dst);
-    
     if (len >= dst_size) {
         return;
     }
