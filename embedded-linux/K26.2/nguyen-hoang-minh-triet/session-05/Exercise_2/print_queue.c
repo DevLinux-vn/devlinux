@@ -17,7 +17,7 @@
 
 #define MAX_OF_DOCUMENTS_PER_QUEUE 5
 
-#define MAX_OF_DOCCUMENTS 9
+#define MAX_OF_DOCUMENTS 9
 
 //define struct
 typedef struct {
@@ -247,6 +247,9 @@ void *producer(void *arg)   {
 }
 
 void *printer(void *arg)    {
+
+    //unused arg
+    (void)arg;
 
     unsigned long ID = (unsigned long)pthread_self();
 

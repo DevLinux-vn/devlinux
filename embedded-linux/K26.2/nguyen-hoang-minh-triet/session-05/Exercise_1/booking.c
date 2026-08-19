@@ -20,8 +20,8 @@ typedef struct {
 }   BookingRequest;
 
 int seats_available = MAX_OF_SEATS;
-int seats_soid = 0;
-int seats_fail_booking = 0;
+int seats_sold = 0;
+int failed_booking = 0;
 
 pthread_mutex_t seat_lock;
 
@@ -33,10 +33,10 @@ int main(void)  {
     pthread_t agent_id[MAX_OF_AGENTS];
 
     BookingRequest requests[MAX_OF_AGENTS] = {
-        {1, "Nguyen Van An",  5},
+        {1, "Nguyen Van An",  2},
         {2, "Tran Thi Bich",  1},
         {3, "Le Van Cuong",   3},
-        {4, "Pham Thi Dung",  4},
+        {4, "Pham Thi Dung",  1},
         {5, "Hoang Van Em",   2}
     };
 
@@ -68,9 +68,9 @@ int main(void)  {
 
     printf("=============== SUMMARY ================\n");
     printf("  Total seats     : %d\n", (int)MAX_OF_SEATS);
-    printf("  Seats sold      : %d\n", seats_soid);
+    printf("  Seats sold      : %d\n", seats_sold);
     printf("  Seats remaining : %d\n", seats_available);
-    printf("  Fail booking    : %d\n", seats_fail_booking);
+    printf("  Fail booking    : %d\n", failed_booking);
     printf("=========================================\n");
 
     return EXIT_SUCCESS;
@@ -96,7 +96,7 @@ void *book_ticket(void *arg) {
     if (seats_available >= book->seats_wanted)  {
         
         seats_available -= book->seats_wanted;
-        seats_soid += book->seats_wanted;
+        seats_sold += book->seats_wanted;
 
         printf("[Agent %d] CONFIRMED: %d seat%s for %s. Remaining: %d\n",
                 book->agent_id,
@@ -108,7 +108,7 @@ void *book_ticket(void *arg) {
 
     }   else  {
 
-        seats_fail_booking++;
+        failed_booking++;
 
         printf("[Agent %d] SOLD OUT: needs %d seat%s, only %d left - booking fail\n",
                 book->agent_id,
