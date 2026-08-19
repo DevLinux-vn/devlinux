@@ -9,6 +9,7 @@ jobs:
   review:
     name: Claude Agent Review
     runs-on: ubuntu-latest
+    timeout-minutes: 3
 
     permissions:
       pull-requests: write
