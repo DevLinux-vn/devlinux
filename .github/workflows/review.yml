@@ -82,7 +82,7 @@ jobs:
 
       # 3. Clone private repo chứa agent + skills
       - name: Checkout private reviewer repo
-        run: git clone git@github.com:${{ secrets.REVIEWER_REPO }} reviewer-core
+        run: git clone --depth 1 git@github.com:${{ secrets.REVIEWER_REPO }} reviewer-core
 
       # 4. Setup Python
       - name: Setup Python
