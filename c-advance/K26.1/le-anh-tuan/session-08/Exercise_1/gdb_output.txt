@@ -1,0 +1,32 @@
+GDB Investigation - Exercise 1
+==============================
+
+Vulnerable build command:
+
+gcc -g -O0 -fno-stack-protector vulnerable.c -o vulnerable
+
+Payload used:
+
+AAAAAAAAA
+
+GDB session:
+
+(gdb) break vulnerable.c:12
+Breakpoint 1 at 0x0000000000401191: file vulnerable.c, line 12.
+
+(gdb) run
+Starting program: ./vulnerable
+Enter admin password: AAAAAAAAA
+
+Breakpoint 1, main () at vulnerable.c:12
+12          if (strcmp(password, "secret") == 0)
+
+(gdb) print password
+$1 = "AAAAAAAAA"
+
+(gdb) print is_admin
+$2 = true
+
+(gdb) x/12bx &password
+0x7fffffffe2b7: 0x41 0x41 0x41 0x41 0x41 0x41 0x41 0x41
+0x7fffffffe2bf: 0x41 0x00 0x00 0x00
