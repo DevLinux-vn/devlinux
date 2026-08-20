@@ -352,6 +352,7 @@ static uint32_t RunStateMachine(uint8_t input,
             status = WIFI_STATUS_ERROR;
         }
         else
+        
         {
             next_state = *p_state;
 
