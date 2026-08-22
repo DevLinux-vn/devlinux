@@ -15,11 +15,6 @@ TARGET = $(BIN_DIR)/main
 STATIC_LIB = $(LIB_DIR)/libcalc.a
 SHARED_LIB = $(LIB_DIR)/liblogger.so
 
-# Source files using wildcard
-SRCS = $(wildcard $(SRC_DIR)/*.c)
-# Object files generated via pattern replacement
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
-
 .PHONY: all clean verify run
 
 all: $(TARGET)
