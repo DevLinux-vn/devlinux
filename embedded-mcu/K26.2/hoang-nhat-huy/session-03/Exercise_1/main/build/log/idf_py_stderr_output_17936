@@ -1,0 +1,62 @@
+CMake Warning (dev) in CMakeLists.txt:
+  No project() command is present.  The top-level CMakeLists.txt file must
+  contain a literal, direct call to the project() command.  Add a line of
+  code such as
+
+    project(ProjectName)
+
+  near the top of the file, but after cmake_minimum_required().
+
+  CMake is pretending there is a "project(Project)" command on the first
+  line.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Error at C:/Users/DELL/.espressif/tools/cmake/3.24.0/share/cmake-3.24/Modules/CMakeTestCCompiler.cmake:69 (message):
+  The C compiler
+
+    "D:/LLVM/bin/clang.exe"
+
+  is not able to compile a simple test program.
+
+  It fails with the following output:
+
+    Change Dir: D:/Study_ESP/devlinux/embedded-mcu/K26.2/hoang-nhat-huy/session-03/Exercise_1/main/build/CMakeFiles/CMakeTmp
+    
+    Run Build Command(s):C:/Users/DELL/.espressif/tools/ninja/1.11.1/ninja.exe cmTC_359c8 && [1/2] Building C object CMakeFiles/cmTC_359c8.dir/testCCompiler.c.obj
+    [2/2] Linking C executable cmTC_359c8.exe
+    FAILED: cmTC_359c8.exe 
+    cmd.exe /C "cd . && D:\LLVM\bin\clang.exe -fuse-ld=lld-link -nostartfiles -nostdlib -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Xlinker /subsystem:console CMakeFiles/cmTC_359c8.dir/testCCompiler.c.obj -o cmTC_359c8.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_359c8.lib -Xlinker /pdb:cmTC_359c8.pdb -Xlinker /version:0.0   -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -loldnames  && cd ."
+    lld-link: error: could not open 'kernel32.lib': no such file or directory
+    lld-link: error: could not open 'user32.lib': no such file or directory
+    lld-link: error: could not open 'gdi32.lib': no such file or directory
+    lld-link: error: could not open 'winspool.lib': no such file or directory
+    lld-link: error: could not open 'shell32.lib': no such file or directory
+    lld-link: error: could not open 'ole32.lib': no such file or directory
+    lld-link: error: could not open 'oleaut32.lib': no such file or directory
+    lld-link: error: could not open 'uuid.lib': no such file or directory
+    lld-link: error: could not open 'comdlg32.lib': no such file or directory
+    lld-link: error: could not open 'advapi32.lib': no such file or directory
+    lld-link: error: could not open 'oldnames.lib': no such file or directory
+    lld-link: error: could not open 'msvcrtd.lib': no such file or directory
+    clang: error: linker command failed with exit code 1 (use -v to see invocation)
+    ninja: build stopped: subcommand failed.
+    
+    
+
+  
+
+  CMake will not be able to correctly generate this project.
+Call Stack (most recent call first):
+  CMakeLists.txt
+
+
+CMake Warning (dev) in CMakeLists.txt:
+  No cmake_minimum_required command is present.  A line of code such as
+
+    cmake_minimum_required(VERSION 3.24)
+
+  should be added at the top of the file.  The version specified may be lower
+  if you wish to support older CMake versions for this project.  For more
+  information run "cmake --help-policy CMP0000".
+This warning is for project developers.  Use -Wno-dev to suppress it.
+

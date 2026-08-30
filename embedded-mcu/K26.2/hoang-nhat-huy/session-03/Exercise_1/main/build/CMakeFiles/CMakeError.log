@@ -1,0 +1,62 @@
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: D:/LLVM/bin/clang.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+1
+lld-link: error: could not open 'libcmt.lib': no such file or directory
+lld-link: error: could not open 'oldnames.lib': no such file or directory
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: D:/LLVM/bin/clang++.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+1
+lld-link: error: could not open 'libcmt.lib': no such file or directory
+lld-link: error: could not open 'oldnames.lib': no such file or directory
+clang++: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Detecting C compiler ABI info failed to compile with the following output:
+Change Dir: D:/Study_ESP/devlinux/embedded-mcu/K26.2/hoang-nhat-huy/session-03/Exercise_1/main/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Users/DELL/.espressif/tools/ninja/1.11.1/ninja.exe cmTC_9e26c && [1/2] Building C object CMakeFiles/cmTC_9e26c.dir/CMakeCCompilerABI.c.obj
+[2/2] Linking C executable cmTC_9e26c.exe
+FAILED: cmTC_9e26c.exe 
+cmd.exe /C "cd . && D:\LLVM\bin\clang.exe -fuse-ld=lld-link -nostartfiles -nostdlib -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Xlinker /subsystem:console CMakeFiles/cmTC_9e26c.dir/CMakeCCompilerABI.c.obj -o cmTC_9e26c.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_9e26c.lib -Xlinker /pdb:cmTC_9e26c.pdb -Xlinker /version:0.0     && cd ."
+lld-link: error: could not open 'msvcrtd.lib': no such file or directory
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+ninja: build stopped: subcommand failed.
+
+
+
+
+Determining if the C compiler works failed with the following output:
+Change Dir: D:/Study_ESP/devlinux/embedded-mcu/K26.2/hoang-nhat-huy/session-03/Exercise_1/main/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Users/DELL/.espressif/tools/ninja/1.11.1/ninja.exe cmTC_359c8 && [1/2] Building C object CMakeFiles/cmTC_359c8.dir/testCCompiler.c.obj
+[2/2] Linking C executable cmTC_359c8.exe
+FAILED: cmTC_359c8.exe 
+cmd.exe /C "cd . && D:\LLVM\bin\clang.exe -fuse-ld=lld-link -nostartfiles -nostdlib -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -Xlinker /subsystem:console CMakeFiles/cmTC_359c8.dir/testCCompiler.c.obj -o cmTC_359c8.exe -Xlinker /MANIFEST:EMBED -Xlinker /implib:cmTC_359c8.lib -Xlinker /pdb:cmTC_359c8.pdb -Xlinker /version:0.0   -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -loldnames  && cd ."
+lld-link: error: could not open 'kernel32.lib': no such file or directory
+lld-link: error: could not open 'user32.lib': no such file or directory
+lld-link: error: could not open 'gdi32.lib': no such file or directory
+lld-link: error: could not open 'winspool.lib': no such file or directory
+lld-link: error: could not open 'shell32.lib': no such file or directory
+lld-link: error: could not open 'ole32.lib': no such file or directory
+lld-link: error: could not open 'oleaut32.lib': no such file or directory
+lld-link: error: could not open 'uuid.lib': no such file or directory
+lld-link: error: could not open 'comdlg32.lib': no such file or directory
+lld-link: error: could not open 'advapi32.lib': no such file or directory
+lld-link: error: could not open 'oldnames.lib': no such file or directory
+lld-link: error: could not open 'msvcrtd.lib': no such file or directory
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+ninja: build stopped: subcommand failed.
+
+
+

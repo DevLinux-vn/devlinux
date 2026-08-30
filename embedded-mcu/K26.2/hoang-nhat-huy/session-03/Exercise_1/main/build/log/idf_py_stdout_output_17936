@@ -1,0 +1,9 @@
+-- The C compiler identification is Clang 22.1.8 with GNU-like command-line
+-- The CXX compiler identification is Clang 22.1.8 with GNU-like command-line
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - failed
+-- Check for working C compiler: D:/LLVM/bin/clang.exe
+-- Check for working C compiler: D:/LLVM/bin/clang.exe - broken
+-- Configuring incomplete, errors occurred!
+See also "D:/Study_ESP/devlinux/embedded-mcu/K26.2/hoang-nhat-huy/session-03/Exercise_1/main/build/CMakeFiles/CMakeOutput.log".
+See also "D:/Study_ESP/devlinux/embedded-mcu/K26.2/hoang-nhat-huy/session-03/Exercise_1/main/build/CMakeFiles/CMakeError.log".
