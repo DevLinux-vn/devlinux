@@ -1,0 +1,9 @@
+[Unit]
+Description=Logger crash-test service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/logger
+StandardOutput=journal
+StandardError=journal
+Restart=no
