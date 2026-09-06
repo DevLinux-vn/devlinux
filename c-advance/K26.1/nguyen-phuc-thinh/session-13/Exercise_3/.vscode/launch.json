@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug (Live)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/exercise_3",
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
+            "preLaunchTask": "cmake-build",
+            "setupCommands": [{"text": "-enable-pretty-printing"}]
+        },
+        {
+            "name": "Debug (Core Dump)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/exercise_3",
+            "coreDumpPath": "${workspaceFolder}/core",
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
+            "setupCommands": [{"text": "-enable-pretty-printing"}]
+        }
+    ]
+}
