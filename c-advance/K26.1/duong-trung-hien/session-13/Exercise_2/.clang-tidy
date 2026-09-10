@@ -1,0 +1,11 @@
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  misc-*
+  -misc-include-cleaner
+WarningsAsErrors: >
+  bugprone-*,
+  cert-*
+HeaderFilterRegex: 'inc/.*\.h$'
