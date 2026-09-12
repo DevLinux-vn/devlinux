@@ -1,9 +1,9 @@
-#! /bin/zsh
+#!/bin/bash
 
-if [[ -z $2 ]]; then
+if [ $# -lt 2 ]; then
     echo "Missing the second argument"
     echo "Usage:"
-    echo "$SHELL $0 <your-name> <age>"
+    echo "$0 <your-name> <age>"
     exit 1
 fi
 
