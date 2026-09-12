@@ -102,7 +102,7 @@ app_main():
 Short paragraph each, in `timer_notes.md`.
 
 1. You now have two timers that both "fire periodically". State the real difference: where each callback runs, what happens to each if a high-priority task hogs the CPU, and which one you would use to sample a sensor at exactly 1 kHz. Justify the choice.
-2. When the watchdog tripped, the panic message named a specific task that failed to reset it in time. Which task was it, and why that one rather than the task you wrote? Explain what the idle task has to do with any of this.
+2. When the watchdog tripped, the panic message listed every subscribed task that failed to reset it in time. Which tasks appeared in that list, and why is an idle task among them even though you never subscribed it? Explain what the idle task has to do with any of this.
 3. You implemented two fixes. One feeds the watchdog inside the long loop; the other stops the loop from hogging the CPU. Both stop the reboot — but only one of them actually fixes the underlying problem. Say which, and what the other one is really doing.
 
 ### Expected Output

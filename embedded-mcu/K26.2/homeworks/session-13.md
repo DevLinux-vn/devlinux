@@ -19,6 +19,7 @@ Requirements:
 - Use `esp_sleep.h`. Arm the timer with `esp_sleep_enable_timer_wakeup()`, and read the cause after waking with `esp_sleep_get_wakeup_cause()`. Print the cause as a readable name, not a bare integer.
 - For the button, note that light sleep and deep sleep use **different** wake mechanisms on this chip. Find out which function each one needs — the GPIO wake source you enable for light sleep is not the one that works from deep sleep. Getting this wrong produces a board that sleeps and never wakes on the button, only on the timer.
 - The button must be on an RTC-capable GPIO, or deep-sleep wake on that pin is impossible. The pin given below is a valid one; if you change it, check it against the datasheet first.
+- The internal pull-up you set with `gpio_config()` is not the one that survives into deep sleep — there the pin belongs to the RTC power domain and the digital pull-up is switched off with it. Work out which API arms the pull-up in that domain. Skip this and the pin floats, the board wakes the instant it sleeps, and it will look like your wake source is broken when it is not.
 - The RTC-memory counter must be declared with `RTC_DATA_ATTR`. The other counter must be a plain global initialised to zero. Do not make either one `static const` or otherwise optimise the comparison away.
 - Turn the display backlight off before sleeping and back on after waking from light sleep. Leaving a backlight on defeats the entire exercise, and noticing that is part of the lesson.
 - Log a clear banner at the start of `app_main()` so a reviewer can tell a fresh power-on from a deep-sleep wake in the output.
@@ -119,6 +120,8 @@ I (0311) SLEEP: === boot: cause=EXT0  rtc_boots=3  ram_boots=1 ===
 Two things to look for. The timestamp resets to near zero on every deep-sleep wake, because the chip really did reboot. And pressing the button during either sleep wakes it early, with the cause reported as the button rather than the timer.
 
 **Note:** If you are monitoring over the **USB** port, be aware that deep sleep drops the USB Serial/JTAG connection and `idf.py monitor` may need to reconnect on each wake. Using the **UART** port for this exercise gives a cleaner log — the same two-port arrangement you set up in Session 05.
+
+**Reflashing a sleeping board:** this program spends most of its life asleep, so the board can look unresponsive between wakes. `idf.py flash` resets the chip over DTR/RTS and normally gets through anyway. If it ever does not, hold **BOOT**, tap **RESET**, release **BOOT**, then flash again.
 
 ### Submission
 

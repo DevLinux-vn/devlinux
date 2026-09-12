@@ -18,7 +18,7 @@ Read a potentiometer and display the result:
 
 Requirements:
 - Use the current `esp_adc/adc_oneshot.h` API: `adc_oneshot_new_unit()`, `adc_oneshot_config_channel()`, `adc_oneshot_read()`. Do **not** use the deprecated `driver/adc.h` — almost every tutorial online still does, so check the include before copying anything.
-- Use `esp_adc/adc_cali.h` and `esp_adc/adc_cali_scheme.h` to convert raw counts to millivolts. If calibration is unavailable on your chip, log a warning and fall back, but do not silently substitute a hand-rolled formula.
+- Use `esp_adc/adc_cali.h` and `esp_adc/adc_cali_scheme.h` to convert raw counts to millivolts. If calibration is unavailable on your chip, log a warning and keep logging the raw counts only — do not print a millivolt figure derived from a hand-rolled formula. A made-up number that looks calibrated is worse than no number at all.
 - Use **ADC1**. ADC2 shares hardware with the Wi-Fi radio and reads will fail unpredictably once Wi-Fi is in use later in the course.
 - Pick an attenuation that lets you read the full 0 V to 3.3 V swing of the potentiometer, and state in a comment what input range your chosen attenuation actually covers.
 - Averaging: take at least 16 samples per displayed reading. Make the count a named constant.
@@ -38,7 +38,7 @@ Keep the display module wired exactly as in Sessions 06 and 07, and add a potent
 
 Any linear potentiometer from 1 kΩ to 100 kΩ works. Wire the wiper to GPIO1 — **not** to any pin the display is using, and not to GPIO3, which is a strapping pin.
 
-**A note on the "DAC" half of this session's title:** the ESP32-S3 has **no DAC peripheral**. The original ESP32 and the S2 have one; it was removed on the S3. So there is no DAC exercise to give you, and any tutorial that calls `dac_output_voltage()` on an S3 will not compile. The way you produce an analog-looking output on this chip is PWM through a low-pass filter, which is Session 12.
+**A note on the "DAC" half of this session's topic in the syllabus:** the ESP32-S3 has **no DAC peripheral**. The original ESP32 and the S2 have one; it was removed on the S3. So there is no DAC exercise to give you, and any tutorial that calls `dac_output_voltage()` on an S3 will not compile. The way you produce an analog-looking output on this chip is PWM through a low-pass filter, which is Session 12.
 
 ### Design Hints
 
