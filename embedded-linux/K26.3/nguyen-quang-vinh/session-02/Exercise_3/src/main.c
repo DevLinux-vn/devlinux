@@ -1,77 +1,81 @@
 #include <stdio.h>
 #include <math.h>
+
 #include "calc.h"
 #include "logger.h"
+
+#define MSG_BUFSIZE 100
+#define EXIT_ERROR 1
+
 int main(void)
 {
-    float a ;
-    float b ;
-    printf("Nhap a: ");
-    scanf("%f", &a);
+	float a;
+	float b;
 
-    printf("Nhap b: ");
-    scanf("%f", &b);
+	float add_result;
+	float sub_result;
+	float mul_result;
+	float div_result;
 
-    float add_result;
-    float sub_result;
-    float mul_result;
-    float div_result;
+	char msg[MSG_BUFSIZE];
 
-    char msg[100];
+	printf("Nhap a: ");
+	if (scanf("%f", &a) != 1) {
+		fprintf(stderr, "Invalid input for a\n");
+		return EXIT_ERROR;
+	}
 
-    /* Ghi thời gian bắt đầu chương trình */
-    log_timestamp();
+	printf("Nhap b: ");
+	if (scanf("%f", &b) != 1) {
+		fprintf(stderr, "Invalid input for b\n");
+		return EXIT_ERROR;
+	}
 
-    /* Phép cộng */
-    add_result = calc_add(a, b);
-    printf("%.2f + %.2f = %.2f\n", a, b, add_result);
+	log_timestamp();
 
-    snprintf(msg, sizeof(msg),
-             "Addition: %.2f + %.2f = %.2f",
-             a, b, add_result);
+	add_result = calc_add(a, b);
+	printf("%.2f + %.2f = %.2f\n", a, b, add_result);
 
-    log_write(msg);
+	snprintf(msg, sizeof(msg),
+		 "Addition: %.2f + %.2f = %.2f",
+		 a, b, add_result);
 
-    /* Phép trừ */
-    sub_result = calc_sub(a, b);
-    printf("%.2f - %.2f = %.2f\n", a, b, sub_result);
+	log_write(msg);
 
-    snprintf(msg, sizeof(msg),
-             "Subtraction: %.2f - %.2f = %.2f",
-             a, b, sub_result);
+	sub_result = calc_sub(a, b);
+	printf("%.2f - %.2f = %.2f\n", a, b, sub_result);
 
-    log_write(msg);
+	snprintf(msg, sizeof(msg),
+		 "Subtraction: %.2f - %.2f = %.2f",
+		 a, b, sub_result);
 
-    /* Phép nhân */
-    mul_result = calc_mul(a, b);
-    printf("%.2f * %.2f = %.2f\n", a, b, mul_result);
+	log_write(msg);
 
-    snprintf(msg, sizeof(msg),
-             "Multiplication: %.2f * %.2f = %.2f",
-             a, b, mul_result);
+	mul_result = calc_mul(a, b);
+	printf("%.2f * %.2f = %.2f\n", a, b, mul_result);
 
-    log_write(msg);
+	snprintf(msg, sizeof(msg),
+		 "Multiplication: %.2f * %.2f = %.2f",
+		 a, b, mul_result);
 
-    /* Phép chia */
-    div_result = calc_div(a, b);
+	log_write(msg);
 
-    if (isnan(div_result))
-    {
-        printf("Error: division by zero\n");
-        log_error("Division by zero");
-    }
-    else
-    {
-        printf("%.2f / %.2f = %.2f\n", a, b, div_result);
+	div_result = calc_div(a, b);
 
-        snprintf(msg, sizeof(msg),
-                 "Division: %.2f / %.2f = %.2f",
-                 a, b, div_result);
+	if (isnan(div_result)) {
+		printf("Error: division by zero\n");
+		log_error("Division by zero");
+	} else {
+		printf("%.2f / %.2f = %.2f\n", a, b, div_result);
 
-        log_write(msg);
-    }
+		snprintf(msg, sizeof(msg),
+			 "Division: %.2f / %.2f = %.2f",
+			 a, b, div_result);
 
-    printf("\nCalculation completed.\n");
+		log_write(msg);
+	}
 
-    return 0;
+	printf("\nCalculation completed.\n");
+
+	return 0;
 }

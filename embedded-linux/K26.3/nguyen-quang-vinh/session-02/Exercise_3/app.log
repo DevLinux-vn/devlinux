@@ -3,3 +3,8 @@ Addition: 12.00 + 13.00 = 25.00
 Subtraction: 12.00 - 13.00 = -1.00
 Multiplication: 12.00 * 13.00 = 156.00
 Division: 12.00 / 13.00 = 0.92
+2026-09-12 22:30:33
+Addition: 12.00 + 0.00 = 12.00
+Subtraction: 12.00 - 0.00 = 12.00
+Multiplication: 12.00 * 0.00 = 0.00
+[ERROR] Division by zero
