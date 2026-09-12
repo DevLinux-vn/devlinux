@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 echo $PATH
 echo $HOME
@@ -7,7 +7,7 @@ echo $SHELL
 
 STRING=$(echo $PATH | tr ':' '\n')
 COUNT_DIRECTORIES=$(echo "$STRING" | wc -l)
-echo $COUNT_DIRECTORIES
+echo "COUNT DIRECTORIES: $COUNT_DIRECTORIES"
 
 COUNT_VARIABLE=$(printenv | wc -l)
-echo "COUNT VARIABLE:  $COUNT_VARIABLE"
+echo "COUNT VARIABLE: $COUNT_VARIABLE"
