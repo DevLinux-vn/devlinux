@@ -33,7 +33,10 @@ static void get_timestamp(char *buffer, size_t size)
         return;
     }
 
-    strftime(buffer, size, "%Y-%m-%d %H:%M:%S", local_time);
+    if (strftime(buffer, size, "%Y-%m-%d %H:%M:%S", local_time) == 0)
+    {
+        snprintf(buffer, size, "0000-00-00 00:00:00");
+    }
 }
 
 void log_write(const char *msg)

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude
+CFLAGS = -Wall -Wextra -std=gnu99 -g -Iinclude
 
 LIB = lib/libmathutils.a
 OBJ = obj/mathutils.o
