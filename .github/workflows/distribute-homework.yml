@@ -18,11 +18,16 @@ jobs:
 
     steps:
       # Step 1: Checkout code
+      # allow-unsafe-pr-checkout is required to check out a fork's PR head under
+      # pull_request_target. Safe here because this workflow never executes any
+      # code from the PR - it only reads .md files with grep/sed for validation,
+      # and permission checks (Steps 5-6) run before anything else happens.
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          allow-unsafe-pr-checkout: true
 
       # Step 2: Extract branch name
       - name: Extract branch info
