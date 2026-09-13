@@ -66,11 +66,21 @@ int main(void)
         fflush(stdout);
 
         sigset_t block_set;
-        sigemptyset(&block_set);
-        sigaddset(&block_set, SIGUSR1);
+        sigset_t old_set;
+
+        if (sigemptyset(&block_set) == -1)
+        {
+            perror("sigemptyset");
+            exit(FAIL_EXIT);
+        }
+        if (sigaddset(&block_set, SIGUSR1) == -1)
+        {
+            perror("sigaddset");
+            exit(FAIL_EXIT);
+        }
 
         /// 1. block signal
-        if (sigprocmask(SIG_BLOCK, &block_set, NULL) < 0)
+        if (sigprocmask(SIG_BLOCK, &block_set, &old_set) < 0)
         {
             perror("sigprocmask block failed");
             exit(FAIL_EXIT);
@@ -80,9 +90,9 @@ int main(void)
         sleep(GATEWAY_INIT_SEC);
 
         // 3. unblock
-        if (sigprocmask(SIG_UNBLOCK, &block_set, NULL) < 0)
+        if (sigprocmask(SIG_SETMASK, &old_set, NULL) < 0)
         {
-            perror("sigprocmask unblock failed");
+            perror("sigprocmask restore failed");
             exit(FAIL_EXIT);
         }
 
@@ -90,6 +100,7 @@ int main(void)
         if (flag_usr1 == 1)
         {
             printf("[GATEWAY] Worker reported READY signal received\n");
+            fflush(stdout);
         }
 
         // 5. wait child process

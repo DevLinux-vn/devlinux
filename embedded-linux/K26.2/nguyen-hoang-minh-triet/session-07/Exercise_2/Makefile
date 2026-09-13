@@ -1,6 +1,6 @@
 # Trình biên dịch và cờ biên dịch
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -O2
+CFLAGS = -Wall -Wextra -std=c99 -O0
 
 # Tên file thực thi
 TARGET = iot_gateway
@@ -21,4 +21,3 @@ $(TARGET): $(SRC)
 clean:
 	rm -f $(TARGET)
 
-	

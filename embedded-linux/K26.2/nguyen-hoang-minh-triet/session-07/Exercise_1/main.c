@@ -22,26 +22,23 @@ volatile sig_atomic_t reading_count = 0;
 volatile signal_flag flag = {
     .s_int = 0,
     .s_tern = 0,
-    .s_user1 = 0};
+    .s_user1 = 0,
+};
 
 /* Handler for SIGINT (Ctrl+C) */
-void handle_sigint(int sig)
+void handle_sigint(int sig __attribute__((unused)))
 {
-    (void)sig; // Bỏ qua cảnh báo unused parameter
     flag.s_int = 1;
 }
 
 /* Handler for SIGTERM */
-void handle_sigterm(int sig)
+void handle_sigterm(int sig __attribute__((unused)))
 {
-    (void)sig;
     flag.s_tern = 1;
 }
-
 /* Handler for SIGUSR1 */
-void handle_sigusr1(int sig)
+void handle_sigusr1(int sig __attribute__((unused)))
 {
-    (void)sig;
     flag.s_user1 = 1;
 }
 
@@ -63,9 +60,6 @@ int main(void)
         perror("Failed to register SIGUSR1");
         return EXIT_FAILURE;
     }
-
-    // Init random value
-    srand((unsigned int)time(NULL));
 
     printf("Sensor daemon is running. PID: %d\n", getpid());
     printf("Send signals from another terminal to test:\n");
