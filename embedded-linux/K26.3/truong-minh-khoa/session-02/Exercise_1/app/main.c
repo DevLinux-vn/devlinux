@@ -3,8 +3,30 @@
 
 int main()
 {
-    printf("math_add: %d\r\n", math_add(10, 11));
-    printf("math_sub: %d\r\n", math_sub(22, 11));
-    printf("math_factorial: %d\r\n",  math_factorial(10));
+    int a, b, n;
+    printf("Enter two integers (a b): ");
+    if (scanf("%d %d", &a, &b) != 2) {
+        printf("Invalid input for a and b\n");
+        return 1;
+    }
+
+
+    printf("Enter a non-negative integer n: ");
+    if (scanf("%d", &n) != 1) {
+        printf("Invalid input for n\n");
+        return 1;
+    }
+
+    printf("math_add: %d\r\n", math_add(a, b));
+    printf("math_sub: %d\r\n", math_sub(a, b));
+    int factorial = math_factorial(n);
+    if(factorial < 0)
+    {
+        printf("factorial gets negative value from %d", n);
+    }
+    else
+    {
+        printf("factorial: %d\r\n", factorial);
+    }
     return 0;
 }

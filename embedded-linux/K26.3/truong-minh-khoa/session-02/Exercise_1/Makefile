@@ -1,4 +1,7 @@
 CC = gcc
+AR = ar
+ARFLAGS = rcs
+CFLAGS=-Wall -Wextra -std=c99 -Iinclude
 
 all: main
 
@@ -13,16 +16,16 @@ lib:
 	mkdir -p lib
 
 mathutil: obj
-	$(CC) -c src/mathutils.c -I include -o obj/mathutils.o
+	$(CC) $(CFLAGS) -c src/mathutils.c -o obj/mathutils.o
 
 mathutil_archive: mathutil lib
-	ar rcs lib/libmathutils.a obj/mathutils.o
+	$(AR) $(ARFLAGS) lib/libmathutils.a obj/mathutils.o
 
 main:mathutil_archive
-	$(CC) app/main.c -I include -Llib -lmathutils -o main
+	$(CC) $(CFLAGS) app/main.c -Llib -lmathutils -o main
 
 
-.PHONY: clean
+.PHONY: clean run all
 clean:
 	rm -r obj/
 	rm -r lib/
