@@ -8,6 +8,6 @@ fi
 NAME=$1
 AGE=$2
 
-echo "Hello. my name is $NAME and I am $AGE years old."
+echo "Hello, my name is $NAME and I am $AGE years old."
 echo "Total arguments received: $#"
 
