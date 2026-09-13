@@ -21,6 +21,7 @@ int main(void)
 
         printf("[SAFE] Writing transaction #%d ...\n", i);
         fflush(stdout);
+
         sleep(3);
 
         printf("[SAFE] Transaction #%d committed.\n", i);

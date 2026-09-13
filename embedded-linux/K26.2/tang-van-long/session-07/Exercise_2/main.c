@@ -16,7 +16,6 @@ int main(void)
 {
     pid_t pid;
     int status;
-
     signal(SIGUSR1, handle_sigusr1);
 
     pid = fork();
@@ -30,7 +29,6 @@ int main(void)
     if (pid == 0)
     {
         sleep(2);
-
         if (kill(getppid(), SIGUSR1) == -1)
         {
             perror("kill");
@@ -56,8 +54,9 @@ int main(void)
         perror("sigprocmask SIG_BLOCK");
         return 1;
     }
+
     sleep(5);
-    
+
     if (sigprocmask(SIG_UNBLOCK, &block_set, NULL) == -1)
     {
         perror("sigprocmask SIG_UNBLOCK");
