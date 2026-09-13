@@ -1,0 +1,29 @@
+# Step 1 — create a regular variable
+MY_NAME="Quan"
+echo $MY_NAME        # visible?
+
+#Nhìn thấy được, vì được khai báo như 1 biến bình thường, gán giá trị và in giá trị ra
+
+# Step 2 — open a child shell and check
+bash
+echo $MY_NAME        # visible? why?
+exit
+
+#Không nhìn thấy được, vì lệnh bash sẽ tại ra 1 child shell và biến MY_NAME không nằm trong scope của child shell mới vừa tạo
+
+# Step 3 — export the variable
+export MY_NAME="Quan"
+bash
+echo $MY_NAME        # visible? why?
+exit
+
+#Nhìn thấy được, do đã export biến MY_NAME trở thành biến môi trường, các child shell tạo sau có thế truy cập được
+
+# Step 4 — modify variable inside child shell
+bash
+MY_NAME="Alice"
+echo $MY_NAME        # what do you see inside child shell?
+exit
+echo $MY_NAME        # back in parent shell — what do you see? why?
+
+#Sẽ nhìn thấy Alice khi qua những LoC của child shell. và khi exit child shell thì sẽ in ra biến môi trường là Quan
