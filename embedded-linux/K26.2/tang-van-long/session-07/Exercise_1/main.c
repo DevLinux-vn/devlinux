@@ -4,6 +4,9 @@
 #include <signal.h>
 #include <time.h>
 
+#define TEMP_BASE 20
+#define TEMP_RANGE 16
+
 volatile sig_atomic_t reading_count = 0;
 
 void handle_sigint(int sig)
@@ -47,12 +50,11 @@ int main(void)
     {
         reading_count++;
 
-        int temperature = 20 + rand() % 16;
+        int temperature = TEMP_BASE + rand() % TEMP_RANGE;
 
         printf("[INFO] Sensor reading #%d: temperature=%d\n",
                reading_count,
                temperature);
-
         fflush(stdout);
 
         sleep(1);
