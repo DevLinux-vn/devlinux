@@ -63,7 +63,7 @@ jobs:
       - name: Load teacher permissions
         id: permissions
         run: |
-          PERMISSIONS=$(cat .github/teacher-permissions.json)
+          PERMISSIONS=$(jq -c . .github/teacher-permissions.json)
           echo "permissions=$PERMISSIONS" >> $GITHUB_OUTPUT
 
       # Step 5: Validate PR author
