@@ -418,18 +418,18 @@ jobs:
               issue_number: context.issue.number,
               body: `✅ **Homework Distribution Successful**
 
-**Course:** ${subject}/${course}
+            **Course:** ${subject}/${course}
 
-**Actions completed:**
-- ✅ Author verified
-- ✅ Permissions validated
-- ✅ Files validated
-- ✅ Homework format validated (deadline, tags, no template instructions)
-- ✅ No conflicts
-- ✅ Homework distributed to all students
-- ✅ PR merged
+            **Actions completed:**
+            - ✅ Author verified
+            - ✅ Permissions validated
+            - ✅ Files validated
+            - ✅ Homework format validated (deadline, tags, no template instructions)
+            - ✅ No conflicts
+            - ✅ Homework distributed to all students
+            - ✅ PR merged
 
-The homework has been automatically distributed to all students in the class.`
+            The homework has been automatically distributed to all students in the class.`
             })
 
       # Step 16: Comment failure
@@ -444,14 +444,14 @@ The homework has been automatically distributed to all students in the class.`
               issue_number: context.issue.number,
               body: `❌ **Homework Distribution Failed**
 
-**Validation Requirements:**
-- ✅ Branch name must be: \`{subject}/{course}/homework\`
-  - Example: \`c-advance/K26.1/homework\`
-- ✅ Only author in the teacher whitelist can submit
-- ✅ Author must have permission to edit the specified course
-- ✅ Only files in \`{subject}/{course}/homeworks/\` can be modified
-- ✅ No symlinks allowed
-- ✅ No merge conflicts
+            **Validation Requirements:**
+            - ✅ Branch name must be: \`{subject}/{course}/homework\`
+              - Example: \`c-advance/K26.1/homework\`
+            - ✅ Only author in the teacher whitelist can submit
+            - ✅ Author must have permission to edit the specified course
+            - ✅ Only files in \`{subject}/{course}/homeworks/\` can be modified
+            - ✅ No symlinks allowed
+            - ✅ No merge conflicts
 
-**Please check the workflow logs for details.**`
+            **Please check the workflow logs for details.**`
             })
