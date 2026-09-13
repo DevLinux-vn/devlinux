@@ -21,6 +21,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       # Step 2: Extract branch name
@@ -63,7 +64,7 @@ jobs:
       - name: Load teacher permissions
         id: permissions
         run: |
-          PERMISSIONS=$(jq -c . .github/teacher-permissions.json)
+          PERMISSIONS=$(git show origin/master:.github/teacher-permissions.json | jq -c .)
           echo "permissions=$PERMISSIONS" >> $GITHUB_OUTPUT
 
       # Step 5: Validate PR author
@@ -142,8 +143,7 @@ jobs:
       - name: Get changed files
         id: changed_files
         run: |
-          git fetch origin master:master
-          CHANGED=$(git diff --name-only master...HEAD)
+          CHANGED=$(git diff --name-only origin/master...HEAD)
 
           echo "Changed files:"
           echo "$CHANGED"
@@ -284,10 +284,8 @@ jobs:
           git config user.email "bot@devlinux.vn"
           git config user.name "DevLinux Bot"
 
-          git fetch origin master:master
-
           # Test merge without committing
-          if git merge --no-commit --no-ff master 2>&1 | grep -q "CONFLICT"; then
+          if git merge --no-commit --no-ff origin/master 2>&1 | grep -q "CONFLICT"; then
             echo "❌ Merge conflict detected"
             git merge --abort
             echo "has_conflict=true" >> $GITHUB_OUTPUT
