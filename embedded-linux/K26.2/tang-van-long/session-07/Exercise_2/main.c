@@ -18,7 +18,11 @@ int main(void)
 {
     pid_t pid;
     int status;
-    signal(SIGUSR1, handle_sigusr1);
+    if (signal(SIGUSR1, handle_sigusr1) == SIG_ERR)
+    {
+        perror("signal");
+        return 1;
+    }
 
     pid = fork();
 
@@ -27,7 +31,6 @@ int main(void)
         perror("fork");
         return 1;
     }
-
     if (pid == 0)
     {
         sleep(2);
@@ -42,14 +45,22 @@ int main(void)
 
         exit(7);
     }
-
     printf("[GATEWAY] Worker PID = %d\n", pid);
     fflush(stdout);
 
     sigset_t block_set;
 
-    sigemptyset(&block_set);
-    sigaddset(&block_set, SIGUSR1);
+    if (sigemptyset(&block_set) == -1)
+    {
+        perror("sigemptyset");
+        return 1;
+    }
+
+    if (sigaddset(&block_set, SIGUSR1) == -1)
+    {
+        perror("sigaddset");
+        return 1;
+    }
 
     if (sigprocmask(SIG_BLOCK, &block_set, NULL) == -1)
     {
@@ -70,11 +81,16 @@ int main(void)
         perror("wait");
         return 1;
     }
-
+    
     if (WIFEXITED(status))
     {
         printf("[GATEWAY] Worker exited with code %d\n",
                WEXITSTATUS(status));
+        fflush(stdout);
+    }
+    else
+    {
+        printf("[GATEWAY] Worker did not exit normally\n");
         fflush(stdout);
     }
 

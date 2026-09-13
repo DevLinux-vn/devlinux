@@ -1,8 +1,11 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
+#include <errno.h>
 
 #define TEMP_BASE 20
 #define TEMP_RANGE 16
@@ -48,16 +51,21 @@ int main(void)
 
     while (1)
     {
-        reading_count++;
-
         int temperature = TEMP_BASE + rand() % TEMP_RANGE;
+
+        reading_count++;
 
         printf("[INFO] Sensor reading #%d: temperature=%d\n",
                reading_count,
                temperature);
         fflush(stdout);
 
-        sleep(1);
+        unsigned int remaining = sleep(1);
+
+        while (remaining > 0)
+        {
+            remaining = sleep(remaining);
+        }
     }
 
     return 0;
