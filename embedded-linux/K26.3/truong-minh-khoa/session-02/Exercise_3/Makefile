@@ -2,7 +2,7 @@
 CC = gcc
 AR = ar
 ARFLAGS = rcs
-CFLAGS =Wall -Wextra -Werror -std=c99 -g -Iinclude
+CFLAGS = -Wall -Wextra -Werror -std=c99 -g -Iinclude
 SRC = $(wildcard src/*.c)
 OBJ = $(SRC:src/%.c=obj/%.o)
 
