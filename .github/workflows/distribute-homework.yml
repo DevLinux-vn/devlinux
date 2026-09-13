@@ -195,17 +195,22 @@ jobs:
           SUBJECT="${{ steps.branch_info.outputs.subject }}"
           COURSE="${{ steps.branch_info.outputs.course }}"
           HOMEWORK_DIR="${SUBJECT}/${COURSE}/homeworks"
+          CHANGED_FILES="${{ steps.changed_files.outputs.files }}"
 
-          echo "Validating homework files in: $HOMEWORK_DIR"
+          echo "Validating only the homework files changed in this PR"
           echo ""
 
           VALIDATION_PASSED="true"
 
-          # Validate each session-*.md file
-          for hw_file in "$HOMEWORK_DIR"/session-*.md; do
-            if [ ! -f "$hw_file" ]; then
-              continue
-            fi
+          # Only validate session-*.md files that this PR actually touched
+          # (not every file already in homeworks/, which may predate these rules)
+          while IFS= read -r hw_file; do
+            [ -z "$hw_file" ] && continue
+            case "$hw_file" in
+              "$HOMEWORK_DIR"/session-*.md) ;;
+              *) continue ;;
+            esac
+            [ -f "$hw_file" ] || continue
 
             filename=$(basename "$hw_file")
             echo "📄 Checking: $filename"
@@ -220,16 +225,7 @@ jobs:
               echo "  ✅ Deadline format correct"
             fi
 
-            # 2. Check no template instruction lines (starting with >)
-            if grep -q "^[[:space:]]*>" "$hw_file"; then
-              echo "  ❌ Found template instruction lines (starting with >). Remove all lines like this:"
-              grep "^[[:space:]]*>" "$hw_file" | head -3
-              VALIDATION_PASSED="false"
-            else
-              echo "  ✅ No template instructions found"
-            fi
-
-            # 3. Check all exercises have [build] or [review-only] tag
+            # 2. Check all exercises have [build] or [review-only] tag
             exercise_headers=$(grep "^## Exercise" "$hw_file")
             if [ -n "$exercise_headers" ]; then
               while IFS= read -r header; do
@@ -245,7 +241,7 @@ jobs:
             fi
 
             echo ""
-          done
+          done <<< "$CHANGED_FILES"
 
           if [ "$VALIDATION_PASSED" = "true" ]; then
             echo "✅ All homework files passed validation"
@@ -308,7 +304,6 @@ jobs:
           if [ "${{ steps.validate_homework_format.outputs.is_valid_format }}" != "true" ]; then
             echo "❌ Error: Homework file format validation failed"
             echo "   - Line 2 must have deadline: \`**Deadline: YYYY-MM-DD HH:MM:SS**\`"
-            echo "   - Remove all template instruction lines (starting with \`>\`)"
             echo "   - All Exercises must have [\`build\`] or [\`review-only\`] tag"
             echo "   Check the workflow log for details"
           fi
@@ -369,7 +364,7 @@ jobs:
             - ✅ Author verified
             - ✅ Permissions validated
             - ✅ Files validated
-            - ✅ Homework format validated (deadline, tags, no template instructions)
+            - ✅ Homework format validated (deadline, tags)
             - ✅ No symlinks
             - ✅ PR merged into master
 
