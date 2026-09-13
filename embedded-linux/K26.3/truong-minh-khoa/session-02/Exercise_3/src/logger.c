@@ -6,10 +6,12 @@ static const char *LOG_FILE = "app.log";
 
 void log_write(const char *msg) {
     FILE *f = fopen(LOG_FILE, "a");
-    if (f) {
-        fprintf(f, "%s\n", msg);
-        fclose(f);
+    if (!f) {
+        perror("fopen failed");
+        return;
     }
+    fprintf(f, "%s\n", msg);
+    fclose(f);
 }
 
 void log_timestamp(void) {
@@ -17,6 +19,16 @@ void log_timestamp(void) {
     struct tm *t = localtime(&now);
     char buf[20];
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", t);
+
+    if (now == (time_t)(-1)) {
+        perror("time failed");
+        return;
+    }
+
+    if (!t) {
+        fprintf(stderr, "localtime failed\n");
+        return;
+    }
 
     FILE *f = fopen(LOG_FILE, "a");
     if (f) {

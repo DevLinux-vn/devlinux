@@ -2,7 +2,7 @@
 CC = gcc
 AR = ar
 ARFLAGS = rcs
-CFLAGS = -I include
+CFLAGS =Wall -Wextra -Werror -std=c99 -g -Iinclude
 SRC = $(wildcard src/*.c)
 OBJ = $(SRC:src/%.c=obj/%.o)
 
@@ -31,8 +31,8 @@ bin:
 SRCS := $(wildcard ./src/*.c)
 OBJS := $(SRCS:.c=.o)
 
-static:$(CALC_LIB)
-shared:$(LOGGER_LIB)
+static: $(CALC_LIB)
+shared: $(LOGGER_LIB)
 
 # Pattern rule: default object compilation
 obj/%.o: src/%.c | obj
@@ -51,7 +51,7 @@ $(LOGGER_LIB): $(LOGGER_OBJ) | lib
 	$(CC) -shared -o $@ $^
 
 $(TARGET): obj/main.o $(CALC_LIB) $(LOGGER_LIB) | bin
-	$(CC) $(CFLAGS) obj/main.o -Llib -lcalc -llogger -o $@
+	$(CC) $(CFLAGS) obj/main.o -Llib -lcalc -llogger -lm -o $@
 
 
 clean:

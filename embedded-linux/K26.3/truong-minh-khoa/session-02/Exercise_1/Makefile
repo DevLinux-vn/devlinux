@@ -21,7 +21,7 @@ mathutil: obj
 mathutil_archive: mathutil lib
 	$(AR) $(ARFLAGS) lib/libmathutils.a obj/mathutils.o
 
-main:mathutil_archive
+main: mathutil_archive
 	$(CC) $(CFLAGS) app/main.c -Llib -lmathutils -o main
 
 

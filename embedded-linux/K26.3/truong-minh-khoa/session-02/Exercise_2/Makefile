@@ -18,7 +18,7 @@ sharelib_stringutil: build_dir
 linking_stringutil: sharelib_stringutil bin_dir
 	$(CC) -shared -o bin/libstringutils.so build/stringutils.o
 
-main:linking_stringutil
+main: linking_stringutil
 	$(CC) $(CFLAGS) app/main.c  -Lbin -lstringutils -o bin/main
 
 verify:
