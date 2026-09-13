@@ -7,7 +7,7 @@
 
 ### Problem Statement
 
-Create a shell script file `info.sh` that prints the following information when executed test2:
+Create a shell script file `info.sh` that prints the following information when executed test3:
 
 ```
 Hello, <current logged-in username>!
