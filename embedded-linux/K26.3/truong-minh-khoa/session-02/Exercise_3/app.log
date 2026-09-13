@@ -1,0 +1,40 @@
+Performed addition
+Performed subtraction
+Performed multiplication
+[ERROR] Division by zero attempted
+2026-09-13 22:31:44
+calc_add: 10.00 +  5 = 15.00
+calc_sub: 10.00 -  5 = 5.00
+calc_mul: 10.00 *  5 = 50.00
+[ERROR] Division by zero attempted
+2026-09-13 22:45:36
+calc_add: 10.00 +  5 = 15.00
+
+calc_sub: 10.00 -  5 = 5.00
+
+calc_mul: 10.00 *  5 = 50.00
+
+[ERROR] Division by zero attempted
+2026-09-13 22:46:04
+calc_add: 10.00 +  5 = 15.00
+
+calc_sub: 10.00 -  5 = 5.00
+
+calc_mul: 10.00 *  5 = 50.00
+
+calc_div: 10.00 /  5 = 2.00
+
+[ERROR] Error - Division by zero: 10.00 /  0 = nan
+
+2026-09-13 22:48:00
+calc_add: 10.00 +  5 = 15.00
+
+calc_sub: 10.00 -  5 = 5.00
+
+calc_mul: 10.00 *  5 = 50.00
+
+calc_div: 10.00 /  5 = 2.00
+
+[ERROR] Error - Division by zero: 10.00 /  0 = nan
+
+2026-09-13 22:49:00
