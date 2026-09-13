@@ -304,6 +304,11 @@ int main(int argc, char *argv[])
             dup2(devnull, STDOUT_FILENO);
             close(devnull);
         }
+        int max_fd = sysconf(_SC_OPEN_MAX);
+        if (max_fd < 0 || max_fd > 1024) max_fd = 1024;
+        for (int fd = 3; fd < max_fd; fd++) {
+            close(fd);
+        }
         char *const lo_cmd_ip[] = {"ip", "link", "set", "lo", "up", NULL};
         execvp(lo_cmd_ip[0], lo_cmd_ip);
         /* Fallback if ip command is not present */

@@ -18,6 +18,7 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <errno.h>
+#include <fcntl.h>
 
 /* Embedded HTML Templates */
 static const char *HTML_SOFTAP_FORM =
@@ -288,25 +289,44 @@ void *webserver_thread_func(void *arg)
     struct sockaddr_in server_addr;
     int opt = 1;
 
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    server_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+    if (server_fd < 0) {
+        server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    }
     if (server_fd < 0) {
         perror("webserver: Failed to create socket");
         return NULL;
     }
 
+    fcntl(server_fd, F_SETFD, FD_CLOEXEC);
+
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
         perror("webserver: setsockopt SO_REUSEADDR failed");
     }
+#ifdef SO_REUSEPORT
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
+        /* SO_REUSEPORT optional */
+    }
+#endif
 
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(WEBSERVER_PORT);
 
-    if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        perror("webserver: Bind failed");
-        close(server_fd);
-        return NULL;
+    /* Resilient Bind Loop: Retry for up to 5s if port is temporarily held during quick restart */
+    int bind_retries = 0;
+    while (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        pthread_mutex_lock(&g_state_mutex);
+        bool is_running = g_system_state.running;
+        pthread_mutex_unlock(&g_state_mutex);
+
+        if (!is_running || ++bind_retries > 15) {
+            perror("webserver: Bind failed");
+            close(server_fd);
+            return NULL;
+        }
+        usleep(300 * 1000);
     }
 
     if (listen(server_fd, 5) < 0) {
@@ -352,6 +372,8 @@ void *webserver_thread_func(void *arg)
                 }
                 continue;
             }
+
+            fcntl(client_fd, F_SETFD, FD_CLOEXEC);
 
             /*
              * Resource Management: client_fd is guaranteed to be closed

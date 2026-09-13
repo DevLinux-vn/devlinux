@@ -52,12 +52,21 @@ static int safe_exec(char *const argv[])
     }
 
     if (pid == 0) {
-        /* Redirect stderr/stdout to /dev/null to silence background noise */
+        /* Redirect stderr to /dev/null to silence background noise */
         int devnull = open("/dev/null", O_WRONLY);
         if (devnull >= 0) {
             dup2(devnull, STDERR_FILENO);
             close(devnull);
         }
+
+        /* Close all inherited file descriptors (>= 3) so background daemons
+         * (e.g. wpa_supplicant -B, udhcpd) never inherit sockets (port 8080) or device nodes */
+        int max_fd = sysconf(_SC_OPEN_MAX);
+        if (max_fd < 0 || max_fd > 1024) max_fd = 1024;
+        for (int fd = 3; fd < max_fd; fd++) {
+            close(fd);
+        }
+
         execvp(argv[0], argv);
         _exit(127);
     }
@@ -229,12 +238,18 @@ static bool is_wifi_connected(void)
     if (pid == 0) {
         close(pipefd[0]);
         dup2(pipefd[1], STDOUT_FILENO);
-        close(pipefd[1]);
 
         int devnull = open("/dev/null", O_WRONLY);
         if (devnull >= 0) {
             dup2(devnull, STDERR_FILENO);
             close(devnull);
+        }
+
+        /* Close all inherited file descriptors (>= 3) except STDOUT */
+        int max_fd = sysconf(_SC_OPEN_MAX);
+        if (max_fd < 0 || max_fd > 1024) max_fd = 1024;
+        for (int fd = 3; fd < max_fd; fd++) {
+            close(fd);
         }
 
         char *const args[] = {"wpa_cli", "-i", "wlan0", "status", NULL};

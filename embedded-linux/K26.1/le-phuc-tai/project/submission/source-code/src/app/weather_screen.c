@@ -33,8 +33,12 @@
  */
 static bool get_interface_ip(const char *ifname, char *out_ip, size_t max_len)
 {
-    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    int fd = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+    if (fd < 0) {
+        fd = socket(AF_INET, SOCK_DGRAM, 0);
+    }
     if (fd < 0) return false;
+    fcntl(fd, F_SETFD, FD_CLOEXEC);
 
     struct ifreq ifr;
     memset(&ifr, 0, sizeof(ifr));
@@ -90,7 +94,7 @@ static bool parse_weather_json(const char *json_body, weather_data_t *out_data)
  * @param out_data Destination struct for retrieved weather information
  * @return true on success, false on network error or timeout
  */
-static bool fetch_http_weather(weather_data_t *out_data)
+static bool fetch_http_weather_single(weather_data_t *out_data, bool *out_timed_out)
 {
     int sock_fd = -1;
     struct sockaddr_in server_addr;
@@ -99,11 +103,17 @@ static bool fetch_http_weather(weather_data_t *out_data)
     char response[HTTP_BUF_SIZE];
     bool success = false;
 
-    sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (out_timed_out) *out_timed_out = false;
+
+    sock_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+    if (sock_fd < 0) {
+        sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    }
     if (sock_fd < 0) {
         perror("weather_screen: Failed to create socket");
         goto cleanup;
     }
+    fcntl(sock_fd, F_SETFD, FD_CLOEXEC);
 
     /* Đưa socket về chế độ Non-blocking để kiểm soát chặt timeout connect() */
     int flags = fcntl(sock_fd, F_GETFL, 0);
@@ -137,6 +147,7 @@ static bool fetch_http_weather(weather_data_t *out_data)
             } while (poll_ret < 0 && errno == EINTR);
 
             if (poll_ret <= 0) {
+                if (out_timed_out) *out_timed_out = true;
                 printf("weather_screen: Connect timed out (%ds)\n", WEATHER_TIMEOUT_SEC);
                 goto cleanup;
             }
@@ -188,6 +199,31 @@ cleanup:
         sock_fd = -1;
     }
     return success;
+}
+
+static bool fetch_http_weather(weather_data_t *out_data)
+{
+    int attempt = 0;
+    while (attempt < 3) {
+        attempt++;
+        bool is_timeout = false;
+        if (fetch_http_weather_single(out_data, &is_timeout)) {
+            return true;
+        }
+        if (is_timeout) {
+            break; /* Don't retry if 5-second connection timeout expired (TC-P2-06) */
+        }
+
+        pthread_mutex_lock(&g_state_mutex);
+        bool running = g_system_state.running;
+        pthread_mutex_unlock(&g_state_mutex);
+        if (!running) break;
+
+        if (attempt < 3) {
+            usleep(300 * 1000); /* 300ms pause for transient startup */
+        }
+    }
+    return false;
 }
 
 /**
