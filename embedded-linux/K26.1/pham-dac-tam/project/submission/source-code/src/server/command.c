@@ -1,5 +1,15 @@
 #include "../common.h"
 
+static long extract_ts_from_log_line(const char *line) {
+    const char *p = strstr(line, "\"ts\"");
+    if (!p) return 0;
+    p = strchr(p, ':');
+    if (!p) return 0;
+    p++;
+    while (*p == ' ' || *p == '\t') p++;
+    return strtol(p, NULL, 10);
+}
+
 int apply_config_to_agent(struct AgentEntry *agents, size_t count, const char *agent_id, const char *key, const char *value) {
     for (size_t i = 0; i < count; ++i) {
         if (strcmp(agents[i].agent_id, agent_id) == 0) {
@@ -19,23 +29,46 @@ int apply_config_to_agent(struct AgentEntry *agents, size_t count, const char *a
 }
 
 void print_history(const char *agent_id, int last_n) {
+    struct Entry {
+        long ts;
+        char line[512];
+    } entries[256];
+    int count = 0;
     const char *paths[] = {"logs/periodic.log", "logs/alert.log"};
-    int printed = 0;
+
     for (size_t p = 0; p < sizeof(paths) / sizeof(paths[0]); ++p) {
         FILE *fp = fopen(paths[p], "r");
         if (!fp) continue;
         char line[512];
         while (fgets(line, sizeof(line), fp)) {
-            if (strstr(line, agent_id) != NULL) {
-                if (last_n > 0 && printed >= last_n) {
-                    fclose(fp);
-                    return;
-                }
-                printf("%s", line);
-                printed++;
+            if (strstr(line, agent_id) == NULL) continue;
+            if (count < (int)(sizeof(entries) / sizeof(entries[0]))) {
+                entries[count].ts = extract_ts_from_log_line(line);
+                snprintf(entries[count].line, sizeof(entries[count].line), "%s", line);
+                count++;
             }
         }
         fclose(fp);
+    }
+
+    if (count <= 1) {
+        for (int i = 0; i < count; ++i) printf("%s", entries[i].line);
+        return;
+    }
+
+    for (int i = 0; i < count; ++i) {
+        for (int j = i + 1; j < count; ++j) {
+            if (entries[j].ts < entries[i].ts) {
+                struct Entry tmp = entries[i];
+                entries[i] = entries[j];
+                entries[j] = tmp;
+            }
+        }
+    }
+
+    int limit = (last_n > 0 && last_n < count) ? last_n : count;
+    for (int i = count - limit; i < count; ++i) {
+        printf("%s", entries[i].line);
     }
 }
 
@@ -55,8 +88,10 @@ int handle_command(const char *line, struct AgentEntry *agents, size_t *count, s
     }
     if (strncmp(line, "/history", 8) == 0) {
         char agent_id[64];
-        int last_n = 0;
-        if (sscanf(line, "/history %63s %d", agent_id, &last_n) == 2 || sscanf(line, "/history %63s", agent_id) == 1) {
+        int last_n = 10;
+        if (sscanf(line, "/history %63s --last %d", agent_id, &last_n) == 2 ||
+            sscanf(line, "/history %63s %d", agent_id, &last_n) == 2 ||
+            sscanf(line, "/history %63s", agent_id) == 1) {
             print_history(agent_id, last_n > 0 ? last_n : 10);
             return 1;
         }

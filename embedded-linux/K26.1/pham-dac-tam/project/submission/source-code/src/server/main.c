@@ -18,6 +18,20 @@ static int create_listener(int port) {
     return sock;
 }
 
+static void ensure_capacity(struct AgentEntry **agents, size_t *capacity, size_t needed) {
+    if (needed < *capacity) return;
+    size_t new_cap = (*capacity == 0) ? 8 : *capacity;
+    while (new_cap < needed) new_cap *= 2;
+    struct AgentEntry *new_agents = realloc(*agents, new_cap * sizeof(**agents));
+    if (!new_agents) {
+        perror("realloc");
+        exit(1);
+    }
+    memset(new_agents + *capacity, 0, (new_cap - *capacity) * sizeof(**agents));
+    *agents = new_agents;
+    *capacity = new_cap;
+}
+
 int main(int argc, char **argv) {
     int port = (argc > 1) ? atoi(argv[1]) : DEFAULT_PORT;
     int listen_fd = create_listener(port);
@@ -37,10 +51,9 @@ int main(int argc, char **argv) {
     ev.data.fd = STDIN_FILENO;
     epoll_ctl(epfd, EPOLL_CTL_ADD, STDIN_FILENO, &ev);
 
-    struct AgentEntry agents[64];
+    struct AgentEntry *agents = NULL;
     size_t count = 0;
-    size_t capacity = 64;
-    memset(agents, 0, sizeof(agents));
+    size_t capacity = 0;
 
     while (1) {
         struct epoll_event events[MAX_EVENTS];
@@ -51,22 +64,19 @@ int main(int argc, char **argv) {
                 int client_fd = accept(listen_fd, NULL, NULL);
                 if (client_fd >= 0) {
                     enable_keepalive(client_fd, 5, 2, 3);
-                    if (count < capacity) {
-                        struct AgentEntry *entry = &agents[count++];
-                        memset(entry, 0, sizeof(*entry));
-                        entry->fd = client_fd;
-                        entry->status = STATUS_ONLINE;
-                        entry->interval = 3;
-                        entry->last_heartbeat_time = time(NULL);
-                        entry->last_seen = time(NULL);
-                        entry->inbuf_len = 0;
-                        ev.events = EPOLLIN;
-                        ev.data.fd = client_fd;
-                        epoll_ctl(epfd, EPOLL_CTL_ADD, client_fd, &ev);
-                        log_event("new", "connect", "accepted");
-                    } else {
-                        close(client_fd);
-                    }
+                    ensure_capacity(&agents, &capacity, count + 1);
+                    struct AgentEntry *entry = &agents[count++];
+                    memset(entry, 0, sizeof(*entry));
+                    entry->fd = client_fd;
+                    entry->status = STATUS_ONLINE;
+                    entry->interval = 3;
+                    entry->last_heartbeat_time = time(NULL);
+                    entry->last_seen = time(NULL);
+                    entry->inbuf_len = 0;
+                    ev.events = EPOLLIN;
+                    ev.data.fd = client_fd;
+                    epoll_ctl(epfd, EPOLL_CTL_ADD, client_fd, &ev);
+                    log_event("new", "connect", "accepted");
                 }
             } else if (fd == STDIN_FILENO) {
                 char input[MAX_LINE];
@@ -131,5 +141,6 @@ int main(int argc, char **argv) {
         render_server_dashboard(agents, count);
     }
 
+    free(agents);
     return 0;
 }
