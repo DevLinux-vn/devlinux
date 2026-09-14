@@ -72,9 +72,7 @@ int main(int argc, char **argv) {
             if (parse_message(incoming, &msg)) {
                 if (strcmp(msg.type, "config") == 0) {
                     int new_interval = atoi(msg.value);
-                    if (new_interval > 0) {
-                        interval = new_interval;
-                    }
+                    if (new_interval >= 1 && new_interval <= 300) interval = new_interval;
                     char ack[128];
                     format_ack_message(ack, sizeof(ack), "ok");
                     send(sock, ack, strlen(ack), 0);

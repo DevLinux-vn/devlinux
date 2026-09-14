@@ -1,7 +1,14 @@
 #include "../common.h"
 
+static pthread_mutex_t g_output_lock = PTHREAD_MUTEX_INITIALIZER;
+
 void render_bar(double percent, int width, char *out, size_t out_size) {
-    (void)out_size;
+    if (out == NULL || out_size == 0) return;
+    if ((size_t)width + 1 > out_size) {
+        snprintf(out, out_size, "");
+        return;
+    }
+
     int filled = (int)((percent / 100.0) * width);
     if (filled < 0) filled = 0;
     if (filled > width) filled = width;
@@ -19,6 +26,7 @@ void render_agent_dashboard(const char *agent_id, const struct Metrics *metrics,
     render_bar(metrics->ram, BAR_WIDTH, ram_bar, sizeof(ram_bar));
     render_bar(metrics->disk, BAR_WIDTH, disk_bar, sizeof(disk_bar));
 
+    pthread_mutex_lock(&g_output_lock);
     printf("\033[2J\033[H");
     printf("=== DevLinux Health Agent ===\n");
     printf("Agent ID: %s\n", agent_id);
@@ -30,4 +38,5 @@ void render_agent_dashboard(const char *agent_id, const struct Metrics *metrics,
     printf("RAM   [%s] %.1f%%\n", ram_bar, metrics->ram);
     printf("DISK  [%s] %.1f%%\n", disk_bar, metrics->disk);
     fflush(stdout);
+    pthread_mutex_unlock(&g_output_lock);
 }

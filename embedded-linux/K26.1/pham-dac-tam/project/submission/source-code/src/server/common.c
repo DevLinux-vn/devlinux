@@ -60,7 +60,7 @@ static int extract_string_field(const char *line, const char *field, char *out, 
     if (len >= out_size) len = out_size - 1;
     memcpy(out, p, len);
     out[len] = '\0';
-    return 1;
+    return (out[0] != '\0');
 }
 
 static int extract_double_field(const char *line, const char *field, double *out) {
@@ -85,8 +85,8 @@ int parse_message(const char *line, struct Message *msg) {
         return 0;
     }
     if (strcmp(msg->type, "config") == 0) {
-        extract_string_field(line, "key", msg->key, sizeof(msg->key));
-        extract_string_field(line, "value", msg->value, sizeof(msg->value));
+        if (!extract_string_field(line, "key", msg->key, sizeof(msg->key))) return 0;
+        if (!extract_string_field(line, "value", msg->value, sizeof(msg->value))) return 0;
         return 1;
     }
     if (strcmp(msg->type, "data") == 0) {
@@ -96,8 +96,12 @@ int parse_message(const char *line, struct Message *msg) {
             msg->has_metrics = 1;
             return 1;
         }
+        return 0;
     }
-    return 1;
+    if (strcmp(msg->type, "heartbeat") == 0) {
+        return 1;
+    }
+    return 0;
 }
 
 int format_data_message(char *buf, size_t size, const char *agent_id, const struct Metrics *metrics) {
