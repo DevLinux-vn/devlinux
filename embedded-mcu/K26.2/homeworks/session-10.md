@@ -1,131 +1,134 @@
 # Assignment — Session: 10
-**Deadline: 2026-09-13 23:59:00**
+**Deadline: 2026-09-27 23:59:00**
 
 ---
 
-## Exercise_1 — LED Dimming With LEDC, Knob-Controlled and Self-Fading [review-only]
+## Exercise_1 — Two Timer APIs and a Watchdog That Bites [review-only]
 
 ### Problem Statement
 
-A GPIO can only be on or off, yet an LED can clearly be *half* bright. The trick is switching fast enough that the eye integrates the result, and Session 09 already told you why you cannot just use a DAC on this chip — the S3 does not have one. PWM through the `ledc` peripheral is how you get an analog-looking output here.
+`vTaskDelay()` has carried you through five sessions, and it is the wrong tool the moment you need something to happen *on time* rather than *eventually*. ESP-IDF gives you two timer APIs at different levels, and a watchdog whose job is to reboot the board when your code stops behaving. This exercise makes you use all three.
 
-Two parts, one program:
+Build one program with three parts:
 
-1. **Knob-controlled brightness.** Drive an LED with `ledc` and set its duty cycle from the potentiometer you read in Session 09. Turning the knob dims the LED smoothly across its full range.
-2. **Hardware fade.** On a button press, hand the LED over to `ledc`'s built-in fade engine and let it "breathe" — fade up to full over 2 seconds, fade back down over 2 seconds, repeatedly — without your code computing a single intermediate duty value. Press again to return to knob control.
+1. **`esp_timer` — a periodic software timer.** Create a periodic timer firing every 1000 ms whose callback increments a counter and logs seconds since boot.
+2. **`gptimer` — a hardware general-purpose timer.** Configure a hardware timer at 1 MHz resolution with an alarm every 250 ms. Its callback runs in interrupt context, so it may only record something and return — the logging happens elsewhere, exactly as in Session 04.
+3. **The Task Watchdog — trip it on purpose, then fix it.** Subscribe your own task to the Task Watchdog Timer, then call a function that deliberately busy-waits for far longer than the watchdog timeout. Observe the board panic and reboot. Then fix it two different ways.
 
 Requirements:
-- Use `driver/ledc.h`: `ledc_timer_config()`, `ledc_channel_config()`, `ledc_set_duty()`, `ledc_update_duty()`.
-- On the ESP32-S3 there is only `LEDC_LOW_SPEED_MODE`. There is no high-speed mode on this chip, so do not copy a configuration that asks for one.
-- `ledc_set_duty()` alone does nothing visible. Find out what `ledc_update_duty()` is for and why the API is split in two.
-- Pick a PWM frequency high enough that the LED does not visibly flicker, and a duty resolution that gives you fine control. State both as named constants, and be ready to explain the relationship between them — they are not independent, and asking for an impossible combination makes `ledc_timer_config()` fail.
-- For part 2, use the fade API: `ledc_fade_func_install()` once at startup, then `ledc_set_fade_with_time()` and `ledc_fade_start()`. Your code must not implement fading with a loop of `ledc_set_duty()` calls and delays — the point is that the peripheral does it for you while the CPU sleeps.
-- The button switches between the two modes. Reuse the interrupt-driven, debounced button approach from Session 04 rather than polling.
-- Reuse your ADC code from Session 09, copied into this project.
-- Map the raw ADC value to the duty range correctly. The ADC's full-scale count and the duty resolution's maximum are different numbers — do not assume they match.
+- Use `esp_timer.h` for part 1 and `driver/gptimer.h` for part 2. Both must run at the same time in the same program.
+- The `gptimer` callback runs in an ISR. It must only touch a counter or a flag and return — no `ESP_LOGI`, no delays, no allocation. Log its progress from a normal task.
+- Any variable shared between the `gptimer` callback and a task must be `volatile`.
+- For part 3, use `esp_task_wdt.h`: subscribe the current task with `esp_task_wdt_add()`, then starve it. Your stall function must be a genuine busy-wait — a loop the scheduler cannot interrupt — not `vTaskDelay()`.
+- Ship the **fixed** version as your `main.c`, with the stalling version present but commented out and clearly labelled, so a reviewer can see both. Implement **both** fixes:
+  - the fix where the long-running loop keeps the watchdog fed, and
+  - the fix where the task stops hogging the CPU in the first place.
+- Every period, timeout and resolution must be a named constant.
+- Answer the questions in `timer_notes.md`.
 
 ### Hardware
 
-Keep the display module and the potentiometer wired as they are. This exercise does not draw to the display, but leave it connected. Add an LED and a button:
-
-| Part | ESP32-S3 | Notes |
-| --- | --- | --- |
-| LED anode, via 220 Ω–330 Ω resistor | GPIO15 | cathode to GND |
-| push-button | GPIO16 | other side to GND, internal pull-up |
-| potentiometer wiper | GPIO1 | unchanged from Session 09 |
-
-Use a plain single-colour LED, not the onboard RGB LED — that one is a WS2812 driven over RMT and cannot be dimmed with `ledc`.
+ESP32-S3 DevKitC-1 only. No new parts. Leave the display module wired as it is from Sessions 06 and 07 — this exercise does not touch it.
 
 ### Design Hints
 
 ```c
-#include "driver/ledc.h"
+#include "driver/gptimer.h"
+#include "esp_task_wdt.h"
+#include "esp_timer.h"
 
-#define LED_PIN          GPIO_NUM_15
-#define BTN_PIN          GPIO_NUM_16
+#define SOFT_TIMER_PERIOD_US (1000000ULL)     /* 1 s   */
+#define GPTIMER_RESOLUTION   (1000000U)       /* 1 MHz -> 1 tick == 1 us */
+#define GPTIMER_ALARM_TICKS  (250000ULL)      /* 250 ms at that resolution */
+#define WDT_TIMEOUT_MS       (5000U)
+#define STALL_DURATION_MS    (8000U)          /* deliberately longer than the timeout */
 
-#define LEDC_MODE        LEDC_LOW_SPEED_MODE   /* the only mode on ESP32-S3 */
-#define LEDC_TIMER       LEDC_TIMER_0
-#define LEDC_CHANNEL     LEDC_CHANNEL_0
-#define LEDC_DUTY_RES    LEDC_TIMER_13_BIT     /* -> duty range 0 .. (2^13 - 1) */
-#define LEDC_FREQ_HZ     (5000U)
-#define LEDC_DUTY_MAX    ((1U << 13) - 1U)
+static volatile uint32_t hw_alarm_count = 0;
 
-#define FADE_TIME_MS     (2000)
+/* --- part 1: runs in the esp_timer task, so logging here is allowed --- */
+static void soft_timer_cb(void* arg)
+{
+    /* increment, ESP_LOGI */
+}
 
-ledc_timer_config_t timer_cfg = {
-    .speed_mode      = LEDC_MODE,
-    .timer_num       = LEDC_TIMER,
-    .duty_resolution = LEDC_DUTY_RES,
-    .freq_hz         = LEDC_FREQ_HZ,
-    .clk_cfg         = LEDC_AUTO_CLK,
+/* --- part 2: runs in ISR context. Count and leave. --- */
+static bool IRAM_ATTR hw_timer_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* user_ctx)
+{
+    hw_alarm_count++;
+    return false; /* what does this return value control? Look it up. */
+}
+
+const esp_timer_create_args_t soft_args = {
+    .callback = soft_timer_cb,
+    .name     = "uptime",
 };
-ESP_ERROR_CHECK(ledc_timer_config(&timer_cfg));
 
-ledc_channel_config_t channel_cfg = {
-    .gpio_num   = LED_PIN,
-    .speed_mode = LEDC_MODE,
-    .channel    = LEDC_CHANNEL,
-    .timer_sel  = LEDC_TIMER,
-    .duty       = 0,
-    .hpoint     = 0,
+gptimer_config_t hw_cfg = {
+    .clk_src       = GPTIMER_CLK_SRC_DEFAULT,
+    .direction     = GPTIMER_COUNT_UP,
+    .resolution_hz = GPTIMER_RESOLUTION,
 };
-ESP_ERROR_CHECK(ledc_channel_config(&channel_cfg));
 
-/* part 2, once at startup: */
-ESP_ERROR_CHECK(ledc_fade_func_install(0));
+gptimer_alarm_config_t alarm_cfg = {
+    .alarm_count                = GPTIMER_ALARM_TICKS,
+    .reload_count               = 0,
+    .flags.auto_reload_on_alarm = true,
+};
 ```
 
-`ledc_set_fade_with_time()` followed by `ledc_fade_start()` takes a target duty and a duration. Look at the `ledc_fade_mode_t` argument to `ledc_fade_start()`: one value returns immediately and lets the fade run in the background, the other blocks until the fade completes. Which one you want depends on how you structure the breathing loop, so read both before choosing.
+`gptimer` has a strict call order — create, set the alarm action, register callbacks, **enable**, then start. Skipping `gptimer_enable()` is the usual reason a hardware timer silently never fires. For the watchdog, note that `esp_task_wdt_init()` may already have been called by the framework; read the return value rather than assuming, and look at what `esp_task_wdt_reconfigure()` is for.
 
 ### Suggested Approach
 
 ```
-1. ledc_timer_config -> ledc_channel_config -> ledc_fade_func_install
-2. Init ADC1 on the potentiometer (Session 09 code)
-3. Configure BTN_PIN as a debounced, interrupt-driven input (Session 04 approach).
-   The ISR only records the press; the mode switch happens in the task.
-4. forever:
-     if mode == KNOB:
-         read + average the ADC, map to 0..LEDC_DUTY_MAX
-         ledc_set_duty() + ledc_update_duty()
-         short delay
-     if mode == BREATHE:
-         set_fade_with_time(LEDC_DUTY_MAX, FADE_TIME_MS) + fade_start
-         wait for it to finish
-         set_fade_with_time(0, FADE_TIME_MS) + fade_start
-         wait for it to finish
-     a button press flips the mode; make sure a press during a fade is not lost
+app_main():
+  1. esp_timer_create(&soft_args, &soft_handle)
+     esp_timer_start_periodic(soft_handle, SOFT_TIMER_PERIOD_US)
+  2. gptimer_new_timer -> set_alarm_action -> register_event_callbacks
+     -> gptimer_enable -> gptimer_start
+  3. subscribe this task to the TWDT
+  4. loop:
+       log hw_alarm_count so you can see the hardware timer advancing
+       feed the watchdog
+       yield
+  5. somewhere reachable: stall_cpu(STALL_DURATION_MS) — a busy-wait on
+     esp_timer_get_time() that never yields and never feeds the watchdog.
+     Run it once with the watchdog subscribed to see what happens, then
+     comment it out and keep the fixed paths.
 ```
 
 ### Common Pitfalls to Explain in Your Submission
 
-Two short answers in `pwm_notes.md`.
+Short paragraph each, in `timer_notes.md`.
 
-1. Turn the knob slowly from one end to the other and watch the LED. The duty cycle changes linearly, but the brightness almost certainly does not *look* linear — most of the visible change is crowded into one part of the knob's travel. Say which part, and explain why. You are not required to correct it, only to describe what you see and why it happens.
-2. You picked a PWM frequency and a duty resolution. Explain what limits the combination — what does the peripheral have to do at 13-bit resolution and 5 kHz, and what happens if you ask for 13 bits at 5 MHz? Try it and report what `ledc_timer_config()` says.
+1. You now have two timers that both "fire periodically". State the real difference: where each callback runs, what happens to each if a high-priority task hogs the CPU, and which one you would use to sample a sensor at exactly 1 kHz. Justify the choice.
+2. When the watchdog tripped, the panic message listed every subscribed task that failed to reset it in time. Which tasks appeared in that list, and why is an idle task among them even though you never subscribed it? Explain what the idle task has to do with any of this.
+3. You implemented two fixes. One feeds the watchdog inside the long loop; the other stops the loop from hogging the CPU. Both stop the reboot — but only one of them actually fixes the underlying problem. Say which, and what the other one is really doing.
 
 ### Expected Output
 
-In knob mode, the LED tracks the potentiometer smoothly from fully off to fully on, with no visible flicker or stepping at either end. A press of the button switches it into a smooth 4-second breathing cycle that continues on its own; a second press hands control back to the knob, picking up at whatever position the knob is currently in.
+With the stall disabled, both timers run side by side indefinitely — the software timer once a second, the hardware timer four times a second:
 
 ```
-I (1150) PWM: mode=KNOB  raw=2043  duty=4086
-I (1350) PWM: mode=KNOB  raw=3901  duty=7802
-I (2402) PWM: mode=BREATHE  fade up   -> 8191 over 2000 ms
-I (4405) PWM: mode=BREATHE  fade down -> 0 over 2000 ms
-I (7810) PWM: mode=KNOB  raw=3899  duty=7798
+I (1002) TIMERS: uptime = 1 s
+I (1003) TIMERS: hw_alarm_count = 4
+I (2002) TIMERS: uptime = 2 s
+I (2003) TIMERS: hw_alarm_count = 8
+I (3002) TIMERS: uptime = 3 s
+I (3003) TIMERS: hw_alarm_count = 12
 ```
 
-During the breathing fades the CPU should have nothing to do — if you find yourself writing a loop that computes intermediate brightness values, re-read the requirement about the fade API.
+`hw_alarm_count` must climb by exactly 4 per second. If it drifts, your resolution or alarm count is wrong.
+
+With the stall enabled, the board prints a watchdog panic and reboots a few seconds in. You do not need to submit that output — you need to be able to explain it in `timer_notes.md`.
 
 ### Submission
 
 ```
 Exercise_1/
 ├── main/
-│   ├── main.c              (required — ledc PWM + fade API, ADC from Session 09)
+│   ├── main.c              (required — fixed version; stalling version commented out and labelled)
 │   └── CMakeLists.txt      (required)
 ├── CMakeLists.txt          (required — ESP-IDF project root)
-└── pwm_notes.md            (required — answers to the 2 questions above)
+└── timer_notes.md          (required — answers to the 3 questions above)
 ```
