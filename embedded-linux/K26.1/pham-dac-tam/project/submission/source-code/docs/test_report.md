@@ -128,8 +128,18 @@ DISK  [#################---] 85.4% WARNING
 - TC-P4-08 chưa được chạy đủ 30 phút/24h theo tiêu chuẩn dài hạn của spec, nên vẫn được đánh là `Partial / N-A` thay vì `Pass` tuyệt đối.
 - Kết quả Valgrind hiện tại cho thấy không có leak nghiêm trọng, nhưng vẫn còn `still reachable: 1,024 bytes in 1 blocks` nên cần lưu ý khi review dài hạn.
 
+## Kiểm tra bổ sung sau review
+```text
+make clean && make
+Build completed successfully with no compiler errors or warnings.
+connect: Connection refused
+Agent reconnected after server start and server dashboard reported ONLINE.
+```
+
+Agent hiện có collector thread độc lập, dashboard thread độc lập và retry kết nối mỗi 5 giây. Server có shutdown cleanup cho client sockets, epoll/timer/listener descriptors; lệnh không hợp lệ trả về `[ERR]` thay vì bị bỏ qua. Hai unit systemd mẫu được đặt trong `systemd/`.
+
 ## Tổng kết tự đánh giá
 Số case Pass: 11 / Tổng số case: 12
 Số case Partial / N-A: 1 / Tổng số case: 12
 
-Project đã có build thành công, giao tiếp agent/server, keepalive TCP, dashboard động, OFFLINE retention, dynamic `/config`, `/history` có timestamp số, và các file log runtime. Phần còn thiếu duy nhất là bằng chứng Valgrind/Heaptrack dài hạn đúng thời lượng yêu cầu P4-M8.
+Project đã có build thành công, giao tiếp agent/server, keepalive TCP, dashboard động, OFFLINE retention, dynamic `/config`, `/history` có timestamp số, retry kết nối, cleanup tài nguyên và các file log runtime. Phần còn thiếu duy nhất là bằng chứng Valgrind/Heaptrack dài hạn đúng thời lượng yêu cầu P4-M8.

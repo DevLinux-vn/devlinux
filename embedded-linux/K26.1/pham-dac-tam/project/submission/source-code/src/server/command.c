@@ -1,5 +1,15 @@
 #include "../common.h"
 
+static int parse_range(const char *text, double min, double max, double *out) {
+    char *end = NULL;
+    double value;
+    errno = 0;
+    value = strtod(text, &end);
+    if (errno != 0 || end == text || *end != '\0' || value < min || value > max) return 0;
+    *out = value;
+    return 1;
+}
+
 static long extract_ts_from_log_line(const char *line) {
     const char *p = strstr(line, "\"ts\"");
     if (!p) return 0;
@@ -15,21 +25,21 @@ int apply_config_to_agent(struct AgentEntry *agents, size_t count, const char *a
         if (strcmp(agents[i].agent_id, agent_id) == 0) {
             if (strcmp(key, "interval") == 0) {
                 int interval = atoi(value);
-                if (interval <= 0) interval = 3;
+                if (interval < 1 || interval > 300) return 0;
                 agents[i].interval = interval;
                 agents[i].config.interval = interval;
             } else if (strcmp(key, "cpu_warning") == 0) {
-                agents[i].config.cpu_warning = atof(value);
+                if (!parse_range(value, 0.0, 100.0, &agents[i].config.cpu_warning)) return 0;
             } else if (strcmp(key, "cpu_critical") == 0) {
-                agents[i].config.cpu_critical = atof(value);
+                if (!parse_range(value, 0.0, 100.0, &agents[i].config.cpu_critical)) return 0;
             } else if (strcmp(key, "ram_warning") == 0) {
-                agents[i].config.ram_warning = atof(value);
+                if (!parse_range(value, 0.0, 100.0, &agents[i].config.ram_warning)) return 0;
             } else if (strcmp(key, "ram_critical") == 0) {
-                agents[i].config.ram_critical = atof(value);
+                if (!parse_range(value, 0.0, 100.0, &agents[i].config.ram_critical)) return 0;
             } else if (strcmp(key, "disk_warning") == 0) {
-                agents[i].config.disk_warning = atof(value);
+                if (!parse_range(value, 0.0, 100.0, &agents[i].config.disk_warning)) return 0;
             } else if (strcmp(key, "disk_critical") == 0) {
-                agents[i].config.disk_critical = atof(value);
+                if (!parse_range(value, 0.0, 100.0, &agents[i].config.disk_critical)) return 0;
             } else {
                 return 0;
             }
@@ -42,7 +52,7 @@ int apply_config_to_agent(struct AgentEntry *agents, size_t count, const char *a
             return 1;
         }
     }
-    return 0;
+    return -1;
 }
 
 void print_history(const char *agent_id, int last_n) {
@@ -99,9 +109,13 @@ int handle_command(const char *line, struct AgentEntry *agents, size_t *count, s
         char agent_id[64], key[32], value[32];
         if (sscanf(line, "/config %63s %31[^=]=%31s", agent_id, key, value) == 3) {
             int ok = apply_config_to_agent(agents, *count, agent_id, key, value);
-            printf(ok ? "[OK] applied config to %s\n" : "[ERR] agent_id not found\n", agent_id);
+            if (ok > 0) printf("[OK] applied config to %s\n", agent_id);
+            else if (ok < 0) printf("[ERR] agent_id not found\n");
+            else printf("[ERR] invalid config key or value\n");
             return 1;
         }
+        printf("[ERR] usage: /config <agent_id> <key>=<value>\n");
+        return 1;
     }
     if (strncmp(line, "/history", 8) == 0) {
         char agent_id[64];
@@ -112,6 +126,9 @@ int handle_command(const char *line, struct AgentEntry *agents, size_t *count, s
             print_history(agent_id, last_n > 0 ? last_n : 10);
             return 1;
         }
+        printf("[ERR] usage: /history <agent_id> [--last N]\n");
+        return 1;
     }
+    if (line[0] != '\0') printf("[ERR] unknown command: %s\n", line);
     return 0;
 }

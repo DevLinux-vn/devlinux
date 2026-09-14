@@ -17,6 +17,9 @@ project/submission/
 ├── bin/
 ├── docs/
 │   └── test_report.md
+├── systemd/
+│   ├── infra-monitor-agent.service
+│   └── infra-monitor-server.service
 ├── logs/
 ├── src/
 │   ├── agent/
@@ -138,6 +141,8 @@ Project dùng JSON-line qua TCP socket.
 {"type":"heartbeat","agent_id":"tam-vm-5510"}
 ```
 
+Agent có `collector_thread` riêng để đọc metric từ `/proc` mỗi giây và `dashboard_thread` riêng để hiển thị snapshot qua mutex. Nếu server chưa sẵn sàng hoặc socket bị mất, agent ghi lỗi kết nối, chờ 5 giây và tự kết nối lại.
+
 ### Config message (server gửi xuống agent)
 ```json
 {"type":"config","agent_id":"tam-vm-5510","key":"interval","value":"5"}
@@ -174,7 +179,19 @@ Các ngưỡng được lưu riêng trong từng `AgentEntry` và áp dụng cho
 - `logs/alert.log`: cảnh báo vượt ngưỡng
 - `logs/events.log`: sự kiện kết nối, timeout, offline
 
-## 11. Ghi chú
+## 11. Chạy bằng systemd
+Hai unit mẫu nằm trong `systemd/`. Khi triển khai thật, copy project vào `/opt/infra-monitor`, tạo user `infra-monitor`, rồi cài:
+```bash
+sudo install -d -o infra-monitor -g infra-monitor /opt/infra-monitor
+sudo cp -a . /opt/infra-monitor/
+sudo cp systemd/*.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now infra-monitor-server.service
+sudo systemctl enable --now infra-monitor-agent.service
+systemctl status infra-monitor-server.service infra-monitor-agent.service
+```
+
+## 12. Ghi chú
 - Nếu port 9000 đang bị chiếm, dùng:
 ```bash
 pkill -f './bin/server' || true

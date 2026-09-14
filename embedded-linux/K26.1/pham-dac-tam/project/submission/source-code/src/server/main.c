@@ -1,5 +1,12 @@
 #include "../common.h"
 
+static volatile sig_atomic_t g_server_running = 1;
+
+static void handle_signal(int signal_number) {
+    (void)signal_number;
+    g_server_running = 0;
+}
+
 static int create_listener(int port) {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) return -1;
@@ -14,7 +21,10 @@ static int create_listener(int port) {
         close(sock);
         return -1;
     }
-    listen(sock, 10);
+    if (listen(sock, 10) < 0) {
+        close(sock);
+        return -1;
+    }
     return sock;
 }
 
@@ -33,6 +43,8 @@ static void ensure_capacity(struct AgentEntry **agents, size_t *capacity, size_t
 }
 
 int main(int argc, char **argv) {
+    signal(SIGINT, handle_signal);
+    signal(SIGTERM, handle_signal);
     int port = (argc > 1) ? atoi(argv[1]) : DEFAULT_PORT;
     int listen_fd = create_listener(port);
     if (listen_fd < 0) {
@@ -41,34 +53,55 @@ int main(int argc, char **argv) {
     }
 
     int timer_fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
+    if (timer_fd < 0) {
+        perror("timerfd_create");
+        close(listen_fd);
+        return 1;
+    }
     struct itimerspec its;
     memset(&its, 0, sizeof(its));
     its.it_value.tv_sec = 2;
     its.it_interval.tv_sec = 2;
-    timerfd_settime(timer_fd, 0, &its, NULL);
+    if (timerfd_settime(timer_fd, 0, &its, NULL) < 0) {
+        perror("timerfd_settime");
+        close(timer_fd);
+        close(listen_fd);
+        return 1;
+    }
 
     int epfd = epoll_create1(0);
+    if (epfd < 0) {
+        perror("epoll_create1");
+        close(timer_fd);
+        close(listen_fd);
+        return 1;
+    }
     struct epoll_event ev;
     ev.events = EPOLLIN;
     ev.data.fd = listen_fd;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, listen_fd, &ev);
+    if (epoll_ctl(epfd, EPOLL_CTL_ADD, listen_fd, &ev) < 0) perror("epoll_ctl ADD listener");
 
     ev.events = EPOLLIN;
     ev.data.fd = timer_fd;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, timer_fd, &ev);
+    if (epoll_ctl(epfd, EPOLL_CTL_ADD, timer_fd, &ev) < 0) perror("epoll_ctl ADD timer");
 
     fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
     ev.events = EPOLLIN;
     ev.data.fd = STDIN_FILENO;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, STDIN_FILENO, &ev);
+    if (epoll_ctl(epfd, EPOLL_CTL_ADD, STDIN_FILENO, &ev) < 0) perror("epoll_ctl ADD stdin");
 
     struct AgentEntry *agents = NULL;
     size_t count = 0;
     size_t capacity = 0;
 
-    while (1) {
+    while (g_server_running) {
         struct epoll_event events[MAX_EVENTS];
         int n = epoll_wait(epfd, events, MAX_EVENTS, 1000);
+        if (n < 0) {
+            if (errno == EINTR) continue;
+            perror("epoll_wait");
+            break;
+        }
         for (int i = 0; i < n; ++i) {
             int fd = events[i].data.fd;
             if (fd == listen_fd) {
@@ -87,7 +120,13 @@ int main(int argc, char **argv) {
                     entry->inbuf_len = 0;
                     ev.events = EPOLLIN;
                     ev.data.fd = client_fd;
-                    epoll_ctl(epfd, EPOLL_CTL_ADD, client_fd, &ev);
+                    if (epoll_ctl(epfd, EPOLL_CTL_ADD, client_fd, &ev) < 0) {
+                        perror("epoll_ctl ADD client");
+                        close(client_fd);
+                        entry->fd = -1;
+                        entry->status = STATUS_OFFLINE;
+                        continue;
+                    }
                     log_event("new", "connect", "accepted");
                 }
             } else if (fd == STDIN_FILENO) {
@@ -95,6 +134,10 @@ int main(int argc, char **argv) {
                 ssize_t nb = read(STDIN_FILENO, input, sizeof(input) - 1);
                 if (nb > 0) {
                     input[nb] = '\0';
+                    if (nb == (ssize_t)sizeof(input) - 1 && input[nb - 1] != '\n') {
+                        printf("[ERR] command too long\n");
+                        continue;
+                    }
                     char *line = strtok(input, "\n");
                     while (line) {
                         handle_command(line, agents, &count, &capacity);
@@ -154,9 +197,9 @@ int main(int argc, char **argv) {
                                                 entry->last_data.ram = msg.ram;
                                                 entry->last_data.disk = msg.disk;
                                                 log_periodic_data(entry->agent_id, &entry->last_data);
-                                                if (entry->last_data.cpu >= 90.0) log_alert(entry->agent_id, "CPU", entry->last_data.cpu, "critical");
-                                                if (entry->last_data.ram >= 90.0) log_alert(entry->agent_id, "RAM", entry->last_data.ram, "critical");
-                                                if (entry->last_data.disk >= 95.0) log_alert(entry->agent_id, "DISK", entry->last_data.disk, "critical");
+                                                if (entry->last_data.cpu >= entry->config.cpu_critical) log_alert(entry->agent_id, "CPU", entry->last_data.cpu, "critical");
+                                                if (entry->last_data.ram >= entry->config.ram_critical) log_alert(entry->agent_id, "RAM", entry->last_data.ram, "critical");
+                                                if (entry->last_data.disk >= entry->config.disk_critical) log_alert(entry->agent_id, "DISK", entry->last_data.disk, "critical");
                                             } else if (strcmp(msg.type, "heartbeat") == 0) {
                                                 log_event(entry->agent_id, "heartbeat", "ok");
                                             }
@@ -176,7 +219,11 @@ int main(int argc, char **argv) {
         mark_offline_entries(agents, count);
     }
 
+    for (size_t i = 0; i < count; ++i) {
+        if (agents[i].fd >= 0) close(agents[i].fd);
+    }
     free(agents);
+    close(epfd);
     close(timer_fd);
     close(listen_fd);
     return 0;
