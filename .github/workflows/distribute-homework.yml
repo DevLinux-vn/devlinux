@@ -329,6 +329,62 @@ jobs:
             })
             console.log('✅ PR auto-merged')
 
+      # Step 14b: Checkout master again now that the PR is merged. This is a
+      # fresh checkout of the real branch (not the PR head SHA / detached HEAD
+      # used above), so distributing and pushing from here is safe.
+      # NOTE: distribution runs here (not a separate push-triggered workflow)
+      # because the GITHUB_TOKEN used to merge above does not trigger other
+      # workflows - a push made via GITHUB_TOKEN is intentionally excluded
+      # from firing other workflows' `on: push` triggers.
+      - name: Checkout master after merge
+        if: steps.validate_homework_format.outputs.is_valid_format == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
+
+      # Step 14c: Distribute the newly merged homework to all students
+      - name: Distribute homework to students
+        if: steps.validate_homework_format.outputs.is_valid_format == 'true'
+        run: |
+          SUBJECT="${{ steps.branch_info.outputs.subject }}"
+          COURSE="${{ steps.branch_info.outputs.course }}"
+          COURSE_ARG="${SUBJECT}/${COURSE}"
+
+          echo "Running: bash distribute_homework.sh $COURSE_ARG"
+          bash distribute_homework.sh "$COURSE_ARG"
+
+          echo "✅ Homework distributed successfully"
+
+      # Step 14d: Commit and push. If another PR's distribution commit landed
+      # on master in between (rare race condition), retry once with rebase.
+      - name: Commit and push distributed files
+        if: steps.validate_homework_format.outputs.is_valid_format == 'true'
+        run: |
+          SUBJECT="${{ steps.branch_info.outputs.subject }}"
+          COURSE="${{ steps.branch_info.outputs.course }}"
+          COURSE_ARG="${SUBJECT}/${COURSE}"
+
+          git config user.email "devlinux-bot@devlinux.vn"
+          git config user.name "DevLinux Bot"
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "ℹ️  No changes to commit"
+            exit 0
+          fi
+
+          git add .
+          git commit -m "homework: distribute $COURSE_ARG to all students"
+
+          if git push origin HEAD:master; then
+            echo "✅ Distributed files committed and pushed"
+          else
+            echo "⚠️  Push rejected (likely a concurrent merge), retrying with rebase..."
+            git pull --rebase origin master
+            git push origin HEAD:master
+            echo "✅ Distributed files committed and pushed after retry"
+          fi
+
       # Step 15: Comment success
       - name: Comment success
         if: steps.validate_homework_format.outputs.is_valid_format == 'true'
@@ -342,7 +398,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `✅ **Homework PR Merged**
+              body: `✅ **Homework Distribution Successful**
 
             **Course:** ${subject}/${course}
 
@@ -353,8 +409,9 @@ jobs:
             - ✅ Homework format validated (deadline, tags)
             - ✅ No symlinks
             - ✅ PR merged into master
+            - ✅ Homework distributed to all students
 
-            Distribution to all students will run automatically in a separate workflow now that master has been updated.`
+            The homework has been automatically distributed to all students in the class.`
             })
 
       # Step 16: Comment failure
