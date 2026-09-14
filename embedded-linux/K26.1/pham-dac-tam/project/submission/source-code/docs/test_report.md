@@ -16,17 +16,63 @@
 | TC-P4-03 | Pass | Agent hiển thị dashboard riêng với Agent ID và trạng thái CONNECTED. |
 | TC-P4-04 | Pass | Dùng nhiều agent cùng lúc với cùng server, server hiển thị nhiều entry ONLINE đồng thời. |
 | TC-P4-05 | Pass | Tạo 3 loại log riêng biệt: `logs/periodic.log`, `logs/alert.log`, `logs/events.log`; nội dung JSON được ghi theo cấu trúc rõ ràng. |
-| TC-P4-06 | Pass | TCP keepalive được bật bằng `SO_KEEPALIVE`, `TCP_KEEPIDLE`, `TCP_KEEPINTVL`, `TCP_KEEPCNT`. |
-| TC-P4-07 | Pass | Khi agent bị kill hoặc mất kết nối, server chuyển trạng thái về OFFLINE sau timeout. |
-| TC-P4-08 | Pass | Valgrind Memcheck chạy 30 phút cho server/agent; ERROR SUMMARY: 0 errors, không có definitely/indirectly/possibly lost. Server còn 1024 bytes still reachable, không phát hiện memory leak.. |
+| TC-P4-06 | Pass | `ss -o -tn` trong lúc agent kết nối hiển thị TCP timer `keepalive`; source cấu hình `SO_KEEPALIVE`, `TCP_KEEPIDLE`, `TCP_KEEPINTVL`, `TCP_KEEPCNT`. |
+| TC-P4-07 | Partial / N-A | Khi agent dừng, server ghi nhận event `disconnect/socket closed`. Chưa có output chứng minh agent vẫn giữ trên dashboard với trạng thái `OFFLINE` sau heartbeat timeout. |
+| TC-P4-08 | Partial / N-A | Đã thực hiện kiểm tra Valgrind Memcheck với kết quả: `ERROR SUMMARY: 0 errors`, `definitely lost: 0 bytes`, `indirectly lost: 0 bytes`, `possibly lost: 0 bytes`, `still reachable: 1,024 bytes in 1 blocks`. Về mặt kỹ thuật không phát hiện leak nghiêm trọng, nhưng thời gian chạy thực tế chưa đạt đủ 30 phút/24h như yêu cầu tối thiểu của P4-M8 nên không ghi là Pass tuyệt đối. |
 | TC-P4-09 | Pass | Dashboard server cập nhật động khi agent mới kết nối và khi mất kết nối. |
-| TC-P4-10 | Pass | Lệnh `/config` được hỗ trợ và gửi config xuống agent tương ứng. |
-| TC-P4-11 | Pass | Lệnh `/history` được cấp phát để truy vấn dữ liệu lịch sử qua log. |
+| TC-P4-10 | Partial / N-A | Source có xử lý `/config`, nhưng lần chạy evidence hiện tại chưa capture được output `[OK] applied config ...` và message config ở phía agent. |
+| TC-P4-11 | Partial / N-A | Source có xử lý `/history`, nhưng lần chạy evidence hiện tại chưa capture được output của lệnh trên terminal server. |
 | TC-P4-12 | Pass | `/config fake-id interval=5` trả về lỗi xác định agent_id không tồn tại. |
 
-> Mỗi case Pass đều có căn cứ thực tế từ terminal chạy trên máy. Output gốc thể hiện server nhận được dữ liệu và agent hiển thị trạng thái CONNECTED.
 
 ## Output thực tế đã quan sát
+
+### TC-P4-06 — TCP keepalive
+Lệnh kiểm tra:
+```bash
+ss -o -tn | grep 19001
+```
+
+Output thực tế:
+```text
+ESTAB ... 127.0.0.1:41268 ... 127.0.0.1:19001 timer:(keepalive,4.989ms,0)
+ESTAB ... 127.0.0.1:19001 ... 127.0.0.1:41268 timer:(keepalive,4.989ms,0)
+```
+
+### TC-P4-07 — Kết thúc kết nối agent
+Sau khi dừng agent, `logs/events.log` ghi nhận:
+```text
+{"agent_id":"tam-vm-5510","event":"disconnect","details":"socket closed"}
+```
+
+Output này chứng minh server nhận biết socket bị đóng. Chưa ghi nhận được dòng `event":"offline"` hoặc dashboard giữ lại agent ở trạng thái `OFFLINE`, vì vậy TC-P4-07 không được coi là Pass tuyệt đối.
+
+### TC-P4-10 và TC-P4-11 — Lệnh CLI
+Đã gửi các lệnh sau trong phiên server:
+```text
+/help
+/config tam-vm-5510 interval=5
+/history tam-vm-5510 --last 5
+```
+
+Output capture được:
+```text
+/help
+/config <agent_id> <key>=<value>
+/history <agent_id> [--last N]
+```
+
+Chưa capture được output xác nhận `[OK] applied config ...` hoặc các dòng history trả về ngay sau hai lệnh, nên hai test này được ghi là `Partial / N-A` trong bảng kết quả.
+
+### Runtime logs
+Các file được kiểm tra sau khi server nhận dữ liệu:
+```text
+logs/periodic.log: {"agent_id":"tam-vm-5510","cpu":0.9,"ram":64.5,"disk":85.4}
+logs/events.log: {"agent_id":"new","event":"connect","details":"accepted"}
+logs/events.log: {"agent_id":"tam-vm-5510","event":"heartbeat","details":"ok"}
+logs/events.log: {"agent_id":"tam-vm-5510","event":"disconnect","details":"socket closed"}
+logs/alert.log: file not created because no metric exceeded the alert threshold
+```
 
 ### Build và chạy server/agent
 ```bash
@@ -71,9 +117,11 @@ DISK  [#################---] 85.4%
 ```
 
 ## Vấn đề đã biết nhưng chưa fix (nếu có)
-
+- TC-P4-08 chưa được chạy đủ 30 phút/24h theo tiêu chuẩn dài hạn của spec, nên vẫn được đánh là `Partial / N-A` thay vì `Pass` tuyệt đối.
+- Kết quả Valgrind hiện tại cho thấy không có leak nghiêm trọng, nhưng vẫn còn `still reachable: 1,024 bytes in 1 blocks` nên cần lưu ý khi review dài hạn.
 
 ## Tổng kết tự đánh giá
-Số case Pass: 12 / Tổng số case: 12
+Số case Pass: 8 / Tổng số case: 12
+Số case Partial / N-A: 4 / Tổng số case: 12
 
-Project đã hoàn thành và kiểm thử đầy đủ các yêu cầu chính của Project 4. Kết quả kiểm thử thực tế cho thấy server và agent build thành công, giao tiếp ổn định qua TCP localhost:9000, agent thu thập và gửi dữ liệu CPU/RAM/DISK thực tế từ hệ thống, dashboard cập nhật động trạng thái và thông tin của agent.
+Project đã có build thành công, giao tiếp agent/server, keepalive TCP, dashboard và các file log runtime. Các phần còn thiếu bằng chứng trực tiếp là trạng thái OFFLINE giữ trên dashboard, kết quả Valgrind dài hạn, output xác nhận `/config`, và output `/history`; các phần này được ghi rõ là partial thay vì pass tuyệt đối.
