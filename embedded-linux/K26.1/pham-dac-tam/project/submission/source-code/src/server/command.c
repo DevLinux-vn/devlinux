@@ -17,6 +17,23 @@ int apply_config_to_agent(struct AgentEntry *agents, size_t count, const char *a
                 int interval = atoi(value);
                 if (interval <= 0) interval = 3;
                 agents[i].interval = interval;
+                agents[i].config.interval = interval;
+            } else if (strcmp(key, "cpu_warning") == 0) {
+                agents[i].config.cpu_warning = atof(value);
+            } else if (strcmp(key, "cpu_critical") == 0) {
+                agents[i].config.cpu_critical = atof(value);
+            } else if (strcmp(key, "ram_warning") == 0) {
+                agents[i].config.ram_warning = atof(value);
+            } else if (strcmp(key, "ram_critical") == 0) {
+                agents[i].config.ram_critical = atof(value);
+            } else if (strcmp(key, "disk_warning") == 0) {
+                agents[i].config.disk_warning = atof(value);
+            } else if (strcmp(key, "disk_critical") == 0) {
+                agents[i].config.disk_critical = atof(value);
+            } else {
+                return 0;
+            }
+            if (agents[i].fd >= 0) {
                 char msgbuf[MAX_LINE];
                 if (format_config_message(msgbuf, sizeof(msgbuf), agents[i].agent_id, key, value)) {
                     send_message(agents[i].fd, msgbuf);

@@ -2,41 +2,22 @@
 
 static pthread_mutex_t g_output_lock = PTHREAD_MUTEX_INITIALIZER;
 
-void render_bar(double percent, int width, char *out, size_t out_size) {
-    if (out == NULL || out_size == 0) return;
-    if ((size_t)width + 1 > out_size) {
-        snprintf(out, out_size, "");
-        return;
-    }
-
-    int filled = (int)((percent / 100.0) * width);
-    if (filled < 0) filled = 0;
-    if (filled > width) filled = width;
-    size_t i;
-    for (i = 0; i < (size_t)filled; ++i) out[i] = '#';
-    for (; i < (size_t)width; ++i) out[i] = '-';
-    out[width] = '\0';
-}
-
-void render_agent_dashboard(const char *agent_id, const struct Metrics *metrics, int connected, int status) {
-    char cpu_bar[BAR_WIDTH + 1];
-    char ram_bar[BAR_WIDTH + 1];
-    char disk_bar[BAR_WIDTH + 1];
-    render_bar(metrics->cpu, BAR_WIDTH, cpu_bar, sizeof(cpu_bar));
-    render_bar(metrics->ram, BAR_WIDTH, ram_bar, sizeof(ram_bar));
-    render_bar(metrics->disk, BAR_WIDTH, disk_bar, sizeof(disk_bar));
+void render_agent_dashboard(const char *agent_id, const struct Metrics *metrics, const struct Config *config, int connected, int status) {
+    char cpu_bar[128];
+    char ram_bar[128];
+    char disk_bar[128];
+    render_bar(metrics->cpu, "cpu", config, status, cpu_bar, sizeof(cpu_bar));
+    render_bar(metrics->ram, "ram", config, status, ram_bar, sizeof(ram_bar));
+    render_bar(metrics->disk, "disk", config, status, disk_bar, sizeof(disk_bar));
 
     pthread_mutex_lock(&g_output_lock);
     printf("\033[2J\033[H");
     printf("=== DevLinux Health Agent ===\n");
     printf("Agent ID: %s\n", agent_id);
     printf("Status: %s\n", connected ? "CONNECTED" : "DISCONNECTED");
-    if (status == STATUS_OFFLINE) {
-        printf("\033[31mOFFLINE\033[0m\n");
-    }
-    printf("CPU   [%s] %.1f%%\n", cpu_bar, metrics->cpu);
-    printf("RAM   [%s] %.1f%%\n", ram_bar, metrics->ram);
-    printf("DISK  [%s] %.1f%%\n", disk_bar, metrics->disk);
+    printf("CPU   %s %.1f%% %s\n", cpu_bar, metrics->cpu, metric_status(metrics->cpu, "cpu", config, status));
+    printf("RAM   %s %.1f%% %s\n", ram_bar, metrics->ram, metric_status(metrics->ram, "ram", config, status));
+    printf("DISK  %s %.1f%% %s\n", disk_bar, metrics->disk, metric_status(metrics->disk, "disk", config, status));
     fflush(stdout);
     pthread_mutex_unlock(&g_output_lock);
 }

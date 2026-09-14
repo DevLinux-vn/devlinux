@@ -45,11 +45,22 @@ struct Metrics {
     unsigned long tx_bytes;
 };
 
+struct Config {
+    int interval;
+    double cpu_warning;
+    double cpu_critical;
+    double ram_warning;
+    double ram_critical;
+    double disk_warning;
+    double disk_critical;
+};
+
 struct AgentEntry {
     int fd;
     int status;
     int interval;
     char agent_id[64];
+    struct Config config;
     struct Metrics last_data;
     time_t last_heartbeat_time;
     time_t last_seen;
@@ -68,20 +79,11 @@ struct Message {
     int has_metrics;
 };
 
-struct Config {
-    int interval;
-    double cpu_warning;
-    double cpu_critical;
-    double ram_warning;
-    double ram_critical;
-    double disk_warning;
-    double disk_critical;
-};
-
 int load_or_create_agent_id(const char *path, char *out, size_t out_size);
 void collect_metrics(struct Metrics *metrics);
-void render_bar(double percent, int width, char *out, size_t out_size);
-void render_agent_dashboard(const char *agent_id, const struct Metrics *metrics, int connected, int status);
+void render_bar(double percent, const char *metric_type, const struct Config *config, int status, char *out, size_t out_size);
+const char *metric_status(double percent, const char *metric_type, const struct Config *config, int status);
+void render_agent_dashboard(const char *agent_id, const struct Metrics *metrics, const struct Config *config, int connected, int status);
 void render_server_dashboard(const struct AgentEntry *agents, size_t count);
 int parse_message(const char *line, struct Message *msg);
 int format_data_message(char *buf, size_t size, const char *agent_id, const struct Metrics *metrics);

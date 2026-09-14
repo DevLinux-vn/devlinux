@@ -32,14 +32,6 @@ static void ensure_capacity(struct AgentEntry **agents, size_t *capacity, size_t
     *capacity = new_cap;
 }
 
-static void remove_agent_entry(struct AgentEntry **agents, size_t *count, size_t idx) {
-    if (!agents || !*agents || idx >= *count) return;
-    for (size_t i = idx + 1; i < *count; ++i) {
-        (*agents)[i - 1] = (*agents)[i];
-    }
-    (*count)--;
-}
-
 int main(int argc, char **argv) {
     int port = (argc > 1) ? atoi(argv[1]) : DEFAULT_PORT;
     int listen_fd = create_listener(port);
@@ -88,7 +80,8 @@ int main(int argc, char **argv) {
                     memset(entry, 0, sizeof(*entry));
                     entry->fd = client_fd;
                     entry->status = STATUS_ONLINE;
-                    entry->interval = 3;
+                    set_default_config(&entry->config);
+                    entry->interval = entry->config.interval;
                     entry->last_heartbeat_time = time(NULL);
                     entry->last_seen = time(NULL);
                     entry->inbuf_len = 0;
@@ -116,12 +109,14 @@ int main(int argc, char **argv) {
                 char buffer[MAX_LINE];
                 ssize_t nb = recv(fd, buffer, sizeof(buffer) - 1, 0);
                 if (nb <= 0) {
-                    epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+                    if (epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL) < 0) perror("epoll_ctl DEL");
                     close(fd);
                     for (size_t j = 0; j < count; ++j) {
                         if (agents[j].fd == fd) {
                             log_event(agents[j].agent_id, "disconnect", "socket closed");
-                            remove_agent_entry(&agents, &count, j);
+                            log_event(agents[j].agent_id, "offline", "socket closed");
+                            agents[j].status = STATUS_OFFLINE;
+                            agents[j].fd = -1;
                             break;
                         }
                     }

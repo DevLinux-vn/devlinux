@@ -8,6 +8,58 @@ void append_json_log(const char *path, const char *line) {
     fclose(fp);
 }
 
+const char *metric_status(double percent, const char *metric_type, const struct Config *config, int status) {
+    double warning = 70.0;
+    double critical = 90.0;
+    if (config && metric_type) {
+        if (strcmp(metric_type, "ram") == 0) {
+            warning = config->ram_warning;
+            critical = config->ram_critical;
+        } else if (strcmp(metric_type, "disk") == 0) {
+            warning = config->disk_warning;
+            critical = config->disk_critical;
+        } else {
+            warning = config->cpu_warning;
+            critical = config->cpu_critical;
+        }
+    }
+    if (status == STATUS_OFFLINE) {
+        return "OFFLINE";
+    }
+    if (percent >= critical) return "CRITICAL";
+    if (percent >= warning) return "WARNING";
+    return "NORMAL";
+}
+
+void render_bar(double percent, const char *metric_type, const struct Config *config, int status, char *out, size_t out_size) {
+    const char *color = "\033[32m";
+    int filled;
+    size_t used;
+
+    if (!out || out_size == 0) return;
+    const char *state = metric_status(percent, metric_type, config, status);
+    if (strcmp(state, "WARNING") == 0) color = "\033[33m";
+    if (strcmp(state, "CRITICAL") == 0 || strcmp(state, "OFFLINE") == 0) color = "\033[31m";
+    if (percent < 0.0) percent = 0.0;
+    if (percent > 100.0) percent = 100.0;
+    filled = (int)((percent / 100.0) * BAR_WIDTH);
+    if (filled > BAR_WIDTH) filled = BAR_WIDTH;
+    if (snprintf(out, out_size, "%s[", color) < 0) {
+        out[0] = '\0';
+        return;
+    }
+    used = strlen(out);
+    for (int i = 0; i < BAR_WIDTH; ++i) {
+        int written = snprintf(out + used, out_size - used, "%c", i < filled ? '#' : '-');
+        if (written < 0 || (size_t)written >= out_size - used) {
+            out[0] = '\0';
+            return;
+        }
+        used += (size_t)written;
+    }
+    snprintf(out + used, out_size - used, "]\033[0m");
+}
+
 void log_periodic_data(const char *agent_id, const struct Metrics *metrics) {
     char path[256];
     snprintf(path, sizeof(path), "%s/periodic.log", LOG_DIR);
@@ -44,8 +96,9 @@ int send_message(int fd, const char *msg) {
 }
 
 static int extract_string_field(const char *line, const char *field, char *out, size_t out_size) {
-    char pattern[64];
-    snprintf(pattern, sizeof(pattern), "\"%s\"", field);
+    char pattern[128];
+    int pattern_len = snprintf(pattern, sizeof(pattern), "\"%s\"", field);
+    if (pattern_len < 0 || (size_t)pattern_len >= sizeof(pattern)) return 0;
     const char *p = strstr(line, pattern);
     if (!p) return 0;
     p = strchr(p, ':');

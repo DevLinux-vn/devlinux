@@ -154,8 +154,20 @@ Khi server đang chạy, nhập các lệnh sau vào prompt `/_`:
 Ví dụ:
 ```text
 /config tam-vm-5510 interval=5
+/config tam-vm-5510 cpu_warning=70
+/config tam-vm-5510 cpu_critical=85
+/config tam-vm-5510 ram_warning=75
+/config tam-vm-5510 ram_critical=90
+/config tam-vm-5510 disk_warning=80
+/config tam-vm-5510 disk_critical=95
 /history tam-vm-5510 --last 5
 ```
+
+Các ngưỡng được lưu riêng trong từng `AgentEntry` và áp dụng cho dashboard server. Khi agent đang kết nối, server gửi cùng thay đổi xuống agent để dashboard agent dùng cùng quy tắc màu:
+- `NORMAL`: xanh
+- `WARNING`: vàng
+- `CRITICAL`: đỏ
+- agent mất kết nối: `--- OFFLINE ---` và các thanh màu đỏ
 
 ## 10. Log hệ thống
 - `logs/periodic.log`: dữ liệu định kỳ

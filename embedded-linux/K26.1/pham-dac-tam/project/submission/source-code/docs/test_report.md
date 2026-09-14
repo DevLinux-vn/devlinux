@@ -17,11 +17,11 @@
 | TC-P4-04 | Pass | Dùng nhiều agent cùng lúc với cùng server, server hiển thị nhiều entry ONLINE đồng thời. |
 | TC-P4-05 | Pass | Tạo 3 loại log riêng biệt: `logs/periodic.log`, `logs/alert.log`, `logs/events.log`; nội dung JSON được ghi theo cấu trúc rõ ràng. |
 | TC-P4-06 | Pass | `ss -o -tn` trong lúc agent kết nối hiển thị TCP timer `keepalive`; source cấu hình `SO_KEEPALIVE`, `TCP_KEEPIDLE`, `TCP_KEEPINTVL`, `TCP_KEEPCNT`. |
-| TC-P4-07 | Partial / N-A | Khi agent dừng, server ghi nhận event `disconnect/socket closed`. Chưa có output chứng minh agent vẫn giữ trên dashboard với trạng thái `OFFLINE` sau heartbeat timeout. |
+| TC-P4-07 | Pass | Sau khi kill agent, server giữ entry và hiển thị `--- OFFLINE ---`; `logs/events.log` có cả event `disconnect` và `offline`. |
 | TC-P4-08 | Partial / N-A | Đã thực hiện kiểm tra Valgrind Memcheck với kết quả: `ERROR SUMMARY: 0 errors`, `definitely lost: 0 bytes`, `indirectly lost: 0 bytes`, `possibly lost: 0 bytes`, `still reachable: 1,024 bytes in 1 blocks`. Về mặt kỹ thuật không phát hiện leak nghiêm trọng, nhưng thời gian chạy thực tế chưa đạt đủ 30 phút/24h như yêu cầu tối thiểu của P4-M8 nên không ghi là Pass tuyệt đối. |
 | TC-P4-09 | Pass | Dashboard server cập nhật động khi agent mới kết nối và khi mất kết nối. |
-| TC-P4-10 | Partial / N-A | Source có xử lý `/config`, nhưng lần chạy evidence hiện tại chưa capture được output `[OK] applied config ...` và message config ở phía agent. |
-| TC-P4-11 | Partial / N-A | Source có xử lý `/history`, nhưng lần chạy evidence hiện tại chưa capture được output của lệnh trên terminal server. |
+| TC-P4-10 | Pass | `/config tam-vm-5510 cpu_critical=85` trả về `[OK] applied config to tam-vm-5510`. |
+| TC-P4-11 | Pass | `/history tam-vm-5510 --last 2` trả về các bản ghi JSON có trường `ts` dạng số. |
 | TC-P4-12 | Pass | `/config fake-id interval=5` trả về lỗi xác định agent_id không tồn tại. |
 
 
@@ -43,26 +43,33 @@ ESTAB ... 127.0.0.1:19001 ... 127.0.0.1:41268 timer:(keepalive,4.989ms,0)
 Sau khi dừng agent, `logs/events.log` ghi nhận:
 ```text
 {"agent_id":"tam-vm-5510","event":"disconnect","details":"socket closed"}
+{"agent_id":"tam-vm-5510","event":"offline","details":"socket closed"}
 ```
 
-Output này chứng minh server nhận biết socket bị đóng. Chưa ghi nhận được dòng `event":"offline"` hoặc dashboard giữ lại agent ở trạng thái `OFFLINE`, vì vậy TC-P4-07 không được coi là Pass tuyệt đối.
+Dashboard sau khi agent bị kill:
+```text
+[tam-vm-5510] --- OFFLINE ---
+  CPU  [--------------------] 0.9% OFFLINE
+  RAM  [############--------] 62.1% OFFLINE
+  DISK [#################---] 85.4% OFFLINE
+```
 
 ### TC-P4-10 và TC-P4-11 — Lệnh CLI
 Đã gửi các lệnh sau trong phiên server:
 ```text
 /help
-/config tam-vm-5510 interval=5
-/history tam-vm-5510 --last 5
+/config tam-vm-5510 cpu_critical=85
+/history tam-vm-5510 --last 2
 ```
 
 Output capture được:
 ```text
-/help
-/config <agent_id> <key>=<value>
-/history <agent_id> [--last N]
+[OK] applied config to tam-vm-5510
+{"ts":1789400858,"agent_id":"tam-vm-5510","cpu":0.9,"ram":62.1,"disk":85.4}
+{"ts":1789400859,"agent_id":"tam-vm-5510","cpu":0.9,"ram":62.1,"disk":85.4}
 ```
 
-Chưa capture được output xác nhận `[OK] applied config ...` hoặc các dòng history trả về ngay sau hai lệnh, nên hai test này được ghi là `Partial / N-A` trong bảng kết quả.
+Các bản ghi history có `ts` dạng số và được sắp xếp theo thời gian tăng dần trước khi lấy `--last 2`.
 
 ### Runtime logs
 Các file được kiểm tra sau khi server nhận dữ liệu:
@@ -71,6 +78,7 @@ logs/periodic.log: {"agent_id":"tam-vm-5510","cpu":0.9,"ram":64.5,"disk":85.4}
 logs/events.log: {"agent_id":"new","event":"connect","details":"accepted"}
 logs/events.log: {"agent_id":"tam-vm-5510","event":"heartbeat","details":"ok"}
 logs/events.log: {"agent_id":"tam-vm-5510","event":"disconnect","details":"socket closed"}
+logs/events.log: {"agent_id":"tam-vm-5510","event":"offline","details":"socket closed"}
 logs/alert.log: file not created because no metric exceeded the alert threshold
 ```
 
@@ -100,9 +108,9 @@ cd /home/tam/devlinux/embedded-linux/K26.1/pham-dac-tam/project/submission && \
 > /_
 === Infra Health Monitor ===
 [tam-vm-5510] ONLINE
-  CPU  7.0%
-  RAM  62.4%
-  DISK 85.4%
+  CPU  [#-------------------] 7.0% NORMAL
+  RAM  [############--------] 62.4% NORMAL
+  DISK [#################---] 85.4% WARNING
 > /_
 ```
 
@@ -111,9 +119,9 @@ cd /home/tam/devlinux/embedded-linux/K26.1/pham-dac-tam/project/submission && \
 === DevLinux Health Agent ===
 Agent ID: tam-vm-5510
 Status: CONNECTED
-CPU   [#-------------------] 7.0%
-RAM   [############--------] 62.4%
-DISK  [#################---] 85.4%
+CPU   [#-------------------] 7.0% NORMAL
+RAM   [############--------] 62.4% NORMAL
+DISK  [#################---] 85.4% WARNING
 ```
 
 ## Vấn đề đã biết nhưng chưa fix (nếu có)
@@ -121,7 +129,7 @@ DISK  [#################---] 85.4%
 - Kết quả Valgrind hiện tại cho thấy không có leak nghiêm trọng, nhưng vẫn còn `still reachable: 1,024 bytes in 1 blocks` nên cần lưu ý khi review dài hạn.
 
 ## Tổng kết tự đánh giá
-Số case Pass: 8 / Tổng số case: 12
-Số case Partial / N-A: 4 / Tổng số case: 12
+Số case Pass: 11 / Tổng số case: 12
+Số case Partial / N-A: 1 / Tổng số case: 12
 
-Project đã có build thành công, giao tiếp agent/server, keepalive TCP, dashboard và các file log runtime. Các phần còn thiếu bằng chứng trực tiếp là trạng thái OFFLINE giữ trên dashboard, kết quả Valgrind dài hạn, output xác nhận `/config`, và output `/history`; các phần này được ghi rõ là partial thay vì pass tuyệt đối.
+Project đã có build thành công, giao tiếp agent/server, keepalive TCP, dashboard động, OFFLINE retention, dynamic `/config`, `/history` có timestamp số, và các file log runtime. Phần còn thiếu duy nhất là bằng chứng Valgrind/Heaptrack dài hạn đúng thời lượng yêu cầu P4-M8.

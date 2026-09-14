@@ -2,17 +2,20 @@
 
 static pthread_mutex_t g_metrics_lock = PTHREAD_MUTEX_INITIALIZER;
 static struct Metrics g_metrics;
+static struct Config g_config;
 static int g_running = 1;
 
 static void *dashboard_thread(void *arg) {
     const char *agent_id = (const char *)arg;
     while (g_running) {
         struct Metrics snapshot;
+        struct Config config_snapshot;
         pthread_mutex_lock(&g_metrics_lock);
         snapshot = g_metrics;
+        config_snapshot = g_config;
         pthread_mutex_unlock(&g_metrics_lock);
 
-        render_agent_dashboard(agent_id, &snapshot, 1, STATUS_ONLINE);
+        render_agent_dashboard(agent_id, &snapshot, &config_snapshot, 1, STATUS_ONLINE);
         sleep(2);
     }
     return NULL;
@@ -49,13 +52,16 @@ int main(int argc, char **argv) {
     }
     enable_keepalive(sock, 5, 2, 3);
 
+    pthread_mutex_lock(&g_metrics_lock);
     memset(&g_metrics, 0, sizeof(g_metrics));
+    set_default_config(&g_config);
     collect_metrics(&g_metrics);
+    pthread_mutex_unlock(&g_metrics_lock);
 
     pthread_t dash_tid;
     pthread_create(&dash_tid, NULL, dashboard_thread, (void *)agent_id);
 
-    int interval = HEARTBEAT_SEC;
+    int interval = g_config.interval;
     char buf[MAX_LINE];
     while (1) {
         fd_set rfds;
@@ -72,7 +78,24 @@ int main(int argc, char **argv) {
             if (parse_message(incoming, &msg)) {
                 if (strcmp(msg.type, "config") == 0) {
                     int new_interval = atoi(msg.value);
+                    pthread_mutex_lock(&g_metrics_lock);
                     if (new_interval >= 1 && new_interval <= 300) interval = new_interval;
+                    if (strcmp(msg.key, "interval") == 0 && new_interval >= 1 && new_interval <= 300) {
+                        g_config.interval = new_interval;
+                    } else if (strcmp(msg.key, "cpu_warning") == 0) {
+                        g_config.cpu_warning = atof(msg.value);
+                    } else if (strcmp(msg.key, "cpu_critical") == 0) {
+                        g_config.cpu_critical = atof(msg.value);
+                    } else if (strcmp(msg.key, "ram_warning") == 0) {
+                        g_config.ram_warning = atof(msg.value);
+                    } else if (strcmp(msg.key, "ram_critical") == 0) {
+                        g_config.ram_critical = atof(msg.value);
+                    } else if (strcmp(msg.key, "disk_warning") == 0) {
+                        g_config.disk_warning = atof(msg.value);
+                    } else if (strcmp(msg.key, "disk_critical") == 0) {
+                        g_config.disk_critical = atof(msg.value);
+                    }
+                    pthread_mutex_unlock(&g_metrics_lock);
                     char ack[128];
                     format_ack_message(ack, sizeof(ack), "ok");
                     send(sock, ack, strlen(ack), 0);
@@ -86,10 +109,9 @@ int main(int argc, char **argv) {
             }
         }
 
-        struct Metrics local;
-        collect_metrics(&local);
         pthread_mutex_lock(&g_metrics_lock);
-        g_metrics = local;
+        collect_metrics(&g_metrics);
+        struct Metrics local = g_metrics;
         pthread_mutex_unlock(&g_metrics_lock);
 
         snprintf(buf, sizeof(buf), "{\"type\":\"data\",\"agent_id\":\"%s\",\"cpu\":%.1f,\"ram\":%.1f,\"disk\":%.1f}\n", agent_id, local.cpu, local.ram, local.disk);
