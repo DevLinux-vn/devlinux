@@ -6,9 +6,6 @@
     },
     "quocviet1026": {
        "embedded-linux": ["K26.1", "K26.2"]
-    },
-    "Tdieney": {
-      "embedded-mcu": ["K26.2"]
     }
   }
 }
