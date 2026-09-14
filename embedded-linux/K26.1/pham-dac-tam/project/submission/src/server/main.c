@@ -1,0 +1,135 @@
+#include "../common.h"
+
+static int create_listener(int port) {
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) return -1;
+    int opt = 1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = INADDR_ANY;
+    if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        close(sock);
+        return -1;
+    }
+    listen(sock, 10);
+    return sock;
+}
+
+int main(int argc, char **argv) {
+    int port = (argc > 1) ? atoi(argv[1]) : DEFAULT_PORT;
+    int listen_fd = create_listener(port);
+    if (listen_fd < 0) {
+        perror("listen");
+        return 1;
+    }
+
+    int epfd = epoll_create1(0);
+    struct epoll_event ev;
+    ev.events = EPOLLIN;
+    ev.data.fd = listen_fd;
+    epoll_ctl(epfd, EPOLL_CTL_ADD, listen_fd, &ev);
+
+    fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
+    ev.events = EPOLLIN;
+    ev.data.fd = STDIN_FILENO;
+    epoll_ctl(epfd, EPOLL_CTL_ADD, STDIN_FILENO, &ev);
+
+    struct AgentEntry agents[64];
+    size_t count = 0;
+    size_t capacity = 64;
+    memset(agents, 0, sizeof(agents));
+
+    while (1) {
+        struct epoll_event events[MAX_EVENTS];
+        int n = epoll_wait(epfd, events, MAX_EVENTS, 1000);
+        for (int i = 0; i < n; ++i) {
+            int fd = events[i].data.fd;
+            if (fd == listen_fd) {
+                int client_fd = accept(listen_fd, NULL, NULL);
+                if (client_fd >= 0) {
+                    enable_keepalive(client_fd, 5, 2, 3);
+                    if (count < capacity) {
+                        struct AgentEntry *entry = &agents[count++];
+                        memset(entry, 0, sizeof(*entry));
+                        entry->fd = client_fd;
+                        entry->status = STATUS_ONLINE;
+                        entry->interval = 3;
+                        entry->last_heartbeat_time = time(NULL);
+                        entry->last_seen = time(NULL);
+                        entry->inbuf_len = 0;
+                        ev.events = EPOLLIN;
+                        ev.data.fd = client_fd;
+                        epoll_ctl(epfd, EPOLL_CTL_ADD, client_fd, &ev);
+                        log_event("new", "connect", "accepted");
+                    } else {
+                        close(client_fd);
+                    }
+                }
+            } else if (fd == STDIN_FILENO) {
+                char input[MAX_LINE];
+                ssize_t nb = read(STDIN_FILENO, input, sizeof(input) - 1);
+                if (nb > 0) {
+                    input[nb] = '\0';
+                    char *line = strtok(input, "\n");
+                    while (line) {
+                        handle_command(line, agents, &count, &capacity);
+                        line = strtok(NULL, "\n");
+                    }
+                }
+            } else {
+                char buffer[MAX_LINE];
+                ssize_t nb = recv(fd, buffer, sizeof(buffer) - 1, 0);
+                if (nb <= 0) {
+                    epoll_ctl(epfd, EPOLL_CTL_DEL, fd, NULL);
+                    close(fd);
+                    for (size_t j = 0; j < count; ++j) {
+                        if (agents[j].fd == fd) {
+                            agents[j].status = STATUS_OFFLINE;
+                            log_event(agents[j].agent_id, "disconnect", "socket closed");
+                            break;
+                        }
+                    }
+                } else {
+                    buffer[nb] = '\0';
+                    for (size_t j = 0; j < count; ++j) {
+                        if (agents[j].fd == fd) {
+                            struct AgentEntry *entry = &agents[j];
+                            strncat(entry->inbuf, buffer, sizeof(entry->inbuf) - entry->inbuf_len - 1);
+                            entry->inbuf_len = strlen(entry->inbuf);
+                            if (strchr(entry->inbuf, '\n')) {
+                                char *line = strtok(entry->inbuf, "\n");
+                                if (line) {
+                                    struct Message msg;
+                                    if (parse_message(line, &msg)) {
+                                        strncpy(entry->agent_id, msg.agent_id, sizeof(entry->agent_id) - 1);
+                                        update_entry_from_message(entry, &msg);
+                                        entry->status = STATUS_ONLINE;
+                                        if (strcmp(msg.type, "data") == 0) {
+                                            entry->last_data.cpu = msg.cpu;
+                                            entry->last_data.ram = msg.ram;
+                                            entry->last_data.disk = msg.disk;
+                                            log_periodic_data(entry->agent_id, &entry->last_data);
+                                            if (entry->last_data.cpu >= 90.0) log_alert(entry->agent_id, "CPU", entry->last_data.cpu, "critical");
+                                            if (entry->last_data.ram >= 90.0) log_alert(entry->agent_id, "RAM", entry->last_data.ram, "critical");
+                                            if (entry->last_data.disk >= 95.0) log_alert(entry->agent_id, "DISK", entry->last_data.disk, "critical");
+                                        }
+                                    }
+                                }
+                                entry->inbuf[0] = '\0';
+                                entry->inbuf_len = 0;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        mark_offline_entries(agents, count);
+        render_server_dashboard(agents, count);
+    }
+
+    return 0;
+}
