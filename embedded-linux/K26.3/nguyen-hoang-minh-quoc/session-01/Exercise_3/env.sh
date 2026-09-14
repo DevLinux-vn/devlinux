@@ -2,10 +2,10 @@
 
 # Display the requested system variables.
 echo "===== System variables ====="
-echo "PATH=${PATH-}"
-echo "HOME=$HOME"
-echo "USER=$USER"
-echo "SHELL=$SHELL"
+printf 'PATH=%s\n' "${PATH:-not set}"
+printf 'HOME=%s\n' "${HOME:-not set}"
+printf 'USER=%s\n' "${USER:-not set}"
+printf 'SHELL=%s\n' "${SHELL:-not set}"
 
 echo
 echo "===== PATH directory count ====="
@@ -27,8 +27,18 @@ fi
 echo
 echo "===== Environment variables ====="
 # Use the standard utility search path even if the user's PATH is empty.
-command -p printenv
+if ! environment_output=$(command -p printenv); then
+    echo "Error: could not list environment variables." >&2
+    exit 1
+fi
+printf '%s\n' "$environment_output"
 
 echo
 echo "===== Environment variable count ====="
-command -p printenv | command -p wc -l
+# Count the same output that was displayed, and check the counting command.
+if [ -z "$environment_output" ]; then
+    echo 0
+elif ! printf '%s\n' "$environment_output" | command -p wc -l; then
+    echo "Error: could not count environment variables." >&2
+    exit 1
+fi
