@@ -138,23 +138,6 @@ Agent reconnected after server start and server dashboard reported ONLINE.
 
 Agent hiện có collector thread độc lập, dashboard thread độc lập và retry kết nối mỗi 5 giây. Server có shutdown cleanup cho client sockets, epoll/timer/listener descriptors; lệnh không hợp lệ trả về `[ERR]` thay vì bị bỏ qua. Hai unit systemd mẫu được đặt trong `systemd/`.
 
-### Chống trùng entry khi agent reconnect
-Khi agent disconnect rồi kết nối lại với cùng `agent_id`, server tái sử dụng đúng slot `OFFLINE` cũ (giữ nguyên `config` ngưỡng) thay vì thêm dòng mới, nên mảng `agents` không tăng vô hạn qua nhiều lần connect/disconnect. Kiểm tra thực tế:
-
-```text
-kill -9 <agent cũ>  (đợi > AGENT_TIMEOUT_SEC để chuyển OFFLINE)
-./bin/agent 127.0.0.1 <port>  (dùng lại agent.id cũ)
-
-=== Infra Health Monitor ===
-[tam-vm-36206] ONLINE
-  CPU  [##------------------] 10.5% NORMAL
-  RAM  [######--------------] 34.0% NORMAL
-  DISK [#################---] 85.4% WARNING
-> /_
-```
-
-Chỉ có đúng 1 dòng cho `tam-vm-36206`, không có dòng OFFLINE trùng lặp còn sót lại.
-
 ## Tổng kết tự đánh giá
 Số case Pass: 11 / Tổng số case: 12
 Số case Partial / N-A: 1 / Tổng số case: 12
