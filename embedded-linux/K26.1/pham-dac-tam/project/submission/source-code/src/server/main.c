@@ -28,18 +28,19 @@ static int create_listener(int port) {
     return sock;
 }
 
-static void ensure_capacity(struct AgentEntry **agents, size_t *capacity, size_t needed) {
-    if (needed < *capacity) return;
+static int ensure_capacity(struct AgentEntry **agents, size_t *capacity, size_t needed) {
+    if (needed < *capacity) return 1;
     size_t new_cap = (*capacity == 0) ? 8 : *capacity;
     while (new_cap < needed) new_cap *= 2;
     struct AgentEntry *new_agents = realloc(*agents, new_cap * sizeof(**agents));
     if (!new_agents) {
         perror("realloc");
-        exit(1);
+        return 0;
     }
     memset(new_agents + *capacity, 0, (new_cap - *capacity) * sizeof(**agents));
     *agents = new_agents;
     *capacity = new_cap;
+    return 1;
 }
 
 int main(int argc, char **argv) {
@@ -107,8 +108,11 @@ int main(int argc, char **argv) {
             if (fd == listen_fd) {
                 int client_fd = accept(listen_fd, NULL, NULL);
                 if (client_fd >= 0) {
+                    if (!ensure_capacity(&agents, &capacity, count + 1)) {
+                        close(client_fd);
+                        continue;
+                    }
                     enable_keepalive(client_fd, 5, 2, 3);
-                    ensure_capacity(&agents, &capacity, count + 1);
                     struct AgentEntry *entry = &agents[count++];
                     memset(entry, 0, sizeof(*entry));
                     entry->fd = client_fd;
@@ -189,7 +193,22 @@ int main(int argc, char **argv) {
                                     if (entry->inbuf[0] != '\0') {
                                         struct Message msg;
                                         if (parse_message(entry->inbuf, &msg)) {
+                                            int is_new_binding = (entry->agent_id[0] == '\0');
                                             strncpy(entry->agent_id, msg.agent_id, sizeof(entry->agent_id) - 1);
+                                            if (is_new_binding) {
+                                                /* reuse a stale OFFLINE slot with the same agent_id instead of growing the array forever */
+                                                for (size_t k = 0; k < count; ++k) {
+                                                    if (agents[k].fd == -1 && strcmp(agents[k].agent_id, entry->agent_id) == 0) {
+                                                        entry->config = agents[k].config;
+                                                        if (k != count - 1) {
+                                                            agents[k] = agents[count - 1];
+                                                            if (j == count - 1) { j = k; entry = &agents[j]; }
+                                                        }
+                                                        count--;
+                                                        break;
+                                                    }
+                                                }
+                                            }
                                             update_entry_from_message(entry, &msg);
                                             entry->status = STATUS_ONLINE;
                                             if (strcmp(msg.type, "data") == 0) {
