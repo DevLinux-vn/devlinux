@@ -7,12 +7,14 @@ static void read_proc_stat(double *cpu_usage) {
     FILE *fp = fopen("/proc/stat", "r");
     if(!fp) { *cpu_usage = 0.0; return; }
     char line[256];
-    if (!fgets(line, sizeof(line), fp)) {
-        fclose(fp);
+    int got_line = (fgets(line, sizeof(line), fp) != NULL);
+    if (fclose(fp) != 0) {
+        perror("fclose /proc/stat");
+    }
+    if (!got_line) {
         *cpu_usage = 0.0;
         return;
     }
-    fclose(fp);
 
     unsigned long long user, nice, system, idle, iowait, irq, softirq;
     if (sscanf(line, "cpu  %llu %llu %llu %llu %llu %llu %llu", &user, &nice, &system, &idle, &iowait, &irq, &softirq) != 7) {

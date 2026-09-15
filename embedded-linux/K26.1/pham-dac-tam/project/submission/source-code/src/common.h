@@ -60,6 +60,7 @@ struct AgentEntry {
     int fd;
     int status;
     int interval;
+    int graceful;
     char agent_id[64];
     struct Config config;
     struct Metrics last_data;
@@ -89,6 +90,7 @@ void render_server_dashboard(const struct AgentEntry *agents, size_t count);
 int parse_message(const char *line, struct Message *msg);
 int format_data_message(char *buf, size_t size, const char *agent_id, const struct Metrics *metrics);
 int format_heartbeat_message(char *buf, size_t size, const char *agent_id);
+int format_bye_message(char *buf, size_t size, const char *agent_id);
 int format_config_message(char *buf, size_t size, const char *agent_id, const char *key, const char *value);
 int format_ack_message(char *buf, size_t size, const char *status);
 void append_json_log(const char *path, const char *line);

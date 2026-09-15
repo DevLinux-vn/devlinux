@@ -240,6 +240,24 @@ RUN 5: HEAP SUMMARY in use at exit: 0 bytes in 0 blocks; All heap blocks were fr
 ```
 
 Ghi chú quan trọng: lần test trước có thấy `possibly lost` từ glibc thread TLS khi agent bị `SIGTERM` mặc định (không có handler, thoát đột ngột, không kịp `pthread_join`). Đã thêm `signal(SIGINT/SIGTERM, ...)` trong `src/agent/main.c` để agent thoát sạch (join cả `collector_thread` và `dashboard_thread` trước khi `return`), loại bỏ hoàn toàn cảnh báo đó ở 5/5 lần chạy lại.
+
+### Graceful shutdown: agent báo trước khi ngắt kết nối
+Agent nhận `SIGINT`/`SIGTERM` gửi message `{"type":"bye","agent_id":"..."}` trước khi đóng socket. Server phân biệt rõ lý do ngắt kết nối trong log thay vì luôn ghi "socket closed" chung chung:
+
+```text
+{"agent_id":"tam-vm-7339","event":"disconnect","details":"graceful bye"}
+{"agent_id":"tam-vm-7339","event":"offline","details":"graceful bye"}
+```
+
+Nếu agent bị `kill -9` (crash, không kịp gửi bye), log vẫn ghi đúng như trước là `"socket closed"`. Sau khi agent gửi bye và reconnect lại với cùng `agent_id`, dashboard vẫn chỉ hiển thị đúng 1 khối `ONLINE` cho agent đó — xác nhận cơ chế gộp trùng entry hoạt động đúng sau khi đổi cách log.
+
+### Làm rõ hàm gộp entry trùng (đổi tên cho dễ đọc hơn)
+`reconcile_duplicate_agents()` được tách thành `find_duplicate_offline()` (chỉ tìm) + vòng lặp gộp, bỏ biến cờ `removed` gây khó đọc trước đây. Hàm vẫn chạy **sau** vòng lặp xử lý epoll event của mỗi chu kỳ (không đụng tới biến/con trỏ `j`/`entry` đang dùng dở trong lúc xử lý message), giữ đúng nguyên tắc an toàn đã kiểm chứng ở các lần review trước.
+
+### Xử lý lỗi rõ ràng hơn cho render_bar() và read_proc_stat()
+- `render_bar()`: phân biệt rõ giữa "encoding error thật" (snprintf trả về âm — fallback in `[N/A]`) và "buffer không đủ chỗ" (snprintf trả về số dương lớn hơn phần còn lại — cắt chuỗi an toàn tại vị trí đã ghi, không xoá trắng toàn bộ).
+- `read_proc_stat()`: kiểm tra return value của `fclose()` (gọi `perror()` nếu đóng file lỗi), tách rõ nhánh khi `fgets()` không đọc được dòng đầu tiên (trả `0.0%` thay vì chạy tiếp với dữ liệu rác).
+
 ## Tổng kết tự đánh giá
 Số case Pass: 12 / Tổng số case: 12
 

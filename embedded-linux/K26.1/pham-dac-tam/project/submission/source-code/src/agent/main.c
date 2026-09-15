@@ -155,6 +155,12 @@ int main(int argc, char **argv) {
                 next_send = time(NULL) + (interval > 0 ? interval : HEARTBEAT_SEC);
             }
         }
+        if (!g_running) {
+            char bye[128];
+            if (format_bye_message(bye, sizeof(bye), agent_id)) {
+                send(sock, bye, strlen(bye), 0);
+            }
+        }
         close(sock);
         pthread_mutex_lock(&g_metrics_lock);
         g_connected = 0;

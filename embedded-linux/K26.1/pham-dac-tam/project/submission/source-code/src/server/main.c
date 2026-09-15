@@ -43,22 +43,26 @@ static int ensure_capacity(struct AgentEntry **agents, size_t *capacity, size_t 
     return 1;
 }
 
-static void reconcile_duplicate_agents(struct AgentEntry *agents, size_t *count) {
-    /* runs outside the per-fd message loop so no index/pointer aliasing risk exists */
-    for (size_t a = 0; a < *count; ) {
-        int removed = 0;
-        if (agents[a].fd == -1 && agents[a].agent_id[0] != '\0') {
-            for (size_t b = 0; b < *count; ++b) {
-                if (b != a && agents[b].fd >= 0 && strcmp(agents[b].agent_id, agents[a].agent_id) == 0) {
-                    agents[b].config = agents[a].config;
-                    agents[a] = agents[*count - 1];
-                    (*count)--;
-                    removed = 1;
-                    break;
-                }
-            }
+static int find_duplicate_offline(const struct AgentEntry *agents, size_t count, size_t online_idx) {
+    for (size_t k = 0; k < count; ++k) {
+        if (k != online_idx && agents[k].fd == -1 && agents[k].agent_id[0] != '\0' &&
+            strcmp(agents[k].agent_id, agents[online_idx].agent_id) == 0) {
+            return (int)k;
         }
-        if (!removed) a++;
+    }
+    return -1;
+}
+
+/* Merges a stale OFFLINE row into the reconnected live entry so each agent_id keeps
+   exactly one dashboard block (P4-M9: "1 khoi/dong rieng" per client, not per session). */
+static void reconcile_duplicate_agents(struct AgentEntry *agents, size_t *count) {
+    for (size_t b = 0; b < *count; ++b) {
+        if (agents[b].fd < 0 || agents[b].agent_id[0] == '\0') continue;
+        int stale = find_duplicate_offline(agents, *count, b);
+        if (stale < 0) continue;
+        agents[b].config = agents[(size_t)stale].config;
+        agents[(size_t)stale] = agents[*count - 1];
+        (*count)--;
     }
 }
 
@@ -179,10 +183,12 @@ int main(int argc, char **argv) {
                     close(fd);
                     for (size_t j = 0; j < count; ++j) {
                         if (agents[j].fd == fd) {
-                            log_event(agents[j].agent_id, "disconnect", "socket closed");
-                            log_event(agents[j].agent_id, "offline", "socket closed");
+                            const char *reason = agents[j].graceful ? "graceful bye" : "socket closed";
+                            log_event(agents[j].agent_id, "disconnect", reason);
+                            log_event(agents[j].agent_id, "offline", reason);
                             agents[j].status = STATUS_OFFLINE;
                             agents[j].fd = -1;
+                            agents[j].graceful = 0;
                             break;
                         }
                     }
@@ -225,6 +231,8 @@ int main(int argc, char **argv) {
                                                 if (entry->last_data.disk >= entry->config.disk_critical) log_alert(entry->agent_id, "DISK", entry->last_data.disk, "critical");
                                             } else if (strcmp(msg.type, "heartbeat") == 0) {
                                                 log_event(entry->agent_id, "heartbeat", "ok");
+                                            } else if (strcmp(msg.type, "bye") == 0) {
+                                                entry->graceful = 1;
                                             }
                                         } else {
                                             log_event(entry->agent_id[0] ? entry->agent_id : "unknown", "malformed", "unparsable line dropped");

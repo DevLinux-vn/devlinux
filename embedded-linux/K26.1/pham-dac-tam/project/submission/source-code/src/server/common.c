@@ -50,16 +50,26 @@ void render_bar(double percent, const char *metric_type, const struct Config *co
     if (percent > 100.0) percent = 100.0;
     filled = (int)((percent / 100.0) * BAR_WIDTH);
     if (filled > BAR_WIDTH) filled = BAR_WIDTH;
-    if (snprintf(out, out_size, "%s[", color) < 0) {
-        out[0] = '\0';
+    int prefix_written = snprintf(out, out_size, "%s[", color);
+    if (prefix_written < 0) {
+        /* real encoding failure, not just truncation - fall back to a safe placeholder */
+        snprintf(out, out_size, "[N/A]");
+        return;
+    }
+    if ((size_t)prefix_written >= out_size) {
+        out[out_size - 1] = '\0';
         return;
     }
     used = strlen(out);
     for (int i = 0; i < BAR_WIDTH; ++i) {
         const char *glyph = (i < filled) ? "\xE2\x96\x88" : "\xE2\x96\x91";
         int written = snprintf(out + used, out_size - used, "%s", glyph);
-        if (written < 0 || (size_t)written >= out_size - used) {
-            out[0] = '\0';
+        if (written < 0) {
+            out[used] = '\0';
+            return;
+        }
+        if ((size_t)written >= out_size - used) {
+            out[used] = '\0';
             return;
         }
         used += (size_t)written;
@@ -161,6 +171,9 @@ int parse_message(const char *line, struct Message *msg) {
     if (strcmp(msg->type, "heartbeat") == 0) {
         return 1;
     }
+    if (strcmp(msg->type, "bye") == 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -170,6 +183,10 @@ int format_data_message(char *buf, size_t size, const char *agent_id, const stru
 
 int format_heartbeat_message(char *buf, size_t size, const char *agent_id) {
     return snprintf(buf, size, "{\"type\":\"heartbeat\",\"agent_id\":\"%s\"}\n", agent_id) > 0;
+}
+
+int format_bye_message(char *buf, size_t size, const char *agent_id) {
+    return snprintf(buf, size, "{\"type\":\"bye\",\"agent_id\":\"%s\"}\n", agent_id) > 0;
 }
 
 int format_config_message(char *buf, size_t size, const char *agent_id, const char *key, const char *value) {
