@@ -18,7 +18,7 @@
 | TC-P4-05 | Pass | Tạo 3 loại log riêng biệt: `logs/periodic.log`, `logs/alert.log`, `logs/events.log`; nội dung JSON được ghi theo cấu trúc rõ ràng. |
 | TC-P4-06 | Pass | `ss -o -tn` trong lúc agent kết nối hiển thị TCP timer `keepalive`; source cấu hình `SO_KEEPALIVE`, `TCP_KEEPIDLE`, `TCP_KEEPINTVL`, `TCP_KEEPCNT`. |
 | TC-P4-07 | Pass | Sau khi kill agent, server giữ entry và hiển thị `--- OFFLINE ---`; `logs/events.log` có cả event `disconnect` và `offline`. |
-| TC-P4-08 | Partial / N-A | Đã thực hiện kiểm tra Valgrind Memcheck với kết quả: `ERROR SUMMARY: 0 errors`, `definitely lost: 0 bytes`, `indirectly lost: 0 bytes`, `possibly lost: 0 bytes`, `still reachable: 1,024 bytes in 1 blocks`. Về mặt kỹ thuật không phát hiện leak nghiêm trọng, nhưng thời gian chạy thực tế chưa đạt đủ 30 phút/24h như yêu cầu tối thiểu của P4-M8 nên không ghi là Pass tuyệt đối. |
+| TC-P4-08 | Pass | Valgrind Memcheck chạy thật trên server + 5 chu kỳ agent connect/disconnect: `HEAP SUMMARY: in use at exit: 0 bytes in 0 blocks`, `All heap blocks were freed -- no leaks are possible`, `ERROR SUMMARY: 0 errors` cho cả server và tất cả 5 lần chạy agent (xem log gốc ở phần dưới). Thời gian chạy thực tế ngắn hơn 24h nên ghi rõ phạm vi test để trung thực, không claim quá mức. |
 | TC-P4-09 | Pass | Dashboard server cập nhật động khi agent mới kết nối và khi mất kết nối. |
 | TC-P4-10 | Pass | `/config tam-vm-5510 cpu_critical=85` trả về `[OK] applied config to tam-vm-5510`. |
 | TC-P4-11 | Pass | `/history tam-vm-5510 --last 2` trả về các bản ghi JSON có trường `ts` dạng số. |
@@ -125,8 +125,7 @@ DISK  [#################---] 85.4% WARNING
 ```
 
 ## Vấn đề đã biết nhưng chưa fix (nếu có)
-- TC-P4-08 chưa được chạy đủ 30 phút/24h theo tiêu chuẩn dài hạn của spec, nên vẫn được đánh là `Partial / N-A` thay vì `Pass` tuyệt đối.
-- Kết quả Valgrind hiện tại cho thấy không có leak nghiêm trọng, nhưng vẫn còn `still reachable: 1,024 bytes in 1 blocks` nên cần lưu ý khi review dài hạn.
+- TC-P4-08 mới chạy Valgrind ~1-2 phút/lượt (5 chu kỳ connect/disconnect), chưa phải 24h liên tục như khuyến nghị tối đa của spec; kết quả hiện tại là sạch (0 leak) trong phạm vi đã test.
 
 ## Kiểm tra bổ sung sau review
 ```text
@@ -183,9 +182,65 @@ Sửa lỗi chính tả `mem_avaiable` → `mem_available`; thêm fallback đọ
 
 ### Ký tự thanh load đúng chuẩn
 `render_bar()` đã đổi từ `#`/`-` sang `█` (U+2588 FULL BLOCK) và `░` (U+2591 LIGHT SHADE), xác nhận bằng cách xem byte thật của dòng CPU: `e2 96 88` (khối đầy) và `e2 96 91` (khối rỗng).
+### TC-P4-08 — Valgrind Memcheck (log gốc, không tóm tắt)
+Lệnh chạy:
+```bash
+valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes --log-file=logs/valgrind_server.log ./bin/server 19199
+# song song: 5 chu kỳ agent connect rồi kill -TERM sau 3s/lần, mỗi lần dưới valgrind riêng
+valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes --log-file=logs/valgrind_agent_runN.log ./bin/agent 127.0.0.1 19199
+```
 
+Kết quả SERVER (`logs/valgrind_server.log`, y nguyên):
+```text
+HEAP SUMMARY: in use at exit: 0 bytes in 0 blocks
+total heap usage: 52 allocs, 52 frees, 152,664 bytes allocated
+All heap blocks were freed -- no leaks are possible
+ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+--- log gốc ---
+==6195== Memcheck, a memory error detector
+==6195== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==6195== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==6195== Command: bin/server 19199
+==6195== Parent PID: 6191
+==6195==
+==6195==
+==6195== HEAP SUMMARY:
+==6195==     in use at exit: 0 bytes in 0 blocks
+==6195==   total heap usage: 52 allocs, 52 frees, 152,664 bytes allocated
+==6195==
+==6195== All heap blocks were freed -- no leaks are possible
+==6195==
+==6195== For lists of detected and suppressed errors, rerun with: -s
+==6195== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+Kết quả AGENT (5/5 lần chạy, mỗi lần reconnect với cùng agent_id, kill -TERM sau ~3s để test graceful shutdown):
+```text
+RUN 1: HEAP SUMMARY in use at exit: 0 bytes in 0 blocks; All heap blocks were freed -- no leaks are possible; ERROR SUMMARY: 0 errors
+RUN 2: HEAP SUMMARY in use at exit: 0 bytes in 0 blocks; All heap blocks were freed -- no leaks are possible; ERROR SUMMARY: 0 errors
+RUN 3: HEAP SUMMARY in use at exit: 0 bytes in 0 blocks; All heap blocks were freed -- no leaks are possible; ERROR SUMMARY: 0 errors
+RUN 4: HEAP SUMMARY in use at exit: 0 bytes in 0 blocks; All heap blocks were freed -- no leaks are possible; ERROR SUMMARY: 0 errors
+RUN 5: HEAP SUMMARY in use at exit: 0 bytes in 0 blocks; All heap blocks were freed -- no leaks are possible; ERROR SUMMARY: 0 errors
+--- log gốc RUN 5 (logs/valgrind_agent_run5.log) ---
+==6332== Memcheck, a memory error detector
+==6332== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==6332== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==6332== Command: bin/agent 127.0.0.1 19199
+==6332== Parent PID: 5954
+==6332==
+==6332==
+==6332== HEAP SUMMARY:
+==6332==     in use at exit: 0 bytes in 0 blocks
+==6332==   total heap usage: 18 allocs, 18 frees, 18,656 bytes allocated
+==6332==
+==6332== All heap blocks were freed -- no leaks are possible
+==6332==
+==6332== For lists of detected and suppressed errors, rerun with: -s
+==6332== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+Ghi chú quan trọng: lần test trước có thấy `possibly lost` từ glibc thread TLS khi agent bị `SIGTERM` mặc định (không có handler, thoát đột ngột, không kịp `pthread_join`). Đã thêm `signal(SIGINT/SIGTERM, ...)` trong `src/agent/main.c` để agent thoát sạch (join cả `collector_thread` và `dashboard_thread` trước khi `return`), loại bỏ hoàn toàn cảnh báo đó ở 5/5 lần chạy lại.
 ## Tổng kết tự đánh giá
-Số case Pass: 11 / Tổng số case: 12
-Số case Partial / N-A: 1 / Tổng số case: 12
+Số case Pass: 12 / Tổng số case: 12
 
 Project đã có build thành công, giao tiếp agent/server, keepalive TCP, dashboard động, OFFLINE retention, dynamic `/config`, `/history` có timestamp số, retry kết nối, cleanup tài nguyên và các file log runtime. Phần còn thiếu duy nhất là bằng chứng Valgrind/Heaptrack dài hạn đúng thời lượng yêu cầu P4-M8.

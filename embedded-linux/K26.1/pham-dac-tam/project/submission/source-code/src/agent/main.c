@@ -6,6 +6,11 @@ static struct Config g_config;
 static volatile sig_atomic_t g_running = 1;
 static int g_connected;
 
+static void handle_agent_signal(int signal_number) {
+    (void)signal_number;
+    g_running = 0;
+}
+
 static void *collector_thread(void *arg) {
     (void)arg;
     while (g_running) {
@@ -55,6 +60,8 @@ static int connect_to_server(const char *host, int port){
 
 int main(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
+    signal(SIGINT, handle_agent_signal);
+    signal(SIGTERM, handle_agent_signal);
     const char *host = (argc > 1) ? argv[1] : DEFAULT_HOST;
     int port = (argc > 2) ? atoi(argv[2]) : DEFAULT_PORT;
     char agent_id[64] = {0};

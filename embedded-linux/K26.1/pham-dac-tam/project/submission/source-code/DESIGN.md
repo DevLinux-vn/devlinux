@@ -42,7 +42,7 @@ Sơ đồ luồng:
 | Tên | Loại | Vai trò | Tạo lúc nào | Kết thúc lúc nào | Giao tiếp với ai — qua kênh gì |
 |---|---|---|---|---|---|
 | main / epoll_loop | process | lắng nghe kết nối mới, xử lý dữ liệu từ agent, xử lý stdin command | khi server khởi động | khi server dừng | nhận từ socket agent và stdin |
-| dashboard_refresh_loop | logic trong epoll loop | refresh dashboard mỗi 2 giây, kiểm tra timeout OFFLINE | khi server chạy | khi server dừng | dùng timerfd + map trạng thái |
+| dashboard_refresh_loop | logic trong epoll loop | refresh dashboard mỗi 2 giây, kiểm tra timeout OFFLINE | khi server chạy | khi server dừng | dùng timerfd + mảng agents[] |
 | command_handler | logic trong epoll loop | đọc lệnh /config, /history từ admin | khi server chạy | khi server dừng | qua STDIN_FILENO |
 
 ---
@@ -139,16 +139,18 @@ Mỗi message kết thúc bằng `\n` để dễ đọc theo dòng. Server và a
   - nếu trạng thái là OFFLINE → đỏ cố định
 
 ### Cách server quản lý dashboard
-- Server giữ 1 map dạng `agent_id -> agent_entry`.
+- Server giữ 1 mảng động `struct AgentEntry *agents` (cấp phát lại bằng `realloc` khi cần), tra cứu theo `agent_id` bằng duyệt tuyến tính (`strcmp`) — không dùng hash map/dictionary riêng, vì số lượng agent trong phạm vi bài tập nhỏ nên duyệt tuyến tính vẫn đủ nhanh và giảm rủi ro lỗi con trỏ.
 - Mỗi entry lưu:
   - `agent_id`
   - `last_data`
   - `status` (`ONLINE` hoặc `OFFLINE`)
   - `last_heartbeat_time`
   - `last_seen`
-- Dashboard server chỉ duyệt qua map này để vẽ đúng số dòng tương ứng với số agent đã từng kết nối hoặc đang kết nối.
-- Khi agent mới kết nối, server thêm entry mới vào map.
-- Khi agent OFFLINE, server đổi trạng thái mà không xoá dòng khỏi dashboard.
+  - `config` (ngưỡng warning/critical riêng theo agent)
+- Dashboard server duyệt toàn bộ mảng `agents[0..count)` để vẽ đúng số dòng tương ứng với số agent đã từng kết nối hoặc đang kết nối.
+- Khi agent mới kết nối, server thêm entry mới vào cuối mảng (`count++`).
+- Khi socket bị đóng, entry được đổi trạng thái `OFFLINE` (giữ `fd = -1`) chứ không xoá khỏi mảng ngay, đúng yêu cầu P4-M9 (không được biến mất khỏi dashboard).
+- Khi agent reconnect với cùng `agent_id`, một bước dọn dẹp riêng (`reconcile_duplicate_agents()`) chạy **sau** vòng lặp xử lý epoll event của mỗi chu kỳ — không đụng tới biến chỉ số/con trỏ đang dùng dở trong lúc xử lý message — để gộp ngưỡng cấu hình cũ vào entry đang `ONLINE` và loại bỏ entry `OFFLINE` trùng `agent_id`, tránh mảng phình to vô hạn qua nhiều lần connect/disconnect.
 
 ### Tái vẽ màn hình
 - Dùng `\033[2J\033[H` để xoá và vẽ lại toàn bộ.
@@ -245,7 +247,7 @@ Quy tắc áp dụng:
 | P4-M6 | Keepalive 2 lớp | 6 | heartbeat + SO_KEEPALIVE |
 | P4-M7 | Phát hiện OFFLINE | 6 | timeout trên last_heartbeat |
 | P4-M8 | systemd + không leak | 11 | chạy dài hạn, kiểm tra bằng Valgrind/Heaptrack |
-| P4-M9 | Dashboard server động theo số agent | 7 | map agent_id → entry |
+| P4-M9 | Dashboard server động theo số agent | 7 | mảng động `agents[]`, tra cứu tuyến tính theo agent_id |
 | P4-M10 | Lệnh /config | 8 | server gửi config xuống agent |
 | P4-M11 | Lệnh /history | 8, 9 | đọc log đã ghi trước đó |
 

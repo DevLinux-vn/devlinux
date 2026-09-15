@@ -72,6 +72,8 @@ void collect_metrics(struct Metrics *metrics) {
         unsigned long long total_blocks = st.f_blocks;
         unsigned long long free_blocks = st.f_bfree;
         metrics->disk = 100.0 * (1.0 - ((double)free_blocks / (double)total_blocks));
+        if (metrics->disk < 0.0) metrics->disk = 0.0;
+        if (metrics->disk > 100.0) metrics->disk = 100.0;
     } else {
         metrics->disk = 0.0;
     }
