@@ -105,22 +105,25 @@ int main(int argc, char **argv) {
             struct Message msg;
             if (parse_message(incoming, &msg)) {
                 if (strcmp(msg.type, "config") == 0) {
-                    pthread_mutex_lock(&g_metrics_lock);
+                    char *end = NULL;
+                    double threshold_value = strtod(msg.value, &end);
+                    int has_valid_threshold = (end != msg.value && *end == '\0' && threshold_value >= 0.0 && threshold_value <= 100.0);
                     int new_interval = atoi(msg.value);
+                    pthread_mutex_lock(&g_metrics_lock);
                     if (strcmp(msg.key, "interval") == 0 && new_interval >= 1 && new_interval <= 300) {
                         g_config.interval = new_interval;
-                    } else if (strcmp(msg.key, "cpu_warning") == 0) {
-                        g_config.cpu_warning = atof(msg.value);
-                    } else if (strcmp(msg.key, "cpu_critical") == 0) {
-                        g_config.cpu_critical = atof(msg.value);
-                    } else if (strcmp(msg.key, "ram_warning") == 0) {
-                        g_config.ram_warning = atof(msg.value);
-                    } else if (strcmp(msg.key, "ram_critical") == 0) {
-                        g_config.ram_critical = atof(msg.value);
-                    } else if (strcmp(msg.key, "disk_warning") == 0) {
-                        g_config.disk_warning = atof(msg.value);
-                    } else if (strcmp(msg.key, "disk_critical") == 0) {
-                        g_config.disk_critical = atof(msg.value);
+                    } else if (has_valid_threshold && strcmp(msg.key, "cpu_warning") == 0) {
+                        g_config.cpu_warning = threshold_value;
+                    } else if (has_valid_threshold && strcmp(msg.key, "cpu_critical") == 0) {
+                        g_config.cpu_critical = threshold_value;
+                    } else if (has_valid_threshold && strcmp(msg.key, "ram_warning") == 0) {
+                        g_config.ram_warning = threshold_value;
+                    } else if (has_valid_threshold && strcmp(msg.key, "ram_critical") == 0) {
+                        g_config.ram_critical = threshold_value;
+                    } else if (has_valid_threshold && strcmp(msg.key, "disk_warning") == 0) {
+                        g_config.disk_warning = threshold_value;
+                    } else if (has_valid_threshold && strcmp(msg.key, "disk_critical") == 0) {
+                        g_config.disk_critical = threshold_value;
                     }
                     pthread_mutex_unlock(&g_metrics_lock);
                     char ack[128];

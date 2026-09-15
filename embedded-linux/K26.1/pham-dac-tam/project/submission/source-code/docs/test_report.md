@@ -138,6 +138,43 @@ Agent reconnected after server start and server dashboard reported ONLINE.
 
 Agent hiện có collector thread độc lập, dashboard thread độc lập và retry kết nối mỗi 5 giây. Server có shutdown cleanup cho client sockets, epoll/timer/listener descriptors; lệnh không hợp lệ trả về `[ERR]` thay vì bị bỏ qua. Hai unit systemd mẫu được đặt trong `systemd/`.
 
+### Chống trùng entry khi agent reconnect
+Khi agent disconnect rồi kết nối lại với cùng `agent_id`, server tái sử dụng đúng slot `OFFLINE` cũ (giữ nguyên `config` ngưỡng) thay vì thêm dòng mới, nên mảng `agents` không tăng vô hạn qua nhiều lần connect/disconnect. Kiểm tra thực tế:
+
+```text
+kill -9 <agent cũ>  (đợi > AGENT_TIMEOUT_SEC để chuyển OFFLINE)
+./bin/agent 127.0.0.1 <port>  (dùng lại agent.id cũ)
+
+=== Infra Health Monitor ===
+[tam-vm-36206] ONLINE
+  CPU  [##------------------] 10.5% NORMAL
+  RAM  [######--------------] 34.0% NORMAL
+  DISK [#################---] 85.4% WARNING
+> /_
+```
+
+Chỉ có đúng 1 dòng cho `tam-vm-36206`, không có dòng OFFLINE trùng lặp còn sót lại.
+
+### Edge case: 2 JSON liên tiếp không có `\n` giữa 2 message
+Đã test gửi trực tiếp qua socket 1 payload gồm 2 object JSON dán liền nhau, không có `\n` ở giữa (chỉ có `\n` sau object thứ hai):
+```text
+{"type":"data","agent_id":"probe","cpu":1.0,"ram":2.0,"disk":3.0}{"type":"data","agent_id":"probe","cpu":4.0,"ram":5.0,"disk":6.0}
+```
+
+Quan sát thực tế: vì không có `\n` phân tách, server coi cả 2 object là **một dòng duy nhất**. `parse_message()` dùng `strstr()` tìm field đầu tiên khớp tên, nên kết quả lấy giá trị của **object thứ nhất** (`cpu=1.0, ram=2.0, disk=3.0`); dữ liệu của object thứ hai không được áp dụng. Đây không phải crash hay memory corruption, nhưng là hành vi cần lưu ý: **client bắt buộc phải gửi mỗi message JSON kết thúc bằng `\n` riêng biệt**, nếu không dữ liệu sau sẽ bị bỏ qua thay vì bị parse riêng.
+
+Sau đó gửi tiếp 1 dòng cố tình sai định dạng:
+```text
+not-json-at-all
+```
+Server ghi nhận rõ ràng thay vì im lặng bỏ qua:
+```text
+{"agent_id":"probe","event":"malformed","details":"unparsable line dropped"}
+```
+
+### Validate threshold config phía agent
+Agent hiện kiểm tra `cpu_warning/cpu_critical/ram_warning/ram_critical/disk_warning/disk_critical` phải là số hợp lệ trong khoảng `[0, 100]` trước khi áp dụng từ message `config` nhận từ server, cùng logic với `parse_range()` phía server trong `command.c`.
+
 ## Tổng kết tự đánh giá
 Số case Pass: 11 / Tổng số case: 12
 Số case Partial / N-A: 1 / Tổng số case: 12

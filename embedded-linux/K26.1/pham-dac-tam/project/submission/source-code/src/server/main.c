@@ -222,6 +222,8 @@ int main(int argc, char **argv) {
                                             } else if (strcmp(msg.type, "heartbeat") == 0) {
                                                 log_event(entry->agent_id, "heartbeat", "ok");
                                             }
+                                        } else {
+                                            log_event(entry->agent_id[0] ? entry->agent_id : "unknown", "malformed", "unparsable line dropped");
                                         }
                                     }
                                     size_t remaining = strlen(line + 1);
