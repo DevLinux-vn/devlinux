@@ -1,19 +1,31 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -Iinclude
 TARGET := main
+OBJ_DIR := obj
+LIB_DIR := lib
+LIB := $(LIB_DIR)/libmathutils.a
 
-SRC := app/main.c src/mathutils.c
-OBJ := $(SRC:.c=.o)
+APP_SRC := app/main.c
+MATH_OBJ := $(OBJ_DIR)/mathutils.o
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+$(TARGET): $(APP_SRC) $(LIB)
+	$(CC) $(CFLAGS) $(APP_SRC) -L$(LIB_DIR) -lmathutils -o $@
 
-%.o: %.c
+$(LIB): $(MATH_OBJ) | $(LIB_DIR)
+	ar rcs $@ $<
+
+$(MATH_OBJ): src/mathutils.c include/mathutils.h | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-clean:
-	rm -f $(OBJ) $(TARGET)
+$(OBJ_DIR) $(LIB_DIR):
+	mkdir -p $@
 
-.PHONY: all clean
+run: all
+	printf "5 3\n5\n" | ./$(TARGET)
+
+clean:
+	rm -rf $(OBJ_DIR) $(LIB_DIR) $(TARGET)
+
+.PHONY: all run clean
