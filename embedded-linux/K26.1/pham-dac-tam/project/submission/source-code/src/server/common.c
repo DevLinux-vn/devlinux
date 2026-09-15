@@ -1,7 +1,13 @@
 #include "../common.h"
 
 void append_json_log(const char *path, const char *line) {
-    mkdir(LOG_DIR, 0755);
+    static int log_dir_ready = 0;
+    if (!log_dir_ready) {
+        if (mkdir(LOG_DIR, 0755) < 0 && errno != EEXIST) {
+            perror("mkdir logs");
+        }
+        log_dir_ready = 1;
+    }
     FILE *fp = fopen(path, "a");
     if (!fp) return;
     fprintf(fp, "%s\n", line);
@@ -50,7 +56,8 @@ void render_bar(double percent, const char *metric_type, const struct Config *co
     }
     used = strlen(out);
     for (int i = 0; i < BAR_WIDTH; ++i) {
-        int written = snprintf(out + used, out_size - used, "%c", i < filled ? '#' : '-');
+        const char *glyph = (i < filled) ? "\xE2\x96\x88" : "\xE2\x96\x91";
+        int written = snprintf(out + used, out_size - used, "%s", glyph);
         if (written < 0 || (size_t)written >= out_size - used) {
             out[0] = '\0';
             return;

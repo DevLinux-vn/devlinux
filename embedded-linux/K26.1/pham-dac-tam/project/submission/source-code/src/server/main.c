@@ -43,6 +43,25 @@ static int ensure_capacity(struct AgentEntry **agents, size_t *capacity, size_t 
     return 1;
 }
 
+static void reconcile_duplicate_agents(struct AgentEntry *agents, size_t *count) {
+    /* runs outside the per-fd message loop so no index/pointer aliasing risk exists */
+    for (size_t a = 0; a < *count; ) {
+        int removed = 0;
+        if (agents[a].fd == -1 && agents[a].agent_id[0] != '\0') {
+            for (size_t b = 0; b < *count; ++b) {
+                if (b != a && agents[b].fd >= 0 && strcmp(agents[b].agent_id, agents[a].agent_id) == 0) {
+                    agents[b].config = agents[a].config;
+                    agents[a] = agents[*count - 1];
+                    (*count)--;
+                    removed = 1;
+                    break;
+                }
+            }
+        }
+        if (!removed) a++;
+    }
+}
+
 int main(int argc, char **argv) {
     signal(SIGINT, handle_signal);
     signal(SIGTERM, handle_signal);
@@ -193,22 +212,7 @@ int main(int argc, char **argv) {
                                     if (entry->inbuf[0] != '\0') {
                                         struct Message msg;
                                         if (parse_message(entry->inbuf, &msg)) {
-                                            int is_new_binding = (entry->agent_id[0] == '\0');
                                             strncpy(entry->agent_id, msg.agent_id, sizeof(entry->agent_id) - 1);
-                                            if (is_new_binding) {
-                                                /* reuse a stale OFFLINE slot with the same agent_id instead of growing the array forever */
-                                                for (size_t k = 0; k < count; ++k) {
-                                                    if (agents[k].fd == -1 && strcmp(agents[k].agent_id, entry->agent_id) == 0) {
-                                                        entry->config = agents[k].config;
-                                                        if (k != count - 1) {
-                                                            agents[k] = agents[count - 1];
-                                                            if (j == count - 1) { j = k; entry = &agents[j]; }
-                                                        }
-                                                        count--;
-                                                        break;
-                                                    }
-                                                }
-                                            }
                                             update_entry_from_message(entry, &msg);
                                             entry->status = STATUS_ONLINE;
                                             if (strcmp(msg.type, "data") == 0) {
@@ -238,6 +242,7 @@ int main(int argc, char **argv) {
             }
         }
         mark_offline_entries(agents, count);
+        reconcile_duplicate_agents(agents, &count);
     }
 
     for (size_t i = 0; i < count; ++i) {

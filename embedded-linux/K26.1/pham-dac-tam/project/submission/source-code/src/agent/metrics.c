@@ -1,11 +1,15 @@
 #include "../common.h"
 
 static void read_proc_stat(double *cpu_usage) {
+    static unsigned long long prev_total = 0, prev_idle = 0;
+    static int has_prev = 0;
+
     FILE *fp = fopen("/proc/stat", "r");
-    if(!fp) return;
+    if(!fp) { *cpu_usage = 0.0; return; }
     char line[256];
     if (!fgets(line, sizeof(line), fp)) {
         fclose(fp);
+        *cpu_usage = 0.0;
         return;
     }
     fclose(fp);
@@ -17,22 +21,48 @@ static void read_proc_stat(double *cpu_usage) {
     }
     unsigned long long total = user + nice + system + idle + iowait + irq + softirq;
     unsigned long long idle_time = idle + iowait;
-    *cpu_usage = 100.0 * (1.0 - ((double)idle_time / (double)total));
+
+    if (!has_prev) {
+        /* first sample only establishes the baseline; usage needs a second reading to form a delta */
+        prev_total = total;
+        prev_idle = idle_time;
+        has_prev = 1;
+        *cpu_usage = 0.0;
+        return;
+    }
+
+    unsigned long long delta_total = total - prev_total;
+    unsigned long long delta_idle = idle_time - prev_idle;
+    prev_total = total;
+    prev_idle = idle_time;
+
+    if (delta_total == 0) {
+        *cpu_usage = 0.0;
+        return;
+    }
+    *cpu_usage = 100.0 * (1.0 - ((double)delta_idle / (double)delta_total));
+    if (*cpu_usage < 0.0) *cpu_usage = 0.0;
+    if (*cpu_usage > 100.0) *cpu_usage = 100.0;
 }
 
 void collect_metrics(struct Metrics *metrics) {
     FILE *fp = fopen("/proc/meminfo", "r");
-    unsigned long mem_total = 0, mem_avaiable = 0;
+    unsigned long mem_total = 0, mem_available = 0, mem_free = 0;
+    int have_available = 0;
     if (fp) {
         char line[256];
         while (fgets(line, sizeof(line), fp)) {
             if (sscanf(line, "MemTotal: %lu kB", &mem_total) == 1) continue;
-            if (sscanf(line, "MemAvailable: %lu kB", &mem_avaiable) == 1) break;
+            if (sscanf(line, "MemAvailable: %lu kB", &mem_available) == 1) { have_available = 1; continue; }
+            if (sscanf(line, "MemFree: %lu kB", &mem_free) == 1) continue;
         }
         fclose(fp);
     }
+    unsigned long available = have_available ? mem_available : mem_free;
     if (mem_total > 0) {
-        metrics->ram = 100.0 * (1.0 - ((double)mem_avaiable / (double)mem_total));
+        metrics->ram = 100.0 * (1.0 - ((double)available / (double)mem_total));
+        if (metrics->ram < 0.0) metrics->ram = 0.0;
+        if (metrics->ram > 100.0) metrics->ram = 100.0;
     } else {
         metrics->ram = 0.0;
     }

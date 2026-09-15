@@ -175,6 +175,15 @@ Server ghi nhận rõ ràng thay vì im lặng bỏ qua:
 ### Validate threshold config phía agent
 Agent hiện kiểm tra `cpu_warning/cpu_critical/ram_warning/ram_critical/disk_warning/disk_critical` phải là số hợp lệ trong khoảng `[0, 100]` trước khi áp dụng từ message `config` nhận từ server, cùng logic với `parse_range()` phía server trong `command.c`.
 
+### Sửa CPU% tính theo delta 2 snapshot
+`read_proc_stat()` trước đây tính `%` từ 1 lần đọc `/proc/stat` duy nhất (tỉ lệ idle/total tuyệt đối từ lúc boot), không đúng định nghĩa CPU usage. Đã sửa: lưu `prev_total`/`prev_idle` giữa 2 lần gọi (cách nhau ~1 giây do `collector_thread` chạy `sleep(1)`), tính `delta_idle/delta_total` cho đúng công thức CPU%. Lần gọi đầu tiên chưa có mẫu trước đó nên trả `0.0%`, các lần sau phản ánh đúng tải thực tế.
+
+### Sửa bug `/proc/meminfo`
+Sửa lỗi chính tả `mem_avaiable` → `mem_available`; thêm fallback đọc `MemFree` khi kernel không có dòng `MemAvailable`, và chặn RAM% không vượt quá `[0, 100]`.
+
+### Ký tự thanh load đúng chuẩn
+`render_bar()` đã đổi từ `#`/`-` sang `█` (U+2588 FULL BLOCK) và `░` (U+2591 LIGHT SHADE), xác nhận bằng cách xem byte thật của dòng CPU: `e2 96 88` (khối đầy) và `e2 96 91` (khối rỗng).
+
 ## Tổng kết tự đánh giá
 Số case Pass: 11 / Tổng số case: 12
 Số case Partial / N-A: 1 / Tổng số case: 12
