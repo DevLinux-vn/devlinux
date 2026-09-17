@@ -1,0 +1,12 @@
+[Unit]
+Description=Logger Background Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/dev-linux-bin/logger
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

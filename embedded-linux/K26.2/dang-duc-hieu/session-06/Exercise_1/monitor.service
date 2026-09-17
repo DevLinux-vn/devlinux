@@ -1,0 +1,16 @@
+[Unit]
+Description=Monitor Background Service
+After=network.target
+StartLimitIntervalSec=30s
+StartLimitBurst=3
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/dev-linux-bin/monitor
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
