@@ -31,6 +31,7 @@ typedef struct {
     float gpa;
 } Student;
 
+#ifdef PRELOAD_STUDENT_LIST
 Student student_test_list[] = {
     {1	, "Phuong", 35, 2.6},
     {2	, "Lan"	  , 19, 3.1},
@@ -43,6 +44,7 @@ Student student_test_list[] = {
     {10	, "Uc"	  , 47, 3.8},
     {11	, "Man"	  , 39, 2.2},
 };
+#endif
 
 int add_student(Student *student)
 {
@@ -228,6 +230,7 @@ static int write_to_file(Student student)
     return 0;
 }
 
+#ifdef PRELOAD_STUDENT_LIST
 static int load_student_list()
 {
     int err = 0;
@@ -242,12 +245,15 @@ static int load_student_list()
     }
     return 0;
 }
+#endif
 
 int main()
 {
     int err = 0;
     e_menu_t menu;
+#ifdef PRELOAD_STUDENT_LIST
     err = load_student_list();
+#endif
     while(1)
     {
         if(err == 0) {
