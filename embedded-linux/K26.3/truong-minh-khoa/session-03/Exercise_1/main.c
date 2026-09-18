@@ -20,6 +20,10 @@ typedef enum{
 #define MIN_GPA 0.0
 #define MAX_GPA 4.0
 
+#define STUDENT_DATA_FILE_NAME "students.dat"
+
+int student_id_list[MAX_ID - MIN_ID] = {0};
+
 typedef struct {
     int   id;
     char  name[64];
@@ -27,8 +31,22 @@ typedef struct {
     float gpa;
 } Student;
 
+Student student_test_list[] = {
+    {1	, "Phuong", 35, 2.6},
+    {2	, "Lan"	  , 19, 3.1},
+    {3	, "Minh"  , 25, 3.2},
+    {4	, "Tien"  , 31, 3.2},
+    {5	, "Nguyen", 46, 2.0},
+    {7	, "Van"	  , 23, 2.7},
+    {8	, "Phat"  , 23, 1.2},
+    {9	, "Nghia" , 38, 1.9},
+    {10	, "Uc"	  , 47, 3.8},
+    {11	, "Man"	  , 39, 2.2},
+};
+
 int add_student(Student *student)
 {
+    int err;
     struct query_student_field {
         char *question;
         char *scanf_pattern;
@@ -36,35 +54,51 @@ int add_student(Student *student)
     };
     Student temp;
     struct query_student_field query_field[] = {
-        {"Which is the ID of the student?\n", "%d", &temp.id},
-        {"What is the name of the student?\n", "%s", &temp.name},
-        {"How old is the student?\n", "%d", &temp.age},
-        {"How many GPA score of the student ?\n", "%f", &temp.gpa},
+        {"Which is the ID of the student?\n"    , "%d", &temp.id    },
+        {"What is the name of the student?\n"   , "%s", &temp.name  },
+        {"How old is the student?\n"            , "%d", &temp.age   },
+        {"How many GPA score of the student ?\n", "%f", &temp.gpa   },
     };
     memset(temp.name, 0, sizeof(temp.name));
-    for(uint32_t i = 0; i < INDEX(query_field); i++)
-    {
+    for(uint32_t i = 0; i < INDEX(query_field); i++) {
         printf("%s", query_field[i].question);
-        if (scanf(query_field[i].scanf_pattern, query_field[i].arg) != 1) {
-            printf("Error: Invalid input argument\n");
+        err = scanf(query_field[i].scanf_pattern, query_field[i].arg);
+        if (err != 1) {
+            printf("Error: Invalid input argument, err:%d\n", err);
+            while (getchar() != '\n');
             i--;
+            continue;
         }
         /* Check input age */
         if(query_field[i].arg == &temp.age && (temp.age < MIN_AGE || temp.age > MAX_AGE)) {
-            printf("Error: Student age input is invalid, range from %d to %d \n", MIN_AGE, MAX_AGE);
+            printf("Error: Student age input is invalid, range from %d to %d\n", MIN_AGE, MAX_AGE);
             i--;
+            continue;
         }
         /* Check input GPA */
-        else if(query_field[i].arg == &temp.gpa && (temp.gpa > MIN_GPA  || temp.gpa > MAX_GPA))
+        else if(query_field[i].arg == &temp.gpa && (temp.gpa < MIN_GPA  || temp.gpa > MAX_GPA))
         {
-            printf("Error: Student GPA input is invalid, range from %.2f to %.2f \n", MIN_GPA, MAX_GPA);
+            printf("Error: Student GPA input is invalid, range from %.2f to %.2f\n", MIN_GPA, MAX_GPA);
             i--;
+            continue;
         }
         /* Check input student ID */
-        else if(query_field[i].arg == &temp.id && (temp.id > MIN_ID  || temp.id > MAX_ID))
+        else if(query_field[i].arg == &temp.id)
         {
-            printf("Error: Student ID input is invalid, range from %d to %d \n", MIN_ID, MAX_ID);
-            i--;
+            if(temp.id < MIN_ID  || temp.id > MAX_ID) {
+                printf("Error: Student ID input is invalid, range from %d to %d\n", MIN_ID, MAX_ID);
+                i--;
+                continue;
+            }
+            else if(student_id_list[temp.id] == 1)
+            {
+                printf("Error: Student ID %d is already assigned, please select another\n", temp.id);
+                i--;
+                continue;
+            }
+            else {
+                student_id_list[temp.id] = 1;
+            }
         }
 
     }
@@ -72,11 +106,11 @@ int add_student(Student *student)
     return 0;
 }
 
-int list_student()
+int list_all_student()
 {
     Student student;
 
-    int fd = open("students.dat", O_RDONLY);
+    int fd = open(STUDENT_DATA_FILE_NAME, O_RDONLY);
     if(fd == -1)
     {
         printf("Error of opening file\n");
@@ -85,21 +119,78 @@ int list_student()
     // Reset file offset to the beginning
     lseek(fd, 0, SEEK_SET);
 
-    ssize_t count = read(fd, (void*)&student, sizeof(student));
-    if(!count) {
-        printf("Error: EOF\n");
+    while(1) {
+        ssize_t count = read(fd, (void*)&student, sizeof(student));
+        if(count == 0) {
+            printf("EOF\n");
+            return 0;
+        }
+        else if (count < 0) {
+            printf("Error: Fail to read data\n");
+            return 1;
+        }
+        else {
+            printf("---------------\n");
+            printf("Student:\n");
+            printf("id: %d,\t name: %s,\t age: %d,\t gpa: %.2f\n", student.id, student.name, student.age, student.gpa);
+        }
     }
-    else {
-        printf("Read %lu byte\n", count);
-    }
+    close(fd);
     return 0;
 }
 
-int find_student(int id)
+int find_student()
 {
-    (void)id;
-    return 0;
+    int err;
+    int find_student_id;
+    Student student;
 
+    printf("Input student ID to find:\n");
+    err = scanf("%d", &find_student_id);
+    while (err != 1) {
+        printf("Error: Invalid input argument, err:%d\n", err);
+        while (getchar() != '\n');
+    }
+
+
+    int fd = open(STUDENT_DATA_FILE_NAME, O_RDONLY);
+    if(fd == -1)
+    {
+        printf("Error of opening file\n");
+        return 1;
+    }
+
+    // Seek to 0 bytes relative to the END of the file
+    /* off_t file_length = lseek(fd, 0, SEEK_END);
+
+    if (file_length == (off_t)-1) {
+        perror("lseek failed");
+    } */
+
+    // Reset file offset to the beginning
+    lseek(fd, 0, SEEK_SET);
+
+    while(1) {
+        ssize_t count = read(fd, (void*)&student, sizeof(student));
+        if(count == 0) {
+            printf("Not found student\n");
+            return 0;
+        }
+        else if (count < 0) {
+            printf("Error: Fail to read data\n");
+            return 1;
+        }
+        else if (student.id == find_student_id){
+            printf("---------------\n");
+            printf("Student has been found:");
+            printf("id: %d,\t name: %s,\t age: %d,\t gpa: %.2f\n", student.id, student.name, student.age, student.gpa);
+            break;
+        }
+        else {}
+    }
+    close(fd);
+
+    return 0;
 }
 
 e_menu_t print_menu()
@@ -119,7 +210,7 @@ e_menu_t print_menu()
 
 static int write_to_file(Student student)
 {
-    int fd = open("students.dat", O_CREAT | O_WRONLY | O_APPEND, 0644);
+    int fd = open(STUDENT_DATA_FILE_NAME, O_CREAT | O_WRONLY | O_APPEND, 0644);
     if(fd == -1)
     {
         printf("Error of opening file\n");
@@ -130,8 +221,25 @@ static int write_to_file(Student student)
         printf("Error: write data mismatch, byte written:%lu\n", count);
         return 1;
     }
+    printf("Write student info to %s successfully\n", STUDENT_DATA_FILE_NAME);
+    printf("id: %d,\t name: %s,\t age: %d,\t gpa: %.2f\n", student.id, student.name, student.age, student.gpa);
 
     close(fd);
+    return 0;
+}
+
+static int load_student_list()
+{
+    int err = 0;
+    for(uint32_t i = 0; i < INDEX(student_test_list); i++) {
+        Student student = student_test_list[i];
+        err = write_to_file(student);
+        student_id_list[student.id] = 1;
+        if(err) {
+            printf("Error: fail to write to %s\n", STUDENT_DATA_FILE_NAME);
+            return 1;
+        }
+    }
     return 0;
 }
 
@@ -139,6 +247,7 @@ int main()
 {
     int err = 0;
     e_menu_t menu;
+    err = load_student_list();
     while(1)
     {
         if(err == 0) {
@@ -157,8 +266,10 @@ int main()
                 }
                 break;
             case LIST_ALL_STUDENT:
+                err = list_all_student();
                 break;
             case FIND_STUDENT:
+                err = find_student();
                 break;
             case EXIT_CHOICE:
                 printf("Exit\n");
