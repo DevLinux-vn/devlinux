@@ -1,6 +1,4 @@
 CC = gcc
-AR = ar
-ARFLAGS = rcs
 CFLAGS=-Wall -Wextra -std=c99 -Iinclude -g
 # CFLAGS+= -DPRELOAD_STUDENT_LIST
 
