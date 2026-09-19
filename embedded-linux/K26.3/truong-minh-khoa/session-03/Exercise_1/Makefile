@@ -16,5 +16,4 @@ main:
 .PHONY: clean run all
 clean:
 	rm main
-	rm -rf main.dSYM
 	rm students.dat
