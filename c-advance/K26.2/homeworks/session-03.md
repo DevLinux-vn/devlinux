@@ -1,5 +1,5 @@
 # Assignment — Session: 03
-**Deadline: 2026-08-23 23:59:00**
+**Deadline: 2026-10-04 23:59:00**
 
 ---
 
