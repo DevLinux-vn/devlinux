@@ -1,0 +1,1 @@
+savedcmd_/home/quan/devlinux/embedded-linux/K26.1/pham-anh-quan/session-17/Exercise_1/main.mod := printf '%s\n'   main.o | awk '!x[$$0]++ { print("/home/quan/devlinux/embedded-linux/K26.1/pham-anh-quan/session-17/Exercise_1/"$$0) }' > /home/quan/devlinux/embedded-linux/K26.1/pham-anh-quan/session-17/Exercise_1/main.mod

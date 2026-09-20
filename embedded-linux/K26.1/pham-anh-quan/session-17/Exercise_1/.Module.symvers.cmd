@@ -1,0 +1,1 @@
+savedcmd_/home/quan/devlinux/embedded-linux/K26.1/pham-anh-quan/session-17/Exercise_1/Module.symvers :=  scripts/mod/modpost -M -m -a      -o /home/quan/devlinux/embedded-linux/K26.1/pham-anh-quan/session-17/Exercise_1/Module.symvers -T /home/quan/devlinux/embedded-linux/K26.1/pham-anh-quan/session-17/Exercise_1/modules.order -i Module.symvers -e 
