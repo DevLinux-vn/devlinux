@@ -27,66 +27,6 @@
 
 ## Output thực tế đã quan sát
 
-### Evidence bổ sung TC-P4-01 và TC-P4-03
-```text
-=== Infra Health Monitor ===
-[tam-vm-15103] ONLINE
-  CPU  [░░░░░░░░░░░░░░░░░░░░] 2.1% NORMAL
-  RAM  [██████████░░░░░░░░░░] 53.0% NORMAL
-  DISK [█████████████████░░░] 85.4% WARNING
-
-=== DevLinux Health Agent ===
-Agent ID: tam-vm-15103
-Status: CONNECTED
-CPU   [░░░░░░░░░░░░░░░░░░░░] 2.0% NORMAL
-RAM   [██████████░░░░░░░░░░] 53.0% NORMAL
-DISK  [█████████████████░░░] 85.4% WARNING
-```
-
-### Evidence bổ sung TC-P4-02
-```text
-ID_BEFORE=tam-vm-15103
-ID_AFTER=tam-vm-15103
-MATCH=yes
-```
-
-Host comparison from the same run:
-```text
-%Cpu(s): 0.0 us, 1.1 sy, 0.0 ni, 7.4 id, 91.5 wa
-Mem: 12040 total, 6063 used, 206 free, 5661 available
-Filesystem: /dev/sda3 207G 176G 22G 90% /
-```
-
-### Evidence bổ sung TC-P4-04 và TC-P4-09
-Three agents were started from separate working directories with persistent IDs:
-```text
-[agent-one] ONLINE
-[agent-two] ONLINE
-[agent-three] ONLINE
-```
-
-The server dashboard rendered one block per ID, each with CPU/RAM/DISK bars. The separate TC-P4-07 block below contains the captured `--- OFFLINE ---` transition after an agent was killed.
-
-### Evidence bổ sung TC-P4-05 — three logs and ALERT
-Command used:
-```text
-/config tam-vm-15103 disk_critical=0
-```
-
-Output and files from the same run:
-```text
-[OK] applied config to tam-vm-15103
-logs/periodic.log: {"ts":1789873950,"agent_id":"tam-vm-15103","cpu":1.5,"ram":50.7,"disk":85.4}
-logs/alert.log: {"ts":1789873950,"agent_id":"tam-vm-15103","metric":"DISK","value":85.4,"threshold":"critical"}
-logs/events.log: {"ts":1789873950,"agent_id":"tam-vm-15103","event":"heartbeat","details":"ok"}
-```
-
-### Evidence bổ sung TC-P4-12
-```text
-/config fake-id interval=5
-[ERR] agent_id not found
-```
-
 ### TC-P4-06 — TCP keepalive
 Lệnh kiểm tra:
 ```bash
@@ -168,9 +108,9 @@ cd /home/tam/devlinux/embedded-linux/K26.1/pham-dac-tam/project/submission && \
 > /_
 === Infra Health Monitor ===
 [tam-vm-5510] ONLINE
-  CPU  [█░░░░░░░░░░░░░░░░░░░] 7.0% NORMAL
-  RAM  [████████████░░░░░░░░] 62.4% NORMAL
-  DISK [█████████████████░░░] 85.4% WARNING
+  CPU  [#-------------------] 7.0% NORMAL
+  RAM  [############--------] 62.4% NORMAL
+  DISK [#################---] 85.4% WARNING
 > /_
 ```
 
@@ -179,9 +119,9 @@ cd /home/tam/devlinux/embedded-linux/K26.1/pham-dac-tam/project/submission && \
 === DevLinux Health Agent ===
 Agent ID: tam-vm-5510
 Status: CONNECTED
-CPU   [█░░░░░░░░░░░░░░░░░░░] 7.0% NORMAL
-RAM   [████████████░░░░░░░░] 62.4% NORMAL
-DISK  [█████████████████░░░] 85.4% WARNING
+CPU   [#-------------------] 7.0% NORMAL
+RAM   [############--------] 62.4% NORMAL
+DISK  [#################---] 85.4% WARNING
 ```
 
 ## Vấn đề đã biết nhưng chưa fix (nếu có)
