@@ -61,7 +61,9 @@ static void reconcile_duplicate_agents(struct AgentEntry *agents, size_t *count)
         int stale = find_duplicate_offline(agents, *count, b);
         if (stale < 0) continue;
         agents[b].config = agents[(size_t)stale].config;
-        agents[(size_t)stale] = agents[*count - 1];
+        if (stale != (int)(*count - 1)) {
+            agents[(size_t)stale] = agents[*count - 1];
+        }
         (*count)--;
     }
 }
@@ -135,7 +137,11 @@ int main(int argc, char **argv) {
                         close(client_fd);
                         continue;
                     }
-                    enable_keepalive(client_fd, 5, 2, 3);
+                    if (enable_keepalive(client_fd, 5, 2, 3) < 0) {
+                        log_event("unknown", "keepalive_error", "client rejected");
+                        close(client_fd);
+                        continue;
+                    }
                     struct AgentEntry *entry = &agents[count++];
                     memset(entry, 0, sizeof(*entry));
                     entry->fd = client_fd;

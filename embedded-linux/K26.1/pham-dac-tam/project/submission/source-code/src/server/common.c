@@ -10,7 +10,9 @@ void append_json_log(const char *path, const char *line) {
     }
     FILE *fp = fopen(path, "a");
     if (!fp) return;
-    fprintf(fp, "%s\n", line);
+    if (fprintf(fp, "%s\n", line) < 0 || fflush(fp) != 0) {
+        perror("write log");
+    }
     fclose(fp);
 }
 
@@ -74,7 +76,12 @@ void render_bar(double percent, const char *metric_type, const struct Config *co
         }
         used += (size_t)written;
     }
-    snprintf(out + used, out_size - used, "]\033[0m");
+    int suffix_written = snprintf(out + used, out_size - used, "]\033[0m");
+    if (suffix_written < 0) {
+        out[used] = '\0';
+    } else if ((size_t)suffix_written >= out_size - used) {
+        out[out_size - 1] = '\0';
+    }
 }
 
 void log_periodic_data(const char *agent_id, const struct Metrics *metrics) {
@@ -127,6 +134,7 @@ static int extract_string_field(const char *line, const char *field, char *out, 
     const char *q = strchr(p, '"');
     if (!q) return 0;
     size_t len = (size_t)(q - p);
+    if (len == 0) return 0;
     if (len >= out_size) len = out_size - 1;
     memcpy(out, p, len);
     out[len] = '\0';

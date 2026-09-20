@@ -79,13 +79,19 @@ int main(int argc, char **argv) {
     pthread_create(&dash_tid, NULL, dashboard_thread, (void *)agent_id);
     pthread_create(&collector_tid, NULL, collector_thread, NULL);
 
+    int retry_count = 0;
     while (g_running) {
         int sock = connect_to_server(host, port);
         if (sock < 0) {
             perror("connect");
-            sleep(5);
+            int backoff = HEARTBEAT_SEC << (retry_count < 4 ? retry_count : 4);
+            int jitter = (getpid() + retry_count) % 3;
+            if (backoff > 60) backoff = 60;
+            sleep((unsigned int)(backoff + jitter));
+            if (retry_count < 4) retry_count++;
             continue;
         }
+        retry_count = 0;
         enable_keepalive(sock, 5, 2, 3);
         pthread_mutex_lock(&g_metrics_lock);
         g_connected = 1;
