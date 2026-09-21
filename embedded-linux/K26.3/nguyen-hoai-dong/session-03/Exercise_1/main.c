@@ -29,15 +29,12 @@ void Add_Student(void)
     printf("Enter student's gpa: ");
     scanf("%f", &student.gpa);
 
-    /* Open file for writing */
     int fd = open("student.dat",  O_CREAT | O_WRONLY | O_APPEND, 0666);
-
     if (fd == -1) {
         printf("[ERROR] Cannot open file\n");
         return;
     }
 
-    /* Write struct as raw bytes */
     ssize_t bytes = write(fd, &student, sizeof(Student));
 
     if (bytes == -1) {
@@ -56,9 +53,7 @@ void Find_Student()
     printf("Enter student's id: ");
     scanf(" %d", &id);
 
-    /* Open file for reading */
     int fd = open("student.dat", O_RDONLY);
-
     if (fd == -1) {
         printf("[ERROR] Cannot open file\n");
         return;
@@ -87,9 +82,7 @@ void List_Students(void)
 {
     Student student;
 
-    /* Open file for reading */
     int fd = open("student.dat", O_RDONLY);
-
     if (fd == -1) {
         printf("[ERROR] Cannot open file\n");
         return;
