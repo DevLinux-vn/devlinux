@@ -1,3 +1,4 @@
+/*SESSION 8 - Exercise 2*/
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
