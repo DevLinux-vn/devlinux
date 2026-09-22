@@ -7,7 +7,7 @@
 #include "sensor_shm.h"
 
 int main(void) {
-    /* 1. Try to get Shared Memory without IPC_CREAT */
+    /* 1. Get Shared Memory*/
     int shm_id = shmget(SHM_KEY, sizeof(sensor_data_t), SHM_PERMISSIONS);
     if (shm_id < 0) {
         if (errno == ENOENT) {
@@ -25,7 +25,7 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    /* 3. Read and Display Data */
+    /* 3. Read Data */
     printf("[Sensor Report]\n");
     printf("Timestamp : %ld\n", (long)shm_ptr->timestamp);
     printf("CPU Temp  : %.2f C\n", shm_ptr->cpu_temp);
