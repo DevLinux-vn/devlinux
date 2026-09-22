@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stddef.h>
+#include <errno.h>
 
 #define INDEX(_ARRAY_) (sizeof(_ARRAY_)/sizeof(_ARRAY_[0]))
 typedef enum{
@@ -32,6 +33,9 @@ typedef struct {
     int    quantity;
     double price;
 } Product;
+
+static ssize_t read_partial(int fd, const void *buf, size_t total_byte);
+static ssize_t write_partial(int fd, const void *buf, size_t total_byte);
 
 #ifdef PRELOAD_TEST_DATA
 Product product_test_list[] = {
@@ -74,7 +78,7 @@ int add_product(Product *product)
         {"How much does the product cost ?\n"   , "%f", &temp.price   },
     };
     memset(temp.name, 0, sizeof(temp.name));
-    for(uint32_t i = 0; i < INDEX(query_field); i++) {
+    for(long unsigned int i = 0; i < INDEX(query_field); i++) {
         printf("%s", query_field[i].question);
         err = scanf(query_field[i].scanf_pattern, query_field[i].arg);
         if (err != 1) {
@@ -132,8 +136,17 @@ int list_all_product()
         printf("Error of opening file\n");
         return 1;
     }
+
     // Reset file offset to the beginning
-    lseek(fd, 0, SEEK_SET);
+    off_t result = lseek(fd, 0, SEEK_SET);
+    if (result == (off_t)-1) {
+        perror("lseek failed");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
+        return 1;
+    }
 
     while(1) {
         ssize_t count = read(fd, (void*)&product, sizeof(product));
@@ -151,7 +164,12 @@ int list_all_product()
             printf("id: %d,\t name: %s,\t quantity: %d,\t price: %.2f\n", product.id, product.name, product.quantity, product.price);
         }
     }
-    close(fd);
+
+    if(close(fd) == -1) {
+        perror("Error: Cannot close file\n");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -162,6 +180,7 @@ int show_product_index()
     Product product;
 
     printf("Input product index:\n");
+
     err = scanf("%d", &product_index);
     while (err != 1) {
         printf("Error: Invalid input argument, err:%d\n", err);
@@ -171,11 +190,17 @@ int show_product_index()
     int fd = open(PRODUCT_DATA_FILE_NAME, O_RDONLY);
     if(fd == -1)
     {
-        printf("Error of opening file\n");
+        perror("Error of opening file\n");
         return 1;
     }
 
-    lseek(fd, product_index * sizeof(Product), SEEK_SET);
+    off_t seek_result = lseek(fd, product_index * sizeof(Product), SEEK_SET);
+    if(seek_result == (off_t)-1) {
+        perror("lseek failed to find product_index");
+        return 1;
+
+    }
+
     ssize_t count = read(fd, (void*)&product, sizeof(Product));
     if(count == 0) {
         printf("Not found product\n");
@@ -190,7 +215,11 @@ int show_product_index()
         printf("Product has been found:");
         printf("id: %d,\t name: %s,\t quantity: %d,\t price: %.2f\n", product.id, product.name, product.quantity, product.price);
     }
-    close(fd);
+
+    if(close(fd) == -1) {
+        perror("Error: Cannot close file\n");
+        return 1;
+    }
 
     return 0;
 }
@@ -199,8 +228,8 @@ int update_quantity_index()
 {
     int err;
     int product_index;
-    int    quantity;
-    int    read_quantity;
+    int    quantity = 0;
+    int    read_quantity = 0;
 
 INPUT:
     printf("Input product index and quantity:\n");
@@ -212,8 +241,8 @@ INPUT:
     /* Remove any excessive arguments of input scanf */
     while (getchar() != '\n');
     if(quantity < MIN_QUANTITY || quantity > MAX_QUANTITY) {
-            printf("Error: product quantity input is invalid, range from %d to %d\n", MIN_QUANTITY, MAX_QUANTITY);
-            goto INPUT;
+        printf("Error: product quantity input is invalid, range from %d to %d\n", MIN_QUANTITY, MAX_QUANTITY);
+        goto INPUT;
     }
 
     // Byte offset of the record at position [index]
@@ -225,21 +254,33 @@ INPUT:
     int fd = open(PRODUCT_DATA_FILE_NAME, O_RDWR);
     if(fd == -1)
     {
-        printf("Error of opening file\n");
+        perror("Error of opening file\n");
+        return 1;
+    }
+
+    off_t seek_result = lseek(fd, quantity_offset, SEEK_SET);
+    if(seek_result == (off_t)-1) {
+        perror("lseek failed to find quantity_offset before write");
+        return 1;
+
+    }
+
+    ssize_t result = write_partial(fd, (void*)&quantity, sizeof(quantity));
+    if(result < 0) {
+        perror("Error: fail to write data\n");
         return 1;
     }
 
     lseek(fd, quantity_offset, SEEK_SET);
-    ssize_t count = write(fd, (void*)&quantity, sizeof(quantity));
-    if(count != sizeof(quantity)) {
-        printf("Error: write data mismatch, byte written:%lu\n", count);
+    if(seek_result == (off_t)-1) {
+        perror("lseek failed to find quantity_offset before read");
         return 1;
+
     }
 
-    lseek(fd, quantity_offset, SEEK_SET);
-    count = read(fd, (void*)&read_quantity, sizeof(read_quantity));
-    if(count != sizeof(quantity)) {
-        printf("Error: read data mismatch, byte read:%lu\n", count);
+    result = read_partial(fd, (void*)&read_quantity, sizeof(read_quantity));
+    if(result < 0) {
+        perror("Error: fail to read data\n");
         return 1;
     }
 
@@ -247,6 +288,40 @@ INPUT:
         printf("Error: read and write data mismatch, actual:%d, expected:%d \n", read_quantity, quantity);
 
     return 0;
+}
+
+static ssize_t read_partial(int fd, const void *buf, size_t total_byte)
+{
+    size_t byte_read = 0;
+    while (byte_read < total_byte) {
+        ssize_t read_chunk = read(fd, (void*)buf + byte_read, total_byte - byte_read);
+        if(read_chunk < 0) {
+            if(errno == EINTR) {
+                continue;
+            }
+            perror("Error: Fail to read chunk data");
+            return -1;
+        }
+        byte_read += read_chunk;
+    };
+    return byte_read;
+}
+
+static ssize_t write_partial(int fd, const void *buf, size_t total_byte)
+{
+    size_t byte_written = 0;
+    while (byte_written < total_byte) {
+        ssize_t written_chunk = write(fd, (void*)buf + byte_written, total_byte - byte_written);
+        if(written_chunk < 0) {
+            if(errno == EINTR) {
+                continue;
+            }
+            perror("Error: Fail to write chunk data");
+            return -1;
+        }
+        byte_written += written_chunk;
+    };
+    return byte_written;
 }
 
 e_menu_t print_menu()
@@ -258,7 +333,7 @@ e_menu_t print_menu()
     printf("3. Update quantity by index\n");
     printf("4. List all products\n");
     printf("5. Exit\n");
-    if(scanf("%d", &menu) != 1) {
+    if(scanf("%d", (int*)&menu) != 1) {
         printf("Error: Invalid input argument\n");
         return 1;
     }
@@ -270,18 +345,24 @@ static int write_to_file(Product product)
     int fd = open(PRODUCT_DATA_FILE_NAME, O_CREAT | O_WRONLY | O_APPEND, 0644);
     if(fd == -1)
     {
-        printf("Error of opening file\n");
+        perror("Error of opening file\n");
         return 1;
     }
+
     ssize_t count = write(fd, (void*)&product, sizeof(product));
     if(count != sizeof(product)) {
         printf("Error: write data mismatch, byte written:%lu\n", count);
         return 1;
     }
+
     printf("Write product info to %s successfully\n", PRODUCT_DATA_FILE_NAME);
     printf("id: %d,\t name: %s,\t quantity: %d,\t price: %.2f\n", product.id, product.name, product.quantity, product.price);
 
-    close(fd);
+    if(close(fd) == -1) {
+        perror("Error: Cannot close file\n");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -289,7 +370,7 @@ static int write_to_file(Product product)
 static int load_product_list()
 {
     int err = 0;
-    for(uint32_t i = 0; i < INDEX(product_test_list); i++) {
+    for(long unsigned int i = 0; i < INDEX(product_test_list); i++) {
         Product product = product_test_list[i];
         err = write_to_file(product);
         product_id_list[product.id] = 1;
