@@ -7,12 +7,23 @@
 #define FILE_NAME "students.dat"
 #define NAME_SIZE 64
 
-typedef struct {
+typedef struct
+{
     int id;
     char name[NAME_SIZE];
     int age;
     float gpa;
 } Student;
+
+static void clearInputBuffer(void)
+{
+    int ch;
+
+    while ((ch = getchar()) != '\n' &&
+           ch != EOF)
+    {
+    }
+}
 
 static int writeStudent(int fd, const Student *s)
 {
@@ -42,16 +53,48 @@ void addStudent(int fd)
     Student s;
 
     printf("Enter ID: ");
-    scanf("%d", &s.id);
+
+    if (scanf("%d", &s.id) != 1)
+    {
+        fprintf(stderr, "Invalid ID\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
 
     printf("Enter name: ");
-    scanf(" %63[^\n]", s.name);
+
+    if (scanf("%63[^\n]", s.name) != 1)
+    {
+        fprintf(stderr, "Invalid name\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
 
     printf("Enter age: ");
-    scanf("%d", &s.age);
+
+    if (scanf("%d", &s.age) != 1)
+    {
+        fprintf(stderr, "Invalid age\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
 
     printf("Enter GPA: ");
-    scanf("%f", &s.gpa);
+
+    if (scanf("%f", &s.gpa) != 1)
+    {
+        fprintf(stderr, "Invalid GPA\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
 
     if (lseek(fd, 0, SEEK_END) == (off_t)-1)
     {
@@ -81,7 +124,9 @@ void listStudents(int fd)
 
     while (1)
     {
-        ssize_t n = read(fd, &s, sizeof(Student));
+        ssize_t n = read(fd,
+                         &s,
+                         sizeof(Student));
 
         if (n == -1)
         {
@@ -89,8 +134,16 @@ void listStudents(int fd)
             break;
         }
 
+        if (n == 0)
+        {
+            /* EOF */
+            break;
+        }
+
         if (n != sizeof(Student))
         {
+            fprintf(stderr,
+                    "Warning: partial record detected\n");
             break;
         }
 
@@ -109,7 +162,15 @@ void findStudent(int fd)
     int found = 0;
 
     printf("Enter ID to find: ");
-    scanf("%d", &targetId);
+
+    if (scanf("%d", &targetId) != 1)
+    {
+        fprintf(stderr, "Invalid ID\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
 
     if (lseek(fd, 0, SEEK_SET) == (off_t)-1)
     {
@@ -119,7 +180,9 @@ void findStudent(int fd)
 
     while (1)
     {
-        ssize_t n = read(fd, &s, sizeof(Student));
+        ssize_t n = read(fd,
+                         &s,
+                         sizeof(Student));
 
         if (n == -1)
         {
@@ -127,8 +190,15 @@ void findStudent(int fd)
             return;
         }
 
+        if (n == 0)
+        {
+            break;
+        }
+
         if (n != sizeof(Student))
         {
+            fprintf(stderr,
+                    "Warning: partial record detected\n");
             break;
         }
 
@@ -147,7 +217,8 @@ void findStudent(int fd)
 
     if (!found)
     {
-        printf("Student with ID %d not found.\n", targetId);
+        printf("Student with ID %d not found.\n",
+               targetId);
     }
 }
 
@@ -164,7 +235,14 @@ void showMenu(int fd)
         printf("4. Exit\n");
         printf("Choose: ");
 
-        scanf("%d", &choice);
+        if (scanf("%d", &choice) != 1)
+        {
+            fprintf(stderr, "Invalid choice\n");
+            clearInputBuffer();
+            continue;
+        }
+
+        clearInputBuffer();
 
         switch (choice)
         {
