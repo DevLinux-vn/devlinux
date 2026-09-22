@@ -1,0 +1,351 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stddef.h>
+
+#define FILE_NAME "products.dat"
+#define PRODUCT_NAME_SIZE 64
+
+typedef struct
+{
+    int id;
+    char name[PRODUCT_NAME_SIZE];
+    int quantity;
+    double price;
+} Product;
+
+static void clearInputBuffer(void)
+{
+    int ch;
+
+    while ((ch = getchar()) != '\n' &&
+           ch != EOF)
+    {
+    }
+}
+
+static int write_full(int fd,
+                      const void *buf,
+                      size_t count)
+{
+    const char *ptr = (const char *)buf;
+    size_t total = 0;
+
+    while (total < count)
+    {
+        ssize_t n = write(fd,
+                          ptr + total,
+                          count - total);
+
+        if (n < 0)
+        {
+            perror("write");
+            return -1;
+        }
+
+        total += n;
+    }
+
+    return 0;
+}
+
+void addProduct(int fd)
+{
+    Product p;
+
+    printf("ID: ");
+
+    if (scanf("%d", &p.id) != 1)
+    {
+        fprintf(stderr, "Invalid ID\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
+
+    printf("Name: ");
+
+    if (scanf("%63[^\n]", p.name) != 1)
+    {
+        fprintf(stderr, "Invalid name\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
+
+    printf("Quantity: ");
+
+    if (scanf("%d", &p.quantity) != 1)
+    {
+        fprintf(stderr, "Invalid quantity\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
+
+    printf("Price: ");
+
+    if (scanf("%lf", &p.price) != 1)
+    {
+        fprintf(stderr, "Invalid price\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
+
+    if (lseek(fd, 0, SEEK_END) == (off_t)-1)
+    {
+        perror("lseek");
+        return;
+    }
+
+    if (write_full(fd,
+                   &p,
+                   sizeof(Product)) == -1)
+    {
+        return;
+    }
+
+    printf("Product added.\n");
+}
+
+void showProductByIndex(int fd)
+{
+    int index;
+    Product p;
+
+    printf("Index: ");
+
+    if (scanf("%d", &index) != 1)
+    {
+        fprintf(stderr, "Invalid index\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
+
+    if (index < 0)
+    {
+        printf("Index must be >= 0.\n");
+        return;
+    }
+
+    off_t offset =
+        (off_t)index * sizeof(Product);
+
+    if (lseek(fd,
+              offset,
+              SEEK_SET) == (off_t)-1)
+    {
+        perror("lseek");
+        return;
+    }
+
+    ssize_t n = read(fd,
+                     &p,
+                     sizeof(Product));
+
+    if (n == -1)
+    {
+        perror("read");
+        return;
+    }
+
+    if (n != sizeof(Product))
+    {
+        printf("Invalid index.\n");
+        return;
+    }
+
+    printf("\nProduct Information\n");
+    printf("ID       : %d\n", p.id);
+    printf("Name     : %s\n", p.name);
+    printf("Quantity : %d\n", p.quantity);
+    printf("Price    : %.2lf\n", p.price);
+}
+
+void updateQuantityByIndex(int fd)
+{
+    int index;
+    int quantity;
+
+    printf("Index: ");
+
+    if (scanf("%d", &index) != 1)
+    {
+        fprintf(stderr, "Invalid index\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
+
+    if (index < 0)
+    {
+        printf("Index must be >= 0.\n");
+        return;
+    }
+
+    printf("New quantity: ");
+
+    if (scanf("%d", &quantity) != 1)
+    {
+        fprintf(stderr, "Invalid quantity\n");
+        clearInputBuffer();
+        return;
+    }
+
+    clearInputBuffer();
+
+    off_t record_offset =
+        (off_t)index * sizeof(Product);
+
+    off_t quantity_offset =
+        record_offset +
+        offsetof(Product, quantity);
+
+    if (lseek(fd,
+              quantity_offset,
+              SEEK_SET) == (off_t)-1)
+    {
+        perror("lseek");
+        return;
+    }
+
+    if (write_full(fd,
+                   &quantity,
+                   sizeof(quantity)) == -1)
+    {
+        return;
+    }
+
+    printf("Quantity updated.\n");
+}
+
+void listProducts(int fd)
+{
+    Product p;
+
+    if (lseek(fd,
+              0,
+              SEEK_SET) == (off_t)-1)
+    {
+        perror("lseek");
+        return;
+    }
+
+    printf("\n===== PRODUCT LIST =====\n");
+
+    while (1)
+    {
+        ssize_t n =
+            read(fd,
+                 &p,
+                 sizeof(Product));
+
+        if (n == -1)
+        {
+            perror("read");
+            break;
+        }
+
+        if (n == 0)
+        {
+            break;
+        }
+
+        if (n != sizeof(Product))
+        {
+            fprintf(stderr,
+                    "Warning: partial record detected\n");
+            break;
+        }
+
+        printf("ID       : %d\n", p.id);
+        printf("Name     : %s\n", p.name);
+        printf("Quantity : %d\n", p.quantity);
+        printf("Price    : %.2lf\n", p.price);
+        printf("------------------------\n");
+    }
+}
+
+void showMenu(int fd)
+{
+    int choice;
+
+    while (1)
+    {
+        printf("\n===== MENU =====\n");
+        printf("1. Add product\n");
+        printf("2. Show product by index\n");
+        printf("3. Update quantity by index\n");
+        printf("4. List all products\n");
+        printf("5. Exit\n");
+        printf("Choice: ");
+
+        if (scanf("%d", &choice) != 1)
+        {
+            fprintf(stderr,
+                    "Invalid choice\n");
+            clearInputBuffer();
+            continue;
+        }
+
+        clearInputBuffer();
+
+        switch (choice)
+        {
+            case 1:
+                addProduct(fd);
+                break;
+
+            case 2:
+                showProductByIndex(fd);
+                break;
+
+            case 3:
+                updateQuantityByIndex(fd);
+                break;
+
+            case 4:
+                listProducts(fd);
+                break;
+
+            case 5:
+                return;
+
+            default:
+                printf("Invalid choice.\n");
+        }
+    }
+}
+
+int main(void)
+{
+    int fd = open(FILE_NAME,
+                  O_RDWR | O_CREAT,
+                  0644);
+
+    if (fd < 0)
+    {
+        perror("open");
+        return 1;
+    }
+
+    showMenu(fd);
+
+    if (close(fd) == -1)
+    {
+        perror("close");
+        return 1;
+    }
+
+    return 0;
+}
