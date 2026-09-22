@@ -6,6 +6,21 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+/**
+ * @brief Writes a register snapshot to a file.
+ *
+ * Writes the specified number of 32-bit register values to a file.
+ * The file is created if it does not exist and truncated if it already
+ * exists. The write operation is retried when interrupted by a signal.
+ *
+ * @param[in] p_path Path to the snapshot file.
+ * @param[in] p_regs Pointer to the array of register values.
+ * @param[in] count Number of 32-bit register values to write.
+ *
+ * @return 0 on success.
+ * @return -1 if an input parameter is invalid, the file cannot be opened,
+ *         a write operation fails, or the file cannot be closed.
+ */
 int32_t reg_snapshot_write(const char *p_path, const uint32_t *p_regs,
                            uint32_t count) {
   if ((NULL == p_path) || (NULL == p_regs) || (count == 0U)) {
@@ -50,6 +65,21 @@ int32_t reg_snapshot_write(const char *p_path, const uint32_t *p_regs,
   return 0;
 }
 
+/**
+ * @brief Reads a register snapshot from a file.
+ *
+ * Reads up to the specified maximum number of 32-bit register values
+ * from the snapshot file. The read operation is retried when interrupted
+ * by a signal.
+ *
+ * @param[in] p_path Path to the snapshot file.
+ * @param[out] p_regs Pointer to the buffer that receives register values.
+ * @param[in] max_count Maximum number of 32-bit register values to read.
+ *
+ * @return Number of complete 32-bit register values read on success.
+ * @return -1 if an input parameter is invalid, the file cannot be opened,
+ *         a read operation fails, or the file cannot be closed.
+ */
 int32_t reg_snapshot_read(const char *p_path, uint32_t *p_regs,
                           uint32_t max_count) {
   if ((NULL == p_path) || (NULL == p_regs) || (max_count == 0U)) {
@@ -93,6 +123,18 @@ int32_t reg_snapshot_read(const char *p_path, uint32_t *p_regs,
   return (int32_t)(byte_read / sizeof(uint32_t));
 }
 
+/**
+ * @brief Parses a raw register value into individual fields.
+ *
+ * Extracts the enabled, mode, sensor raw value, and threshold fields
+ * from the specified 32-bit register value and stores them in the
+ * provided output structure.
+ *
+ * @param[in] raw_reg Raw 32-bit register value.
+ * @param[out] p_out Pointer to the structure that receives the parsed fields.
+ *
+ * @return None.
+ */
 void reg_snapshot_parse(uint32_t raw_reg, reg_fields_t *p_out) {
   if (NULL == p_out) {
     return;
