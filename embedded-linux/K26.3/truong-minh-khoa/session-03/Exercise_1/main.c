@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 #define INDEX(_ARRAY_) (sizeof(_ARRAY_)/sizeof(_ARRAY_[0]))
 typedef enum{
@@ -20,13 +21,18 @@ typedef enum{
 #define MIN_GPA 0.0
 #define MAX_GPA 4.0
 
+#define STUDENT_NAME_MAX 64
+
 #define STUDENT_DATA_FILE_NAME "students.dat"
+
+static ssize_t read_partial(int fd, const void *buf, size_t total_byte);
+static ssize_t write_partial(int fd, const void *buf, size_t total_byte);
 
 int student_id_list[MAX_ID - MIN_ID] = {0};
 
 typedef struct {
     int   id;
-    char  name[64];
+    char  name[STUDENT_NAME_MAX];
     int   age;
     float gpa;
 } Student;
@@ -62,7 +68,7 @@ int add_student(Student *student)
         {"How many GPA score of the student ?\n", "%f", &temp.gpa   },
     };
     memset(temp.name, 0, sizeof(temp.name));
-    for(uint32_t i = 0; i < INDEX(query_field); i++) {
+    for(long unsigned int i = 0; i < INDEX(query_field); i++) {
         printf("%s", query_field[i].question);
         err = scanf(query_field[i].scanf_pattern, query_field[i].arg);
         if (err != 1) {
@@ -118,11 +124,20 @@ int list_all_student()
         printf("Error of opening file\n");
         return 1;
     }
+
     // Reset file offset to the beginning
-    lseek(fd, 0, SEEK_SET);
+    off_t result = lseek(fd, 0, SEEK_SET);
+    if (result == (off_t)-1) {
+        perror("lseek failed");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
+        return 1;
+    }
 
     while(1) {
-        ssize_t count = read(fd, (void*)&student, sizeof(student));
+        ssize_t count = read_partial(fd, (void*)&student, sizeof(student));
         if(count == 0) {
             printf("EOF\n");
             return 0;
@@ -137,7 +152,12 @@ int list_all_student()
             printf("id: %d,\t name: %s,\t age: %d,\t gpa: %.2f\n", student.id, student.name, student.age, student.gpa);
         }
     }
-    close(fd);
+
+    if(close(fd) == -1) {
+        perror("Error: Cannot close file\n");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -162,18 +182,20 @@ int find_student()
         return 1;
     }
 
-    // Seek to 0 bytes relative to the END of the file
-    /* off_t file_length = lseek(fd, 0, SEEK_END);
-
-    if (file_length == (off_t)-1) {
-        perror("lseek failed");
-    } */
-
     // Reset file offset to the beginning
-    lseek(fd, 0, SEEK_SET);
+    off_t result = lseek(fd, 0, SEEK_SET);
+    if (result == (off_t)-1) {
+        perror("lseek failed");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
+        return 1;
+    }
+
 
     while(1) {
-        ssize_t count = read(fd, (void*)&student, sizeof(student));
+        ssize_t count = read_partial(fd, (void*)&student, sizeof(student));
         if(count == 0) {
             printf("Not found student\n");
             return 0;
@@ -190,10 +212,55 @@ int find_student()
         }
         else {}
     }
-    close(fd);
+    
+    if(close(fd) == -1) {
+        perror("Error: Cannot close file\n");
+        return 1;
+    }
 
     return 0;
 }
+
+static ssize_t read_partial(int fd, const void *buf, size_t total_byte)
+{
+    size_t byte_read = 0;
+    while (byte_read < total_byte) {
+        ssize_t read_chunk = read(fd, (void*)buf + byte_read, total_byte - byte_read);
+        if(read_chunk < 0) {
+            if(errno == EINTR) {
+                continue;
+            }
+            perror("Error: Fail to read chunk data");
+            return -1;
+        }
+        else if(read_chunk == 0) {
+            return 0;
+        }
+        byte_read += read_chunk;
+    };
+    return byte_read;
+}
+
+static ssize_t write_partial(int fd, const void *buf, size_t total_byte)
+{
+    size_t byte_written = 0;
+    while (byte_written < total_byte) {
+        ssize_t written_chunk = write(fd, (void*)buf + byte_written, total_byte - byte_written);
+        if(written_chunk < 0) {
+            if(errno == EINTR) {
+                continue;
+            }
+            perror("Error: Fail to write chunk data");
+            return -1;
+        }
+        else if(written_chunk == 0) {
+            return 0;
+        }
+        byte_written += written_chunk;
+    };
+    return byte_written;
+}
+
 
 e_menu_t print_menu()
 {
@@ -203,7 +270,7 @@ e_menu_t print_menu()
     printf("2. List all students\n");
     printf("3. Find student by ID\n");
     printf("4. Exit\n");
-    if(scanf("%d", &menu) != 1) {
+    if(scanf("%d", (int*)&menu) != 1) {
         printf("Error: Invalid input argument\n");
         return 1;
     }
@@ -215,18 +282,31 @@ static int write_to_file(Student student)
     int fd = open(STUDENT_DATA_FILE_NAME, O_CREAT | O_WRONLY | O_APPEND, 0644);
     if(fd == -1)
     {
-        printf("Error of opening file\n");
+        perror("Error of opening file\n");
         return 1;
     }
-    ssize_t count = write(fd, (void*)&student, sizeof(student));
-    if(count != sizeof(Student)) {
-        printf("Error: write data mismatch, byte written:%lu\n", count);
+
+    if (lseek(fd, 0, SEEK_END) == (off_t)-1) {
+        perror("lseek");
+        return 1;
+    }
+    ssize_t count = write_partial(fd, (void*)&student, sizeof(student));
+    if(count < 0) {
+        perror("Error: Can not write file\n");
+        return 1;
+    }
+    else if(count != (ssize_t)sizeof(student))
+    {
+        perror("Error: write size mismatch with expected\n");
         return 1;
     }
     printf("Write student info to %s successfully\n", STUDENT_DATA_FILE_NAME);
     printf("id: %d,\t name: %s,\t age: %d,\t gpa: %.2f\n", student.id, student.name, student.age, student.gpa);
 
-    close(fd);
+    if(close(fd) == -1) {
+        perror("Error: Cannot close file\n");
+        return 1;
+    }
     return 0;
 }
 
@@ -234,7 +314,7 @@ static int write_to_file(Student student)
 static int load_student_list()
 {
     int err = 0;
-    for(uint32_t i = 0; i < INDEX(student_test_list); i++) {
+    for(long unsigned int i = 0; i < INDEX(student_test_list); i++) {
         Student student = student_test_list[i];
         err = write_to_file(student);
         student_id_list[student.id] = 1;
@@ -251,6 +331,7 @@ int main()
 {
     int err = 0;
     e_menu_t menu;
+    Student student;
 #ifdef PRELOAD_STUDENT_LIST
     err = load_student_list();
 #endif
@@ -265,7 +346,6 @@ int main()
         }
         switch(menu) {
             case ADD_STUDENT:
-                Student student;
                 err = add_student(&student);
                 if(err == 0) {
                    err = write_to_file(student);

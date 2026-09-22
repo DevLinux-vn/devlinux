@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS=-Wall -Wextra -std=c99 -Iinclude -g
-# CFLAGS+= -DPRELOAD_STUDENT_LIST
+CFLAGS+= -DPRELOAD_STUDENT_LIST
 
 all: main
 

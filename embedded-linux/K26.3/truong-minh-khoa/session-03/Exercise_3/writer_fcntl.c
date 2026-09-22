@@ -18,12 +18,6 @@
 #define STR_FORMAT_SIZE 22
 #define LOG_LEVEL LL_INFO
 
-struct flock fl = {
-    .l_type   = F_WRLCK,
-    .l_whence = SEEK_SET,
-    .l_start  = 0,
-    .l_len    = 0,
-};
 
 typedef enum {
     LL_NONE = 0,
@@ -88,22 +82,37 @@ static int get_log_time(char *str, int buffer_size)
 
 static int write_log_msg(char *str, int byte_to_write)
 {
+    struct flock fl= {
+        .l_type   = F_WRLCK,
+        .l_whence = SEEK_SET,
+        .l_start  = 0,
+        .l_len    = 0,
+    };
     int fd = open(LOG_FILE_NAME, O_CREAT | O_WRONLY | O_APPEND, 0644);
-    if(fcntl(fd, F_SETLKW, &fl) != 0) {
-        printf("Error: Cannot lock file to write\n");
+    if (fd == -1) {
+        perror("open failed");
+        return 1;
+    }
+    if(fcntl(fd, F_SETLKW, &fl) == -1) {
+        perror("Error: Cannot lock file to write\n");
+        close(fd);
         return 1;
     }
     ssize_t count = write(fd, (void*)str, strlen(str));
     fl.l_type = F_UNLCK;
-    if(fcntl(fd, F_SETLK, &fl)){
-        printf("Error: Cannot unlock file\n");
+    if(fcntl(fd, F_SETLK, &fl) == -1){
+        perror("Error: Cannot unlock file\n");
+        close(fd);
         return 1;
     }
     if(count != (long)byte_to_write) {
         printf("Error: Write data mismatch, expected:%d, actual:%lu\n", byte_to_write, count);
         return 1;
     }
-    close(fd);
+    if(close(fd) == -1) {
+        perror("Error: Cannot close file\n");
+        return 1;
+    }
     return 0;
 }
 
@@ -115,6 +124,7 @@ static const char * log_level_to_string(e_log_level_t ll)
         case LL_WARNING: return "WARNING";
         case LL_INFO: return "INFO";
         case LL_DEBUG: return "DEBUG";
+        default: return "";
     }
 }
 

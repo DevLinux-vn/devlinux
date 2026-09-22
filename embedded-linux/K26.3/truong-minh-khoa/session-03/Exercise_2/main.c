@@ -149,7 +149,7 @@ int list_all_product()
     }
 
     while(1) {
-        ssize_t count = read(fd, (void*)&product, sizeof(product));
+        ssize_t count = read_partial(fd, (void*)&product, sizeof(product));
         if(count == 0) {
             printf("EOF\n");
             return 0;
@@ -177,7 +177,7 @@ int show_product_index()
 {
     int err;
     int product_index;
-    Product product;
+    Product product = {0};
 
     printf("Input product index:\n");
 
@@ -201,7 +201,7 @@ int show_product_index()
 
     }
 
-    ssize_t count = read(fd, (void*)&product, sizeof(Product));
+    ssize_t count = read_partial(fd, (void*)&product, sizeof(Product));
     if(count == 0) {
         printf("Not found product\n");
         return 1;
@@ -302,6 +302,9 @@ static ssize_t read_partial(int fd, const void *buf, size_t total_byte)
             perror("Error: Fail to read chunk data");
             return -1;
         }
+        else if(read_chunk == 0) {
+            return 0;
+        }
         byte_read += read_chunk;
     };
     return byte_read;
@@ -318,6 +321,9 @@ static ssize_t write_partial(int fd, const void *buf, size_t total_byte)
             }
             perror("Error: Fail to write chunk data");
             return -1;
+        }
+        else if(written_chunk == 0) {
+            return 0;
         }
         byte_written += written_chunk;
     };

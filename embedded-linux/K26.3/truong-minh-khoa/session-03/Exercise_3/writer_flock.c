@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <time.h>
+#include <sys/file.h>
 
 
 #define LOG_FILE_NAME "system.log"
@@ -82,20 +83,31 @@ static int get_log_time(char *str, int buffer_size)
 static int write_log_msg(char *str, int byte_to_write)
 {
     int fd = open(LOG_FILE_NAME, O_CREAT | O_WRONLY | O_APPEND, 0644);
-    if(flock(fd, LOCK_EX)){
-        printf("Error: Cannot lock file to write\n");
+    if(flock(fd, LOCK_EX) == -1){
+        perror("Error: Cannot lock file to write\n");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     ssize_t count = write(fd, (void*)str, strlen(str));
-    if(flock(fd, LOCK_UN)) {
-        printf("Error: Cannot unlock file\n");
+    if(flock(fd, LOCK_UN) == - 1) {
+        perror("Error: Cannot unlock file\n");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     if(count != (long)byte_to_write) {
         printf("Error: Write data mismatch, expected:%d, actual:%lu\n", byte_to_write, count);
         return 1;
     }
-    close(fd);
+    if(close(fd) == -1) {
+        perror("Error: Cannot close file\n");
+        return 1;
+    }
     return 0;
 }
 
@@ -107,6 +119,7 @@ static const char * log_level_to_string(e_log_level_t ll)
         case LL_WARNING: return "WARNING";
         case LL_INFO: return "INFO";
         case LL_DEBUG: return "DEBUG";
+        default: return "";
     }
 }
 
