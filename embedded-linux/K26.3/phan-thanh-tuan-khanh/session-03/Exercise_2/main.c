@@ -6,13 +6,37 @@
 #include <stddef.h>
 
 #define FILE_NAME "products.dat"
+#define PRODUCT_NAME_SIZE 64
 
 typedef struct {
     int id;
-    char name[64];
+    char name[PRODUCT_NAME_SIZE];
     int quantity;
     double price;
 } Product;
+
+static int write_full(int fd, const void *buf, size_t count)
+{
+    const char *ptr = (const char *)buf;
+    size_t total = 0;
+
+    while (total < count)
+    {
+        ssize_t n = write(fd,
+                          ptr + total,
+                          count - total);
+
+        if (n < 0)
+        {
+            perror("write");
+            return -1;
+        }
+
+        total += n;
+    }
+
+    return 0;
+}
 
 void addProduct(int fd)
 {
@@ -30,11 +54,14 @@ void addProduct(int fd)
     printf("Price: ");
     scanf("%lf", &p.price);
 
-    lseek(fd, 0, SEEK_END);
-
-    if (write(fd, &p, sizeof(Product)) != sizeof(Product))
+    if (lseek(fd, 0, SEEK_END) == (off_t)-1)
     {
-        perror("write");
+        perror("lseek");
+        return;
+    }
+
+    if (write_full(fd, &p, sizeof(Product)) == -1)
+    {
         return;
     }
 
@@ -49,25 +76,39 @@ void showProductByIndex(int fd)
     printf("Index: ");
     scanf("%d", &index);
 
+    if (index < 0)
+    {
+        printf("Index must be >= 0.\n");
+        return;
+    }
+
     off_t offset = (off_t)index * sizeof(Product);
 
-    if (lseek(fd, offset, SEEK_SET) == -1)
+    if (lseek(fd, offset, SEEK_SET) == (off_t)-1)
     {
         perror("lseek");
         return;
     }
 
-    if (read(fd, &p, sizeof(Product)) != sizeof(Product))
+    ssize_t n = read(fd, &p, sizeof(Product));
+
+    if (n == -1)
+    {
+        perror("read");
+        return;
+    }
+
+    if (n != sizeof(Product))
     {
         printf("Invalid index.\n");
         return;
     }
 
-    printf("\nProduct:\n");
-    printf("ID: %d\n", p.id);
-    printf("Name: %s\n", p.name);
-    printf("Quantity: %d\n", p.quantity);
-    printf("Price: %.2lf\n", p.price);
+    printf("\nProduct Information\n");
+    printf("ID       : %d\n", p.id);
+    printf("Name     : %s\n", p.name);
+    printf("Quantity : %d\n", p.quantity);
+    printf("Price    : %.2lf\n", p.price);
 }
 
 void updateQuantityByIndex(int fd)
@@ -78,6 +119,12 @@ void updateQuantityByIndex(int fd)
     printf("Index: ");
     scanf("%d", &index);
 
+    if (index < 0)
+    {
+        printf("Index must be >= 0.\n");
+        return;
+    }
+
     printf("New quantity: ");
     scanf("%d", &quantity);
 
@@ -85,18 +132,20 @@ void updateQuantityByIndex(int fd)
         (off_t)index * sizeof(Product);
 
     off_t quantity_offset =
-        record_offset + offsetof(Product, quantity);
+        record_offset +
+        offsetof(Product, quantity);
 
-    if (lseek(fd, quantity_offset, SEEK_SET) == -1)
+    if (lseek(fd, quantity_offset, SEEK_SET)
+        == (off_t)-1)
     {
         perror("lseek");
         return;
     }
 
-    if (write(fd, &quantity, sizeof(quantity))
-        != sizeof(quantity))
+    if (write_full(fd,
+                   &quantity,
+                   sizeof(quantity)) == -1)
     {
-        perror("write");
         return;
     }
 
@@ -107,13 +156,30 @@ void listProducts(int fd)
 {
     Product p;
 
-    lseek(fd, 0, SEEK_SET);
+    if (lseek(fd, 0, SEEK_SET) == (off_t)-1)
+    {
+        perror("lseek");
+        return;
+    }
 
     printf("\n===== PRODUCT LIST =====\n");
 
-    while (read(fd, &p, sizeof(Product))
-           == sizeof(Product))
+    while (1)
     {
+        ssize_t n =
+            read(fd, &p, sizeof(Product));
+
+        if (n == -1)
+        {
+            perror("read");
+            break;
+        }
+
+        if (n != sizeof(Product))
+        {
+            break;
+        }
+
         printf("ID       : %d\n", p.id);
         printf("Name     : %s\n", p.name);
         printf("Quantity : %d\n", p.quantity);
@@ -167,7 +233,12 @@ int main(void)
                 break;
 
             case 5:
-                close(fd);
+                if (close(fd) == -1)
+                {
+                    perror("close");
+                    return 1;
+                }
+
                 return 0;
 
             default:
@@ -175,6 +246,11 @@ int main(void)
         }
     }
 
-    close(fd);
+    if (close(fd) == -1)
+    {
+        perror("close");
+        return 1;
+    }
+
     return 0;
 }

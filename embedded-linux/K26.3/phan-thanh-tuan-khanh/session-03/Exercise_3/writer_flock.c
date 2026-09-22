@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
     struct tm *tm_info = localtime(&now);
 
     char timebuf[32];
+
     strftime(timebuf,
              sizeof(timebuf),
              "%Y-%m-%d %H:%M:%S",
@@ -69,11 +70,33 @@ int main(int argc, char *argv[])
              timebuf,
              argv[1]);
 
-    write(fd, logline, strlen(logline));
+    ssize_t n = write(fd,
+                      logline,
+                      strlen(logline));
 
-    flock(fd, LOCK_UN);
+    if (n < 0)
+    {
+        perror("write");
 
-    close(fd);
+        if (flock(fd, LOCK_UN) == -1)
+        {
+            perror("flock unlock");
+        }
+
+        close(fd);
+        return 1;
+    }
+
+    if (flock(fd, LOCK_UN) == -1)
+    {
+        perror("flock unlock");
+    }
+
+    if (close(fd) == -1)
+    {
+        perror("close");
+        return 1;
+    }
 
     return 0;
 }

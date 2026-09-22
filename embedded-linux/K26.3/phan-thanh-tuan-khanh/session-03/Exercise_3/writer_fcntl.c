@@ -76,13 +76,37 @@ int main(int argc, char *argv[])
              timebuf,
              argv[1]);
 
-    write(fd, logline, strlen(logline));
+    ssize_t n = write(fd,
+                      logline,
+                      strlen(logline));
+
+    if (n < 0)
+    {
+        perror("write");
+
+        fl.l_type = F_UNLCK;
+
+        if (fcntl(fd, F_SETLK, &fl) == -1)
+        {
+            perror("fcntl unlock");
+        }
+
+        close(fd);
+        return 1;
+    }
 
     fl.l_type = F_UNLCK;
 
-    fcntl(fd, F_SETLK, &fl);
+    if (fcntl(fd, F_SETLK, &fl) == -1)
+    {
+        perror("fcntl unlock");
+    }
 
-    close(fd);
+    if (close(fd) == -1)
+    {
+        perror("close");
+        return 1;
+    }
 
     return 0;
 }
