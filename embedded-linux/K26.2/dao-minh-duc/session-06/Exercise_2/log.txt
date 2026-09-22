@@ -1,0 +1,120 @@
+=== 1. Full service log ===
+Thg 8 23 22:14:43 duc-computer systemd[1]: Started Logger Service.
+Thg 8 23 22:14:43 duc-computer logger[55948]: Service running normally, cycle 1
+Thg 8 23 22:14:43 duc-computer logger[55948]: Memory usage high: 84%
+Thg 8 23 22:14:43 duc-computer logger[55948]: Failed to connect to database, retry 1
+Thg 8 23 22:14:45 duc-computer logger[55948]: Service running normally, cycle 2
+Thg 8 23 22:14:45 duc-computer logger[55948]: Memory usage high: 89%
+Thg 8 23 22:14:45 duc-computer logger[55948]: Failed to connect to database, retry 2
+Thg 8 23 22:14:47 duc-computer logger[55948]: Service running normally, cycle 3
+Thg 8 23 22:14:47 duc-computer logger[55948]: Memory usage high: 84%
+Thg 8 23 22:14:47 duc-computer logger[55948]: Failed to connect to database, retry 3
+Thg 8 23 22:14:49 duc-computer logger[55948]: Service running normally, cycle 4
+Thg 8 23 22:14:49 duc-computer logger[55948]: Memory usage high: 80%
+Thg 8 23 22:14:49 duc-computer logger[55948]: Failed to connect to database, retry 4
+Thg 8 23 22:14:51 duc-computer logger[55948]: Service running normally, cycle 5
+Thg 8 23 22:14:51 duc-computer logger[55948]: Memory usage high: 80%
+Thg 8 23 22:14:51 duc-computer logger[55948]: Failed to connect to database, retry 5
+Thg 8 23 22:14:53 duc-computer logger[55948]: Service running normally, cycle 6
+Thg 8 23 22:14:53 duc-computer logger[55948]: Memory usage high: 89%
+Thg 8 23 22:14:53 duc-computer logger[55948]: Failed to connect to database, retry 6
+Thg 8 23 22:14:55 duc-computer logger[55948]: Service running normally, cycle 7
+Thg 8 23 22:14:55 duc-computer logger[55948]: Memory usage high: 87%
+Thg 8 23 22:14:55 duc-computer logger[55948]: Failed to connect to database, retry 7
+Thg 8 23 22:14:57 duc-computer logger[55948]: Service running normally, cycle 8
+Thg 8 23 22:14:57 duc-computer logger[55948]: Memory usage high: 91%
+Thg 8 23 22:14:57 duc-computer logger[55948]: Failed to connect to database, retry 8
+Thg 8 23 22:14:59 duc-computer logger[55948]: Service running normally, cycle 9
+Thg 8 23 22:14:59 duc-computer logger[55948]: Memory usage high: 81%
+Thg 8 23 22:14:59 duc-computer logger[55948]: Failed to connect to database, retry 9
+Thg 8 23 22:15:01 duc-computer logger[55948]: Service running normally, cycle 10
+Thg 8 23 22:15:01 duc-computer logger[55948]: Memory usage high: 86%
+Thg 8 23 22:15:01 duc-computer logger[55948]: Failed to connect to database, retry 10
+Thg 8 23 22:15:03 duc-computer logger[55948]: Service running normally, cycle 11
+Thg 8 23 22:15:03 duc-computer logger[55948]: Memory usage high: 84%
+Thg 8 23 22:15:03 duc-computer logger[55948]: Failed to connect to database, retry 11
+Thg 8 23 22:15:05 duc-computer logger[55948]: Service running normally, cycle 12
+Thg 8 23 22:15:05 duc-computer logger[55948]: Memory usage high: 92%
+Thg 8 23 22:15:05 duc-computer logger[55948]: Failed to connect to database, retry 12
+Thg 8 23 22:15:07 duc-computer logger[55948]: Service running normally, cycle 13
+Thg 8 23 22:15:07 duc-computer logger[55948]: Memory usage high: 84%
+Thg 8 23 22:15:07 duc-computer logger[55948]: Failed to connect to database, retry 13
+Thg 8 23 22:15:09 duc-computer logger[55948]: Service running normally, cycle 14
+Thg 8 23 22:15:09 duc-computer logger[55948]: Memory usage high: 81%
+Thg 8 23 22:15:09 duc-computer logger[55948]: Failed to connect to database, retry 14
+Thg 8 23 22:15:11 duc-computer logger[55948]: Service running normally, cycle 15
+Thg 8 23 22:15:11 duc-computer logger[55948]: Memory usage high: 80%
+Thg 8 23 22:15:11 duc-computer logger[55948]: Failed to connect to database, retry 15
+Thg 8 23 22:15:13 duc-computer logger[55948]: Fatal error: simulated crash after 30 seconds
+Thg 8 23 22:15:14 duc-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 8 23 22:15:14 duc-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 2. Warning level and above ===
+Thg 8 23 22:14:43 duc-computer logger[55948]: Memory usage high: 84%
+Thg 8 23 22:14:43 duc-computer logger[55948]: Failed to connect to database, retry 1
+Thg 8 23 22:14:45 duc-computer logger[55948]: Memory usage high: 89%
+Thg 8 23 22:14:45 duc-computer logger[55948]: Failed to connect to database, retry 2
+Thg 8 23 22:14:47 duc-computer logger[55948]: Memory usage high: 84%
+Thg 8 23 22:14:47 duc-computer logger[55948]: Failed to connect to database, retry 3
+Thg 8 23 22:14:49 duc-computer logger[55948]: Memory usage high: 80%
+Thg 8 23 22:14:49 duc-computer logger[55948]: Failed to connect to database, retry 4
+Thg 8 23 22:14:51 duc-computer logger[55948]: Memory usage high: 80%
+Thg 8 23 22:14:51 duc-computer logger[55948]: Failed to connect to database, retry 5
+Thg 8 23 22:14:53 duc-computer logger[55948]: Memory usage high: 89%
+Thg 8 23 22:14:53 duc-computer logger[55948]: Failed to connect to database, retry 6
+Thg 8 23 22:14:55 duc-computer logger[55948]: Memory usage high: 87%
+Thg 8 23 22:14:55 duc-computer logger[55948]: Failed to connect to database, retry 7
+Thg 8 23 22:14:57 duc-computer logger[55948]: Memory usage high: 91%
+Thg 8 23 22:14:57 duc-computer logger[55948]: Failed to connect to database, retry 8
+Thg 8 23 22:14:59 duc-computer logger[55948]: Memory usage high: 81%
+Thg 8 23 22:14:59 duc-computer logger[55948]: Failed to connect to database, retry 9
+Thg 8 23 22:15:01 duc-computer logger[55948]: Memory usage high: 86%
+Thg 8 23 22:15:01 duc-computer logger[55948]: Failed to connect to database, retry 10
+Thg 8 23 22:15:03 duc-computer logger[55948]: Memory usage high: 84%
+Thg 8 23 22:15:03 duc-computer logger[55948]: Failed to connect to database, retry 11
+Thg 8 23 22:15:05 duc-computer logger[55948]: Memory usage high: 92%
+Thg 8 23 22:15:05 duc-computer logger[55948]: Failed to connect to database, retry 12
+Thg 8 23 22:15:07 duc-computer logger[55948]: Memory usage high: 84%
+Thg 8 23 22:15:07 duc-computer logger[55948]: Failed to connect to database, retry 13
+Thg 8 23 22:15:09 duc-computer logger[55948]: Memory usage high: 81%
+Thg 8 23 22:15:09 duc-computer logger[55948]: Failed to connect to database, retry 14
+Thg 8 23 22:15:11 duc-computer logger[55948]: Memory usage high: 80%
+Thg 8 23 22:15:11 duc-computer logger[55948]: Failed to connect to database, retry 15
+Thg 8 23 22:15:13 duc-computer logger[55948]: Fatal error: simulated crash after 30 seconds
+Thg 8 23 22:15:14 duc-computer systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 8 23 22:15:14 duc-computer systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 3. Error level and above ===
+Thg 8 23 22:14:43 duc-computer logger[55948]: Failed to connect to database, retry 1
+Thg 8 23 22:14:45 duc-computer logger[55948]: Failed to connect to database, retry 2
+Thg 8 23 22:14:47 duc-computer logger[55948]: Failed to connect to database, retry 3
+Thg 8 23 22:14:49 duc-computer logger[55948]: Failed to connect to database, retry 4
+Thg 8 23 22:14:51 duc-computer logger[55948]: Failed to connect to database, retry 5
+Thg 8 23 22:14:53 duc-computer logger[55948]: Failed to connect to database, retry 6
+Thg 8 23 22:14:55 duc-computer logger[55948]: Failed to connect to database, retry 7
+Thg 8 23 22:14:57 duc-computer logger[55948]: Failed to connect to database, retry 8
+Thg 8 23 22:14:59 duc-computer logger[55948]: Failed to connect to database, retry 9
+Thg 8 23 22:15:01 duc-computer logger[55948]: Failed to connect to database, retry 10
+Thg 8 23 22:15:03 duc-computer logger[55948]: Failed to connect to database, retry 11
+Thg 8 23 22:15:05 duc-computer logger[55948]: Failed to connect to database, retry 12
+Thg 8 23 22:15:07 duc-computer logger[55948]: Failed to connect to database, retry 13
+Thg 8 23 22:15:09 duc-computer logger[55948]: Failed to connect to database, retry 14
+Thg 8 23 22:15:11 duc-computer logger[55948]: Failed to connect to database, retry 15
+Thg 8 23 22:15:13 duc-computer logger[55948]: Fatal error: simulated crash after 30 seconds
+=== 4. Log from the last 1 minute ===
+-- No entries --
+=== 5. Crash point ===
+Thg 8 23 22:14:43 duc-computer logger[55948]: Failed to connect to database, retry 1
+Thg 8 23 22:14:45 duc-computer logger[55948]: Failed to connect to database, retry 2
+Thg 8 23 22:14:47 duc-computer logger[55948]: Failed to connect to database, retry 3
+Thg 8 23 22:14:49 duc-computer logger[55948]: Failed to connect to database, retry 4
+Thg 8 23 22:14:51 duc-computer logger[55948]: Failed to connect to database, retry 5
+Thg 8 23 22:14:53 duc-computer logger[55948]: Failed to connect to database, retry 6
+Thg 8 23 22:14:55 duc-computer logger[55948]: Failed to connect to database, retry 7
+Thg 8 23 22:14:57 duc-computer logger[55948]: Failed to connect to database, retry 8
+Thg 8 23 22:14:59 duc-computer logger[55948]: Failed to connect to database, retry 9
+Thg 8 23 22:15:01 duc-computer logger[55948]: Failed to connect to database, retry 10
+Thg 8 23 22:15:03 duc-computer logger[55948]: Failed to connect to database, retry 11
+Thg 8 23 22:15:05 duc-computer logger[55948]: Failed to connect to database, retry 12
+Thg 8 23 22:15:07 duc-computer logger[55948]: Failed to connect to database, retry 13
+Thg 8 23 22:15:09 duc-computer logger[55948]: Failed to connect to database, retry 14
+Thg 8 23 22:15:11 duc-computer logger[55948]: Failed to connect to database, retry 15
+Thg 8 23 22:15:13 duc-computer logger[55948]: Fatal error: simulated crash after 30 seconds
