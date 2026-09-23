@@ -16,7 +16,7 @@
 
 
 #define LOG_FILE_NAME "system.log"
-#define STR_FORMAT_SIZE 22
+#define STR_FORMAT_SIZE 25
 #define LOG_LEVEL LL_INFO
 
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
 int log_msg(char *str, e_log_level_t log_level)
 {
-    char buf_time[22] = {0};
+    char buf_time[STR_FORMAT_SIZE] = {0};
     char buf_log[512] = {0};
     if(log_level > LOG_LEVEL){
         log_level = LOG_LEVEL;
@@ -77,7 +77,7 @@ static int get_log_time(char *str, int buffer_size)
     }
     struct tm *t = localtime(&current_time);
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", t);
-    strcpy(str, (const char*)buf);
+    strncpy(str, (const char*)buf, buffer_size);
     return 0;
 }
 

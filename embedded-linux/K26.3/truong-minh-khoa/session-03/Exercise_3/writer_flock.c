@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
 int log_msg(char *str, e_log_level_t log_level)
 {
-    char buf_time[22] = {0};
+    char buf_time[STR_FORMAT_SIZE] = {0};
     char buf_log[512] = {0};
     if(log_level > LOG_LEVEL){
         log_level = LOG_LEVEL;
@@ -76,13 +76,18 @@ static int get_log_time(char *str, int buffer_size)
     }
     struct tm *t = localtime(&current_time);
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", t);
-    strcpy(str, (const char*)buf);
+    strncpy(str, (const char*)buf, buffer_size);
     return 0;
 }
 
 static int write_log_msg(char *str, int byte_to_write)
 {
     int fd = open(LOG_FILE_NAME, O_CREAT | O_WRONLY | O_APPEND, 0644);
+    if (fd == -1) {
+        perror("open failed");
+        return 1;
+    }
+
     if(flock(fd, LOCK_EX) == -1){
         perror("Error: Cannot lock file to write\n");
         if(close(fd) == -1) {
