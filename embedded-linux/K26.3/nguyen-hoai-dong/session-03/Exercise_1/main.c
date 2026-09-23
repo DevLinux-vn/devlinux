@@ -1,15 +1,18 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
+
+#define NAME_SIZE 64
 
 typedef struct {
     int   id;
-    char  name[64];
+    char  name[NAME_SIZE];
     int   age;
     float gpa;
-} Student;
+}Student;
 
-void Display_Menu(void)
+void display_menu(void)
 {
     printf("1. Add student\n");
     printf("2. List all students\n");
@@ -17,7 +20,7 @@ void Display_Menu(void)
     printf("4. Exit\n");
 }
 
-void Add_Student(void)
+void add_student(void)
 {
     Student student;
     printf("Enter student's id: ");
@@ -29,23 +32,30 @@ void Add_Student(void)
     printf("Enter student's gpa: ");
     scanf("%f", &student.gpa);
 
-    int fd = open("student.dat",  O_CREAT | O_WRONLY | O_APPEND, 0666);
-    if (fd == -1) {
+    int fd = open("students.dat",  O_CREAT | O_WRONLY | O_APPEND, 0666);
+    if (fd == -1) 
+    {
         printf("[ERROR] Cannot open file\n");
         return;
     }
 
     ssize_t bytes = write(fd, &student, sizeof(Student));
-
-    if (bytes == -1) {
+    if (bytes == -1) 
+    {
         printf("[ERROR] Cannot write file\n");
-        close(fd);
-        return;
+    } 
+    else if (bytes != sizeof(Student))
+    {
+        printf("[ERROR] Writting file incorrectly\n");
+    }
+    else
+    {
+        printf("[INF] Writting file successfully\n");
     }
     close(fd);
 }
 
-void Find_Student()
+void find_student()
 {
     Student student;
     int id;
@@ -53,70 +63,118 @@ void Find_Student()
     printf("Enter student's id: ");
     scanf(" %d", &id);
 
-    int fd = open("student.dat", O_RDONLY);
+    int fd = open("students.dat", O_RDONLY);
     if (fd == -1) {
         printf("[ERROR] Cannot open file\n");
         return;
     }
 
-    while(read(fd, &student, sizeof(Student)) > 0)
+    while(1)
     {
-        if(student.id == id)
+        ssize_t bytes = read(fd, &student, sizeof(Student));
+
+        if (bytes < 0 )
+        {
+            if (errno == EINTR)
+            {
+                continue;
+            }
+
+            printf("[ERROR] Cannot read file\n");
+            close(fd);
+            return;
+        }
+        else if (bytes == 0)
+        {
+            printf("Student with id %d is not exist\n", id);
+            close(fd);
+            return;
+        }
+        else
+        {
+            if (student.id == id)
+            {
+                printf("=================================\n");
+                printf("Has founded\n");
+                printf("Student's id: %d\n", student.id);
+                printf("Student's name: %s\n", student.name);
+                printf("Student's age: %d\n", student.age);
+                printf("Student's gpa: %0.2f\n", student.gpa);
+                printf("=================================\n");
+                close(fd);
+                return;
+            }
+        }
+    }
+}
+
+void list_students(void)
+{
+    Student student;
+
+    int fd = open("students.dat", O_RDONLY);
+    if (fd == -1) {
+        printf("[ERROR] Cannot open file\n");
+        return;
+    }
+
+    if (read(fd, &student, sizeof(Student)) == 0)
+    {
+        printf("[INF] Empty file\n");
+        close(fd);
+        return;
+    }
+    
+    lseek(fd, 0, SEEK_SET);
+    while(1)
+    {
+        ssize_t bytes = read(fd, &student, sizeof(Student));
+
+        if (bytes < 0 )
+        {
+            if (errno == EINTR)
+            {
+                continue;
+            }
+
+            printf("[ERROR] Cannot read file\n");
+            close(fd);
+            return;
+        }
+        else if (bytes == 0)
+        {
+            close(fd);
+            return;
+        }
+        else
         {
             printf("=================================\n");
-            printf("Has founded\n");
             printf("Student's id: %d\n", student.id);
             printf("Student's name: %s\n", student.name);
             printf("Student's age: %d\n", student.age);
             printf("Student's gpa: %0.2f\n", student.gpa);
             printf("=================================\n");
-            close(fd);
-            return;
         }
     }
-    printf("Student with id %d is not exist\n", id);
-    close(fd);
-}
-
-void List_Students(void)
-{
-    Student student;
-
-    int fd = open("student.dat", O_RDONLY);
-    if (fd == -1) {
-        printf("[ERROR] Cannot open file\n");
-        return;
-    }
-
-    while(read(fd, &student, sizeof(Student)) > 0)
-    {
-        printf("=================================\n");
-        printf("Student's id: %d\n", student.id);
-        printf("Student's name: %s\n", student.name);
-        printf("Student's age: %d\n", student.age);
-        printf("Student's gpa: %0.2f\n", student.gpa);
-        printf("=================================\n");
-    }
-    close(fd);
 }
 
 int main()
 {
-    char KeyInput;
+    char key_input;
     while(1)
     {
-        Display_Menu();
-        scanf(" %c", &KeyInput);
-        switch(KeyInput)
+        display_menu();
+        scanf(" %c", &key_input);
+        switch(key_input)
         {
             case '1':
-                Add_Student();
+                add_student();
                 break;
             case '2':
-                List_Students();
+                list_students();
                 break;
             case '3':
-                Find_Student();
+                find_student();
                 break;
             case '4':
                 return 0;

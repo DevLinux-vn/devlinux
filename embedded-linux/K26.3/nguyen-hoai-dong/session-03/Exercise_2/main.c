@@ -2,14 +2,16 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-typedef struct {
-    int    id;
-    char   name[64];
-    int    quantity;
-    double price;
-} Product;
+#define PRODUCT_NAME_SIZE 64
 
-void Display_Menu(void)
+typedef struct {
+    int     id;
+    char    name[PRODUCT_NAME_SIZE];
+    int     quantity;
+    double  price;
+}Product;
+
+void display_menu(void)
 {
     printf("1. Add product\n");
     printf("2. Show product by index\n");
@@ -18,7 +20,7 @@ void Display_Menu(void)
     printf("5. Exit\n");
 }
 
-void Add_Product(void)
+void add_product(void)
 {
     Product product;
     printf("Enter product's id: ");
@@ -30,23 +32,29 @@ void Add_Product(void)
     printf("Enter product's price: ");
     scanf("%lf", &product.price);
 
-    int fd = open("products.dat",  O_CREAT | O_WRONLY, 0666);
+    int fd = open("products.dat",  O_CREAT | O_WRONLY | O_APPEND, 0666);
     if (fd == -1) {
         printf("[ERROR] Cannot open file\n");
         return;
     }
 
-    lseek(fd, 0, SEEK_END);
     ssize_t bytes = write(fd, &product, sizeof(Product));
-    if (bytes == -1) {
+    if (bytes == -1) 
+    {
         printf("[ERROR] Cannot write file\n");
-        close(fd);
-        return;
+    } 
+    else if (bytes != sizeof(Product))
+    {
+        printf("[ERROR] Writting file incorrectly\n");
+    }
+    else
+    {
+        printf("[INF] Writting file successfully\n");
     }
     close(fd);
 }
 
-void Show_Product(void)
+void show_product(void)
 {
     Product product;
     int index;
@@ -61,7 +69,8 @@ void Show_Product(void)
     }
 
     lseek(fd, index*sizeof(Product), SEEK_SET);
-    if(read(fd, &product, sizeof(Product)) > 0)
+    ssize_t byte = read(fd, &product, sizeof(Product));
+    if(byte > 0)
     {
         printf("=================================\n");
         printf("The product has existed\n");
@@ -71,7 +80,7 @@ void Show_Product(void)
         printf("Product's gpa: %0.2f\n", product.price);
         printf("=================================\n");
     } 
-    else if (read(fd, &product, sizeof(Product)) == 0)
+    else if (byte == 0)
     {
         printf("Product with index %d is not exist\n", index);
     }
@@ -82,7 +91,7 @@ void Show_Product(void)
     close(fd);
 }
 
-void Update_Quantity()
+void update_quantity()
 {
     Product product;
     int index;
@@ -98,7 +107,8 @@ void Update_Quantity()
     }
 
     lseek(fd, index*sizeof(Product), SEEK_SET);
-    if(read(fd, &product, sizeof(Product)) > 0)
+    ssize_t byte = read(fd, &product, sizeof(Product));
+    if(byte > 0)
     {
         printf("=================================\n");
         printf("The product has existed\n");
@@ -108,7 +118,7 @@ void Update_Quantity()
         printf("Product's price: %0.2f\n", product.price);
         printf("=================================\n");
     } 
-    else if (read(fd, &product, sizeof(Product)) == 0)
+    else if (byte == 0)
     {
         printf("Product with index %d is not exist\n", index);
         close(fd);
@@ -133,7 +143,7 @@ void Update_Quantity()
     close(fd);
 }
 
-void List_Products(void)
+void list_products(void)
 {
     Product product;
 
@@ -157,24 +167,24 @@ void List_Products(void)
 
 int main()
 {
-    char KeyInput;
+    char key_input;
     while(1)
     {
-        Display_Menu();
-        scanf(" %c", &KeyInput);
-        switch(KeyInput)
+        display_menu();
+        scanf(" %c", &key_input);
+        switch(key_input)
         {
             case '1':
-                Add_Product();
+                add_product();
                 break;
             case '2':
-                Show_Product();
+                show_product();
                 break;
             case '3':
-                Update_Quantity();
+                update_quantity();
                 break;
             case '4':
-                List_Products();
+                list_products();
                 break;
             case '5':
                 return 0;
