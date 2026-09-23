@@ -1,3 +1,4 @@
+/* Exercise 1: UART Console with RGB LED */
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
