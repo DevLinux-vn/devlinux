@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <time.h>
+#include <sys/file.h>
 
 
 #define LOG_FILE_NAME "system.log"
@@ -95,18 +96,40 @@ static int write_log_msg(char *str, int byte_to_write)
     }
     if(fcntl(fd, F_SETLKW, &fl) == -1) {
         perror("Error: Cannot lock file to write\n");
-        close(fd);
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     ssize_t count = write(fd, (void*)str, strlen(str));
+    if(count < 0) {
+        perror("Error: Fail to write data\n");
+        fl.l_type = F_UNLCK;
+        if(fcntl(fd, F_SETLK, &fl) == -1){
+            perror("Error: Cannot unlock file\n");
+            if(close(fd) == -1) {
+                perror("Error: Cannot close file\n");
+                return 1;
+            }
+            return 1;
+        }
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
+        return 1;
+    }
+    else if(count != (long)byte_to_write) {
+        printf("Error: Write data mismatch, expected:%d, actual:%lu\n", byte_to_write, count);
+    }
     fl.l_type = F_UNLCK;
     if(fcntl(fd, F_SETLK, &fl) == -1){
         perror("Error: Cannot unlock file\n");
-        close(fd);
-        return 1;
-    }
-    if(count != (long)byte_to_write) {
-        printf("Error: Write data mismatch, expected:%d, actual:%lu\n", byte_to_write, count);
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     if(close(fd) == -1) {
@@ -126,5 +149,6 @@ static const char * log_level_to_string(e_log_level_t ll)
         case LL_DEBUG: return "DEBUG";
         default: return "";
     }
+    return "";
 }
 

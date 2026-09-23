@@ -16,7 +16,7 @@
 
 
 #define LOG_FILE_NAME "system.log"
-#define STR_FORMAT_SIZE 22
+#define STR_FORMAT_SIZE 25
 #define LOG_LEVEL LL_INFO
 
 typedef enum {
@@ -92,16 +92,37 @@ static int write_log_msg(char *str, int byte_to_write)
         return 1;
     }
     ssize_t count = write(fd, (void*)str, strlen(str));
-    if(flock(fd, LOCK_UN) == - 1) {
-        perror("Error: Cannot unlock file\n");
+    if(count < 0) {
+        perror("Error: Fail to write data\n");
+        if(flock(fd, LOCK_UN) == -1) {
+            perror("Error: Cannot unlock file\n");
+            if(close(fd) == -1) {
+                perror("Error: Cannot close file\n");
+                return 1;
+            }
+            return 1;
+        }
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
+        return 1;
+
+    }
+    else if(count != (long)byte_to_write) {
+        printf("Error: Write data mismatch, expected:%d, actual:%lu\n", byte_to_write, count);
         if(close(fd) == -1) {
             perror("Error: Cannot close file\n");
             return 1;
         }
         return 1;
     }
-    if(count != (long)byte_to_write) {
-        printf("Error: Write data mismatch, expected:%d, actual:%lu\n", byte_to_write, count);
+    if(flock(fd, LOCK_UN) == -1) {
+        perror("Error: Cannot unlock file\n");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     if(close(fd) == -1) {
@@ -121,5 +142,6 @@ static const char * log_level_to_string(e_log_level_t ll)
         case LL_DEBUG: return "DEBUG";
         default: return "";
     }
+    return "";
 }
 

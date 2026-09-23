@@ -140,10 +140,18 @@ int list_all_student()
         ssize_t count = read_partial(fd, (void*)&student, sizeof(student));
         if(count == 0) {
             printf("EOF\n");
+            if(close(fd) == -1) {
+                perror("Error: Cannot close file\n");
+                return 1;
+            }
             return 0;
         }
         else if (count < 0) {
             printf("Error: Fail to read data\n");
+            if(close(fd) == -1) {
+                perror("Error: Cannot close file\n");
+                return 1;
+            }
             return 1;
         }
         else {
@@ -172,13 +180,14 @@ int find_student()
     while (err != 1) {
         printf("Error: Invalid input argument, err:%d\n", err);
         while (getchar() != '\n');
+        err = scanf("%d", &find_student_id);
     }
 
 
     int fd = open(STUDENT_DATA_FILE_NAME, O_RDONLY);
     if(fd == -1)
     {
-        printf("Error of opening file\n");
+        perror("Error of opening file\n");
         return 1;
     }
 
@@ -198,10 +207,18 @@ int find_student()
         ssize_t count = read_partial(fd, (void*)&student, sizeof(student));
         if(count == 0) {
             printf("Not found student\n");
+            if(close(fd) == -1) {
+                perror("Error: Cannot close file\n");
+                return 1;
+            }
             return 0;
         }
         else if (count < 0) {
             printf("Error: Fail to read data\n");
+            if(close(fd) == -1) {
+                perror("Error: Cannot close file\n");
+                return 1;
+            }
             return 1;
         }
         else if (student.id == find_student_id){
@@ -265,15 +282,17 @@ static ssize_t write_partial(int fd, const void *buf, size_t total_byte)
 e_menu_t print_menu()
 {
     e_menu_t menu;
+    int temp;
     printf("Menu\n");
     printf("1. Add student\n");
     printf("2. List all students\n");
     printf("3. Find student by ID\n");
     printf("4. Exit\n");
-    if(scanf("%d", (int*)&menu) != 1) {
+    if(scanf("%d", (int*)&temp) != 1) {
         printf("Error: Invalid input argument\n");
         return 1;
     }
+    menu = (e_menu_t)temp;
     return menu;
 }
 
@@ -288,16 +307,28 @@ static int write_to_file(Student student)
 
     if (lseek(fd, 0, SEEK_END) == (off_t)-1) {
         perror("lseek");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     ssize_t count = write_partial(fd, (void*)&student, sizeof(student));
     if(count < 0) {
         perror("Error: Can not write file\n");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     else if(count != (ssize_t)sizeof(student))
     {
         perror("Error: write size mismatch with expected\n");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     printf("Write student info to %s successfully\n", STUDENT_DATA_FILE_NAME);

@@ -131,9 +131,8 @@ int list_all_product()
     Product product;
 
     int fd = open(PRODUCT_DATA_FILE_NAME, O_RDONLY);
-    if(fd == -1)
-    {
-        printf("Error of opening file\n");
+    if(fd == -1) {
+        perror("Error of opening file\n");
         return 1;
     }
 
@@ -152,10 +151,18 @@ int list_all_product()
         ssize_t count = read_partial(fd, (void*)&product, sizeof(product));
         if(count == 0) {
             printf("EOF\n");
+            if(close(fd) == -1) {
+                perror("Error: Cannot close file\n");
+                return 1;
+            }
             return 0;
         }
         else if (count < 0) {
             printf("Error: Fail to read data\n");
+            if(close(fd) == -1) {
+                perror("Error: Cannot close file\n");
+                return 1;
+            }
             return 1;
         }
         else {
@@ -185,11 +192,11 @@ int show_product_index()
     while (err != 1) {
         printf("Error: Invalid input argument, err:%d\n", err);
         while (getchar() != '\n');
+        err = scanf("%d", &product_index);
     }
 
     int fd = open(PRODUCT_DATA_FILE_NAME, O_RDONLY);
-    if(fd == -1)
-    {
+    if(fd == -1) {
         perror("Error of opening file\n");
         return 1;
     }
@@ -197,6 +204,10 @@ int show_product_index()
     off_t seek_result = lseek(fd, product_index * sizeof(Product), SEEK_SET);
     if(seek_result == (off_t)-1) {
         perror("lseek failed to find product_index");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
 
     }
@@ -204,10 +215,18 @@ int show_product_index()
     ssize_t count = read_partial(fd, (void*)&product, sizeof(Product));
     if(count == 0) {
         printf("Not found product\n");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     else if (count < 0) {
         printf("Error: Fail to read data\n");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
     else {
@@ -252,8 +271,7 @@ INPUT:
     off_t quantity_offset = offset + offsetof(Product, quantity);
 
     int fd = open(PRODUCT_DATA_FILE_NAME, O_RDWR);
-    if(fd == -1)
-    {
+    if(fd == -1) {
         perror("Error of opening file\n");
         return 1;
     }
@@ -261,6 +279,10 @@ INPUT:
     off_t seek_result = lseek(fd, quantity_offset, SEEK_SET);
     if(seek_result == (off_t)-1) {
         perror("lseek failed to find quantity_offset before write");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
 
     }
@@ -268,12 +290,20 @@ INPUT:
     ssize_t result = write_partial(fd, (void*)&quantity, sizeof(quantity));
     if(result < 0) {
         perror("Error: fail to write data\n");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
 
     lseek(fd, quantity_offset, SEEK_SET);
     if(seek_result == (off_t)-1) {
         perror("lseek failed to find quantity_offset before read");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
 
     }
@@ -281,11 +311,21 @@ INPUT:
     result = read_partial(fd, (void*)&read_quantity, sizeof(read_quantity));
     if(result < 0) {
         perror("Error: fail to read data\n");
+        if(close(fd) == -1) {
+            perror("Error: Cannot close file\n");
+            return 1;
+        }
         return 1;
     }
 
-    if(read_quantity != quantity)
-        printf("Error: read and write data mismatch, actual:%d, expected:%d \n", read_quantity, quantity);
+    if(close(fd) == -1) {
+        perror("Error: Cannot close file\n");
+        return 1;
+    }
+
+    if(read_quantity != quantity) { 
+        printf("Error: read and write data mismatch, actual:%d, expected:%d \n", read_quantity, quantity); 
+    }
 
     return 0;
 }
@@ -333,24 +373,25 @@ static ssize_t write_partial(int fd, const void *buf, size_t total_byte)
 e_menu_t print_menu()
 {
     e_menu_t menu;
+    int temp;
     printf("Menu\n");
     printf("1. Add product\n");
     printf("2. Show product by index\n");
     printf("3. Update quantity by index\n");
     printf("4. List all products\n");
     printf("5. Exit\n");
-    if(scanf("%d", (int*)&menu) != 1) {
+    if(scanf("%d", (int*)&temp) != 1) {
         printf("Error: Invalid input argument\n");
         return 1;
     }
+    menu = (e_menu_t)temp;
     return menu;
 }
 
 static int write_to_file(Product product)
 {
     int fd = open(PRODUCT_DATA_FILE_NAME, O_CREAT | O_WRONLY | O_APPEND, 0644);
-    if(fd == -1)
-    {
+    if(fd == -1) {
         perror("Error of opening file\n");
         return 1;
     }
