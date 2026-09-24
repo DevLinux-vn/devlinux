@@ -1,6 +1,6 @@
-#include <stdint.h>
-#include <inttypes.h>
 #include <stdio.h>
+
+#include "main.h" // Include the header file for function prototype.
 
 /**
  * @brief Monitor stack depth during recursion and abort if limit is exceeded.
