@@ -6,27 +6,29 @@ const uint32_t global_variable = 100;
 uint32_t global_data = 50;
 uint32_t global_uninit;
 
-int main(){
-    int local_uninit;
+void print_memory_map(void)
+{
     int local_init = 20;
 
     int *ptr;
     ptr = (int*)malloc(10*sizeof(int));
 
-    printf("TEXT address of main: %p\n", &main);
+    if(ptr = NULL) 
+    {
+        return -1;
+    }
+    printf("TEXT address of main: %p\n", &print_memory_map);
     printf("RODATA address of CONST GLOBAL VARIABLE: %p\n", &global_variable);
     printf("DATA address of INITIALIZED GLOBAL VARIABLE: %p\n", &global_data);
     printf("BSS address of UNINITIALIZED GLOBAL VARIABLE: %p\n", &global_uninit);
     printf("HEAP address of PTR: %p\n", ptr);
-    printf("STACK address of LOCAL VARIABLE: %p\n", &local_uninit);
     printf("STACK address of LOCAL VARIABLE: %p\n", &local_init);
 
-    uintptr_t addr_main = (uintptr_t)&main;
+    uintptr_t addr_main = (uintptr_t)&print_memory_map;
     uintptr_t addr_global_variable = (uintptr_t)&global_variable;
     uintptr_t addr_global_data = (uintptr_t)&global_data;
     uintptr_t addr_global_uninit = (uintptr_t)&global_uninit;
     uintptr_t addr_ptr = (uintptr_t)ptr;
-    uintptr_t addr_local_uninit = (uintptr_t)&local_uninit;
     uintptr_t addr_local_init = (uintptr_t)&local_init;
 
     long long delta_1 = (long long)addr_global_variable - (long long)addr_main;
@@ -46,7 +48,12 @@ int main(){
 
 
     free(ptr);
+}
 
+int main(){
+
+    print_memory_map();
+    return 0;
 }
 
 /*
