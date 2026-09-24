@@ -1,132 +1,132 @@
 # Assignment — Session: 11
-**Deadline: 2026-09-20 23:59:00**
+**Deadline: 2026-09-27 23:59:00**
 
 ---
 
-## Exercise_1 — Light Sleep, Deep Sleep, and What Survives a Reboot [review-only]
+## Exercise_1 — A Stopwatch Driven by a Hardware Timer [review-only]
 
 ### Problem Statement
 
-Everything you have built so far assumes the board is plugged in. The moment a product runs on a battery, the interesting question stops being "how fast is it" and becomes "how long is it asleep". The ESP32-S3 has two sleep modes with a crucial difference: one resumes where it left off, the other does not resume at all — it reboots.
+`vTaskDelay()` has carried you a long way, but it only promises that *at least* that much time has passed. It says nothing about exactly when you wake up, and the error adds up. Anything that has to keep time (a stopwatch, a sampling loop, a motor controller) needs a hardware timer that ticks independently of what the scheduler is doing.
 
-Build one program that demonstrates both and the consequence of the difference:
+Build a stopwatch:
 
-1. **Light sleep.** Enter light sleep with two wake sources armed at once: a timer for 5 seconds, and the button. On wake, log which source woke you and confirm that execution continued from the line after the sleep call rather than restarting.
-2. **Deep sleep.** Then enter deep sleep, also with a timer and the button armed. Because deep sleep restarts the chip, use `app_main()` itself to report what happened: log the wake cause on every boot.
-3. **What survives.** Keep two counters of boots: one in RTC memory, one an ordinary global. Log both on every wake. One of them counts up across deep sleeps and the other does not, and demonstrating that difference is the point of the exercise.
+1. Configure a `gptimer` that raises an alarm **every 1 ms**. The alarm callback does one thing: increment a millisecond counter.
+2. The onboard **BOOT** button controls it. A short press starts or pauses the stopwatch. Holding the button for **1 s or longer** resets it to zero.
+3. A task prints the elapsed time as `mm:ss.mmm` every 100 ms.
+4. While the stopwatch is running, an LED blinks at 1 Hz. While it is paused, the LED is off.
 
 Requirements:
-- Use `esp_sleep.h`. Arm the timer with `esp_sleep_enable_timer_wakeup()`, and read the cause after waking with `esp_sleep_get_wakeup_cause()`. Print the cause as a readable name, not a bare integer.
-- For the button, note that light sleep and deep sleep use **different** wake mechanisms on this chip. Find out which function each one needs — the GPIO wake source you enable for light sleep is not the one that works from deep sleep. Getting this wrong produces a board that sleeps and never wakes on the button, only on the timer.
-- The button must be on an RTC-capable GPIO, or deep-sleep wake on that pin is impossible. The pin given below is a valid one; if you change it, check it against the datasheet first.
-- The RTC-memory counter must be declared with `RTC_DATA_ATTR`. The other counter must be a plain global initialised to zero. Do not make either one `static const` or otherwise optimise the comparison away.
-- Turn the display backlight off before sleeping and back on after waking from light sleep. Leaving a backlight on defeats the entire exercise, and noticing that is part of the lesson.
-- Log a clear banner at the start of `app_main()` so a reviewer can tell a fresh power-on from a deep-sleep wake in the output.
-- Every timeout and pin must be a named constant.
-- Answer the questions in `sleep_notes.md`.
+- Use `driver/gptimer.h`. The alarm must use **auto-reload**, so the timer rearms itself in hardware. Do not rearm it from the callback.
+- The alarm callback runs in interrupt context. It may only increment the counter and return: no `ESP_LOGI`, no `printf`, no delays, no GPIO work.
+- The counter shared between the callback and your tasks must be `volatile`.
+- The elapsed time must come **only** from the `gptimer` counter. Do not accumulate `vTaskDelay()` periods and do not read `esp_timer_get_time()`.
+- Pausing must not lose or invent time. Start, pause, start again: the total must be the sum of the running periods.
+- A long press must reset **without** also toggling start/pause. Work out when a short press should be recognised so that it cannot be confused with a long one.
+- The button runs in a task, not in the timer callback. Debounce it.
+- A reset leaves the stopwatch **paused at zero**.
+- Resetting means a task writes the counter while the timer callback may be incrementing it at the same moment, possibly on the other core. `volatile` makes the value visible to both sides, but it does not make `elapsed_ms++` atomic. Make sure a reset can never be lost to that collision, and be able to explain how your code guarantees it.
+- Every period, pin and duration must be a named constant.
+- Check the return value of every `gptimer_*` call. Use `ESP_ERROR_CHECK` for init only.
 
 ### Hardware
 
-Keep the display module wired as it is — you only need its backlight pin here. Keep the button from Session 10:
+ESP32-S3 DevKitC-1 plus one LED. The display module stays unplugged.
 
 | Part | ESP32-S3 | Notes |
 | --- | --- | --- |
-| push-button | GPIO16 | other side to GND, internal pull-up, RTC-capable |
-| display backlight | GPIO2 | unchanged from Session 06 |
-
-A multimeter in series with the board's supply lets you watch the current drop when it sleeps. That measurement is **optional and not graded** — question 3 below asks you to reason about it rather than report a number.
+| BOOT button (onboard) | GPIO0 | pressed = LOW. It is a strapping pin, so it is fine to read after boot, but do not reconfigure it as an output |
+| LED anode, via 220 Ω–330 Ω resistor | GPIO15 | cathode to GND, same as Session 10 |
 
 ### Design Hints
 
 ```c
-#include "esp_sleep.h"
+#include "driver/gpio.h"
+#include "driver/gptimer.h"
 
-#define BTN_PIN            GPIO_NUM_16
-#define PIN_BK_LIGHT       GPIO_NUM_2
-#define LIGHT_SLEEP_US     (5000000ULL)  /* 5 s  */
-#define DEEP_SLEEP_US      (10000000ULL) /* 10 s */
-#define BTN_WAKE_LEVEL     (0)           /* pull-up, so a press is a LOW */
+#define BTN_PIN            GPIO_NUM_0
+#define LED_PIN            GPIO_NUM_15
 
-RTC_DATA_ATTR static uint32_t rtc_boot_count = 0;
-static uint32_t               ram_boot_count = 0;
+#define TIMER_RESOLUTION   (1000000U)   /* 1 MHz -> 1 tick == 1 us */
+#define TIMER_ALARM_TICKS  (1000ULL)    /* 1 ms at that resolution */
+#define PRINT_PERIOD_MS    (100U)
+#define LONG_PRESS_MS      (1000U)
+#define DEBOUNCE_MS        (20U)
+#define LED_HALF_PERIOD_MS (500U)       /* 1 Hz blink */
 
-static const char* wakeup_cause_name(esp_sleep_wakeup_cause_t cause)
+static volatile uint32_t elapsed_ms = 0;
+
+static bool IRAM_ATTR on_alarm(gptimer_handle_t timer, const gptimer_alarm_event_data_t* edata, void* user_ctx)
 {
-    switch (cause)
-    {
-    case ESP_SLEEP_WAKEUP_TIMER:
-        return "TIMER";
-    /* ... EXT0, EXT1, GPIO, UNDEFINED ... */
-    default:
-        return "POWER_ON / RESET";
-    }
+    elapsed_ms++;
+    return false; /* what does this return value control? Look it up. */
 }
+
+gptimer_config_t timer_cfg = {
+    .clk_src       = GPTIMER_CLK_SRC_DEFAULT,
+    .direction     = GPTIMER_COUNT_UP,
+    .resolution_hz = TIMER_RESOLUTION,
+};
+
+gptimer_alarm_config_t alarm_cfg = {
+    .alarm_count                = TIMER_ALARM_TICKS,
+    .reload_count               = 0,
+    .flags.auto_reload_on_alarm = true,
+};
 ```
 
-Two things to work out from the API reference rather than by trial and error. First, `esp_light_sleep_start()` **returns** and your next line runs; `esp_deep_sleep_start()` never returns at all. That difference decides where in your program each piece of logging has to live. Second, arming a GPIO as a wake source is a two-step job for light sleep — enabling the sleep wake source is not the same call as enabling the wake capability on the pin itself.
+`gptimer` has a strict lifecycle: create, set the alarm action, register the callback, **enable**, then start. Skipping `gptimer_enable()` is the usual reason a timer silently never fires. For pause and resume, look at what `gptimer_stop()` and `gptimer_start()` do to the count and to your callback, and decide whether they are all you need.
 
-`RTC_DATA_ATTR` places a variable in RTC slow memory, which keeps its power domain alive through deep sleep. That is why one of your two counters survives. Confirm the mechanism in the docs before you write the answer to question 1 — a plausible-sounding guess is not the answer.
+When the print task formats `mm:ss.mmm`, read `elapsed_ms` **once** into a local variable and do all the arithmetic on that copy. Think about what could go wrong if you read the shared variable three times for minutes, seconds and milliseconds.
+
+The LED blink can be derived from the same counter. You do not need a second timer.
 
 ### Suggested Approach
 
 ```
 app_main():
-  1. rtc_boot_count++;  ram_boot_count++;
-  2. cause = esp_sleep_get_wakeup_cause()
-     log a banner: cause name, rtc_boot_count, ram_boot_count
-  3. configure BTN_PIN as an input with pull-up
-  4. --- light sleep demo ---
-     backlight off
-     arm the timer for LIGHT_SLEEP_US, arm the button as a light-sleep wake source
-     log "entering light sleep"
-     esp_light_sleep_start()
-     backlight on
-     log "resumed from light sleep, cause = ..."     <- this line proves it resumed
-  5. --- deep sleep demo ---
-     backlight off
-     arm the timer for DEEP_SLEEP_US, arm the button as a deep-sleep wake source
-     log "entering deep sleep — see you in app_main()"
-     esp_deep_sleep_start()
-     /* nothing here ever executes; a comment saying so is worth writing */
+  1. LED_PIN as output, BTN_PIN as input with pull-up
+  2. gptimer: new -> set_alarm_action -> register_event_callbacks -> enable
+     (do not start yet: the stopwatch begins paused)
+  3. create the print task and the button task
+
+print task, every PRINT_PERIOD_MS:
+  ms = elapsed_ms
+  print mm:ss.mmm
+  if running: LED = (ms / LED_HALF_PERIOD_MS) % 2   else: LED off
+
+button task, every few ms:
+  debounce the level
+  on press:   remember when it started
+  while held: if held >= LONG_PRESS_MS and not yet handled -> reset to 0
+  on release: if it was a short press -> toggle start/pause
 ```
-
-### Common Pitfalls to Explain in Your Submission
-
-Short answers in `sleep_notes.md`.
-
-1. After several deep-sleep cycles, one counter reads 5 while the other still reads 1. Say which is which and explain the mechanism — what specifically happens to normal RAM across a deep sleep, and why RTC memory escapes it.
-2. You had to use two different functions to arm the button, one per sleep mode. Name both, and explain what is still powered in light sleep that is switched off in deep sleep such that the light-sleep mechanism cannot work from deep sleep.
-3. You did not have to measure the current draw, but predict it: rank power-on-idle, light sleep and deep sleep from highest to lowest consumption, and for each say what is still running that explains its position. Then say what the display module contributes to all three, and whether your program actually eliminates it.
 
 ### Expected Output
 
-First boot from power-on, then repeated deep-sleep wakes. The RTC counter climbs while the RAM counter is stuck at 1:
-
 ```
-I (0312) SLEEP: === boot: cause=POWER_ON / RESET  rtc_boots=1  ram_boots=1 ===
-I (0320) SLEEP: entering light sleep (5 s or button)
-I (5325) SLEEP: resumed from light sleep, cause=TIMER
-I (5330) SLEEP: entering deep sleep — see you in app_main()
-
-I (0311) SLEEP: === boot: cause=TIMER  rtc_boots=2  ram_boots=1 ===
-I (0319) SLEEP: entering light sleep (5 s or button)
-I (2140) SLEEP: resumed from light sleep, cause=EXT0
-I (2145) SLEEP: entering deep sleep — see you in app_main()
-
-I (0311) SLEEP: === boot: cause=EXT0  rtc_boots=3  ram_boots=1 ===
+I (1210) WATCH: 00:00.000  [paused]
+I (1310) WATCH: 00:00.000  [paused]
+I (1402) WATCH: started
+I (1410) WATCH: 00:00.008
+I (1510) WATCH: 00:00.108
+...
+I (61410) WATCH: 01:00.008
+I (61430) WATCH: paused at 01:00.028
+I (65000) WATCH: started
+I (65010) WATCH: 01:00.038
+...
+I (70120) WATCH: reset to 00:00.000
 ```
 
-Two things to look for. The timestamp resets to near zero on every deep-sleep wake, because the chip really did reboot. And pressing the button during either sleep wakes it early, with the cause reported as the button rather than the timer.
-
-> If you are monitoring over the **USB** port, be aware that deep sleep drops the USB Serial/JTAG connection and `idf.py monitor` may need to reconnect on each wake. Using the **UART** port for this exercise gives a cleaner log — the same two-port arrangement you set up in Session 05.
+Let it run for one minute next to the stopwatch on your phone. Starting two stopwatches by hand is only accurate to a couple of tenths of a second, so that is as close as the two can agree. That is still enough to catch the real mistakes: a wrong resolution or alarm count shows up as a **gross** error (the display running twice as fast, or ten times too slow), not as a few milliseconds. The hardware timer itself drifts by only a few milliseconds per minute, far below what you can see by hand. Pause it for a few seconds, resume, and check that the paused time was not counted.
 
 ### Submission
 
 ```
 Exercise_1/
 ├── main/
-│   ├── main.c              (required — light sleep + deep sleep, both wake sources)
+│   ├── main.c              (required — gptimer 1 ms tick, start/pause/reset on BOOT)
 │   └── CMakeLists.txt      (required)
-├── CMakeLists.txt          (required — ESP-IDF project root)
-└── sleep_notes.md          (required — answers to the 3 questions above)
+└── CMakeLists.txt          (required — ESP-IDF project root)
 ```
