@@ -96,7 +96,7 @@ int main(void) {
 
   /* Test 3: Not enough octets */
   ret = parse_mac("00:1A:2B:3C:4D", mac_out);
-  (void)printf("parse_mac(\"00:1A:2B:3C:4D\", mac_out)     -> returns %2d  "
+  (void)printf("parse_mac(\"00:1A:2B:3C:4D\",    mac_out)  -> returns %2d  "
                "(Not enough octets)\n",
                ret);
 
@@ -114,7 +114,7 @@ int main(void) {
 
   /* Test 6: NULL input */
   ret = parse_mac(NULL, mac_out);
-  (void)printf("parse_mac(NULL, mac_out)                  -> returns %2d  "
+  (void)printf("parse_mac(NULL,                 mac_out)  -> returns %2d  "
                "(Null input)\n",
                ret);
 

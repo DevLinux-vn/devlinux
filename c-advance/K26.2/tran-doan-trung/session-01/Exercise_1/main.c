@@ -71,14 +71,15 @@ int main(void) {
 
   /* Test 2: Octet out of range */
   ret = parse_ipv4("256.0.0.1", &ip_out);
-  (void)printf("parse_ipv4(\"256.0.0.1\", &ip_out)  -> returns %2d  (octet "
+  (void)printf("parse_ipv4(\"256.0.0.1\",    &ip_out)  -> returns %2d  (octet "
                "out of range)\n",
                ret);
 
   /* Test 3: NULL input */
   ret = parse_ipv4(NULL, &ip_out);
-  (void)printf("parse_ipv4(NULL, &ip_out)  -> returns %2d  (NULL input)\n",
-               ret);
+  (void)printf(
+      "parse_ipv4(NULL,            &ip_out)  -> returns %2d  (NULL input)\n",
+      ret);
 
   return 0;
 }
