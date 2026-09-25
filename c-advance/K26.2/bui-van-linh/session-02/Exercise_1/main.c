@@ -2,21 +2,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+/* Prototype cần khai báo trước để lấy địa chỉ &main bên trong print_memory_map() */
+int main(void);
+
 const uint32_t global_variable = 100;
 uint32_t global_data = 50;
 uint32_t global_uninit;
 
 /**
  * @brief Print memory map of all 6 segments (text, rodata, data, bss, heap, stack)
- *        and the distance in bytes between consecutive segments.
+ *        and the distance in bytes between consecutive segments (TEXT -> RODATA ->
+ *        DATA -> BSS -> HEAP -> STACK).
  * @param None
  * @return 0 on success, -1 if malloc fails
  */
 uint8_t print_memory_map(void)
 {
-    /* Address of RODATA computed locally (no need for global scope) */
-    uintptr_t addr_global_variable = (uintptr_t)&global_variable;
-
     int local_init = 20;
 
     int *p_ptr = (int *)malloc(10 * sizeof(int));
@@ -26,29 +27,32 @@ uint8_t print_memory_map(void)
         return -1;
     }
 
-    printf("TEXT  address of print_memory_map: %p\n", (void *)&print_memory_map);
-    printf("RODATA address of CONST GLOBAL VARIABLE: %p\n", (void *)&global_variable);
-    printf("DATA  address of INITIALIZED GLOBAL VARIABLE: %p\n", (void *)&global_data);
-    printf("BSS   address of UNINITIALIZED GLOBAL VARIABLE: %p\n", (void *)&global_uninit);
-    printf("HEAP  address of p_ptr: %p\n", (void *)p_ptr);
-    printf("STACK address of LOCAL VARIABLE: %p\n", (void *)&local_init);
+    uintptr_t addr_text  = (uintptr_t)&main;
+    uintptr_t addr_rodata = (uintptr_t)&global_variable;
+    uintptr_t addr_data   = (uintptr_t)&global_data;
+    uintptr_t addr_bss    = (uintptr_t)&global_uninit;
+    uintptr_t addr_heap   = (uintptr_t)p_ptr;
+    uintptr_t addr_stack  = (uintptr_t)&local_init;
 
-    uintptr_t addr_global_data   = (uintptr_t)&global_data;
-    uintptr_t addr_global_uninit = (uintptr_t)&global_uninit;
-    uintptr_t addr_ptr           = (uintptr_t)p_ptr;
-    uintptr_t addr_local_init    = (uintptr_t)&local_init;
+    printf("[TEXT]   Address of main():            %p\n", (void *)addr_text);
+    printf("[RODATA] Address of global_variable:   %p\n", (void *)addr_rodata);
+    printf("[DATA]   Address of global_data:       %p\n", (void *)addr_data);
+    printf("[BSS]    Address of global_uninit:     %p\n", (void *)addr_bss);
+    printf("[HEAP]   Address of p_ptr:              %p\n", (void *)addr_heap);
+    printf("[STACK]  Address of local_init:         %p\n", (void *)addr_stack);
 
-    uintptr_t delta_2 = addr_global_data - addr_global_variable;
-    printf("DATA - TEXT = %ju byte\n", (uintmax_t)delta_2);
+    /* intptr_t vì các hiệu số này có thể âm tùy layout bộ nhớ thực tế */
+    intptr_t delta_rodata_text = (intptr_t)addr_rodata - (intptr_t)addr_text;
+    intptr_t delta_data_rodata = (intptr_t)addr_data   - (intptr_t)addr_rodata;
+    intptr_t delta_bss_data    = (intptr_t)addr_bss    - (intptr_t)addr_data;
+    intptr_t delta_heap_bss    = (intptr_t)addr_heap   - (intptr_t)addr_bss;
+    intptr_t delta_stack_heap  = (intptr_t)addr_stack  - (intptr_t)addr_heap;
 
-    uintptr_t delta_3 = addr_global_uninit - addr_global_data;
-    printf("BSS - DATA = %ju byte\n", (uintmax_t)delta_3);
-
-    uintptr_t delta_4 = addr_ptr - addr_global_uninit;
-    printf("HEAP - BSS = %ju byte\n", (uintmax_t)delta_4);
-
-    uintptr_t delta_5 = addr_local_init - addr_ptr;
-    printf("STACK - HEAP = %ju byte\n", (uintmax_t)delta_5);
+    printf("RODATA - TEXT   = %jd byte\n", (intmax_t)delta_rodata_text);
+    printf("DATA   - RODATA = %jd byte\n", (intmax_t)delta_data_rodata);
+    printf("BSS    - DATA   = %jd byte\n", (intmax_t)delta_bss_data);
+    printf("HEAP   - BSS    = %jd byte\n", (intmax_t)delta_heap_bss);
+    printf("STACK  - HEAP   = %jd byte\n", (intmax_t)delta_stack_heap);
 
     free(p_ptr);
     p_ptr = NULL;
@@ -57,19 +61,12 @@ uint8_t print_memory_map(void)
 }
 
 /**
- * @brief Entry point. Prints the distance between RODATA and TEXT segments,
- *        then calls print_memory_map() and checks its return value.
+ * @brief Entry point. Calls print_memory_map() to dump the 6 memory segments
+ *        and the byte distance between each consecutive pair.
  * @return 0 on success, -1 if print_memory_map() fails
  */
 int main(void)
 {
-    uintptr_t addr_main = (uintptr_t)&main;
-    uintptr_t addr_global_variable = (uintptr_t)&global_variable;
-
-    /* Use intptr_t here since this delta can be negative depending on layout */
-    intptr_t delta_1 = (intptr_t)addr_global_variable - (intptr_t)addr_main;
-    printf("RODATA - TEXT = %jd byte\n", (intmax_t)delta_1);
-
     uint8_t result = print_memory_map();
     if (result != 0)
     {
