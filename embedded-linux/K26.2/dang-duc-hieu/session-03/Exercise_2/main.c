@@ -119,8 +119,11 @@ int main(void)
             }
 
             printf("Enter New Quantity: ");
-            scanf("%d", &newQty);
-
+            if (scanf("%d", &newQty) != 1)
+            {
+                fprintf(stderr, "Error: Invalid input\n");
+                break;
+            }
             off_t offset = index * sizeof(Product);
             lseek(fd, offset, SEEK_SET);
 
@@ -130,7 +133,11 @@ int main(void)
                 p.quantity = newQty;
 
                 lseek(fd, offset, SEEK_SET);
-                write(fd, &p, sizeof(Product));
+                if (write(fd, &p, sizeof(Product)) != sizeof(Product))
+                {
+                    perror("write failed");
+                    break;
+                }
                 printf("Quantity updated successfully!\n");
             }
             break;
