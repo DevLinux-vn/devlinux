@@ -1,5 +1,5 @@
 # Assignment — Session: 06
-**Deadline: 2026-08-30 23:59:00**
+**Deadline: 2026-09-06 23:59:00**
 
 ---
 
@@ -30,7 +30,7 @@ Requirements:
 
 LCD Wiki 3.5" IPS SPI module, **MSP3525** (no touch) or **MSP3526** (with touch) — either works here. Keep the module wired for Session 07.
 
-> **Power:** the module's operating voltage is **5 V** — connect `VCC` to the DevKitC-1's `5V` pin, not `3V3`. Signal lines go directly to the ESP32-S3's 3.3 V GPIOs. Check the labels silk-screened on your own board against the table below before powering up; if anything differs, trust your board and the [module wiki page](https://www.lcdwiki.com/3.5inch_IPS_SPI_Module_ST7796).
+**Power:** the module's operating voltage is **5 V** — connect `VCC` to the DevKitC-1's `5V` pin, not `3V3`. Signal lines go directly to the ESP32-S3's 3.3 V GPIOs. Check the labels silk-screened on your own board against the table below before powering up; if anything differs, trust your board and the [module wiki page](https://www.lcdwiki.com/3.5inch_IPS_SPI_Module_ST7796).
 
 | Module pin | ESP32-S3 | Role |
 | --- | --- | --- |
