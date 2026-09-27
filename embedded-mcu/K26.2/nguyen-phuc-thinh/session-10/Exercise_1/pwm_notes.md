@@ -1,0 +1,6 @@
+ Tại sao độ sáng không tăng tuyến tính theo núm xoay?
+1. Dù Duty Cycle thay đổi tuyến tính, nhưng mắt người cảm nhận độ sáng theo dạng hàm logarit. Hầu hết sự thay đổi rõ rệt về độ sáng mà mắt nhận thấy sẽ tập trung ở dải hành trình rất nhỏ ban đầu (từ 0% đến khoảng 20% duty cycle). Khi vặn núm lên các dải cao hơn (ví dụ từ 80% lên 100%), năng lượng cấp cho LED tăng tuyến tính nhưng mắt người gần như không thể nhận ra sự khác biệt.
+
+Mối quan hệ giữa Resolution và Frequency
+2. Bộ chia xung (prescaler) của ngoại vi PWM cần phải tạo ra đủ số "ticks" trong một chu kỳ xung dựa trên xung nhịp gốc (thường là 80MHz APB clock). Với độ phân giải 13-bit, hệ thống cần đếm $2^{13} = 8192$ bước cho mỗi chu kỳ. Nếu đặt tần số PWM là 5kHz, bộ đếm cần chạy ở tốc độ: $8192 \times 5000 = 40.96$ MHz (hoàn toàn khả thi vì nhỏ hơn 80MHz).
+Tuy nhiên, nếu yêu cầu độ phân giải 13-bit ở tần số 5MHz, clock yêu cầu sẽ là: $8192 \times 5,000,000 = 40.96$ GHz. Đây là điều phần cứng không thể đáp ứng. Khi đó, hàm ledc_timer_config() sẽ báo lỗi trả về ESP_ERR_INVALID_ARG và làm crash chương trình vì bị ép chia clock ra một tỷ lệ không khả thi.
