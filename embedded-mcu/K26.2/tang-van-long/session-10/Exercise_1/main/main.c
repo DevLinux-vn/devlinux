@@ -1,3 +1,4 @@
+/* EXERCISE 1*/
 #include <stdbool.h>
 #include <stdint.h>
 
