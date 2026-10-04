@@ -1,0 +1,15 @@
+=== 1. Full service log ===
+-- Logs begin at Fri 2026-05-08 15:17:09 +07, end at Sun 2026-10-04 23:32:15 +07. --
+-- No entries --
+=== 2. Warning level and above ===
+-- Logs begin at Fri 2026-05-08 15:17:09 +07, end at Sun 2026-10-04 23:32:15 +07. --
+-- No entries --
+=== 3. Error level and above ===
+-- Logs begin at Fri 2026-05-08 15:17:09 +07, end at Sun 2026-10-04 23:32:15 +07. --
+-- No entries --
+=== 4. Log from the last 1 minute ===
+-- Logs begin at Fri 2026-05-08 15:17:09 +07, end at Sun 2026-10-04 23:32:15 +07. --
+-- No entries --
+=== 5. Crash point ===
+-- Logs begin at Fri 2026-05-08 15:17:09 +07, end at Sun 2026-10-04 23:32:15 +07. --
+-- No entries --
