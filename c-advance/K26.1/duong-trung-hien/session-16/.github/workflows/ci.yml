@@ -1,0 +1,110 @@
+name: IoT Monitor CI
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  build:
+    name: Build & Clang-Tidy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc clang-tidy cppcheck
+
+      - name: Configure
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: |
+          cmake --build build
+
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc clang-tidy
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Run pre-commit
+        run: |
+          pip install pre-commit
+          pre-commit run --all-files
+
+
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc cppcheck
+
+      - name: Configure
+        run: |
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Run cppcheck
+        run: |
+          cmake --build build --target cppcheck
+
+
+  test:
+    name: Unit Tests with Sanitizers
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc
+
+      - name: Configure with ASan + UBSan
+        run: |
+          cmake -B build-asan \
+            -DSANITIZER=asan+ubsan \
+            -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: |
+          cmake --build build-asan
+
+      - name: Run unit tests
+        run: |
+          ctest \
+            --test-dir build-asan \
+            -V \
+            --output-on-failure
