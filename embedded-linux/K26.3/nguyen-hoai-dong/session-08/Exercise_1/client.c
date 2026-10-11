@@ -100,7 +100,7 @@ int main(void)
         printf("%s\n", buffer_recv);
     }
 
-    close(client_fd);
+    close(client_fd); 
     printf("[monitor-cli] Closed\n");
     return 0;
 }
