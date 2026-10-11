@@ -65,34 +65,26 @@ int main(void)
         
         if(strcmp(buffer, "cpu") == 0)
         {
-            float cpu_value;
-            return_value = recv(client_fd, &cpu_value, sizeof(cpu_value), 0);
+            char response[BUFFER_SIZE];
+            return_value = recv(client_fd, response, sizeof(response), 0);
             if (return_value == -1)
             {
                 printf("[ERROR] recv error\n");
                 return 1;
             }
-            printf("load_avg=%0.2f\n", cpu_value);
+            printf("%s\n", response);
             continue;
         }
         else if (strcmp(buffer, "mem") == 0)
         {
-            unsigned long mem_total;
-            unsigned long mem_free;
-            return_value = recv(client_fd, &mem_total, sizeof(mem_total), 0);
+            char response[BUFFER_SIZE];
+            return_value = recv(client_fd, response, sizeof(response), 0);
             if (return_value == -1)
             {
                 printf("[ERROR] recv error\n");
                 return 1;
             }
-            return_value = recv(client_fd, &mem_free, sizeof(mem_free), 0);
-            if (return_value == -1)
-            {
-                printf("[ERROR] recv error\n");
-                return 1;
-            }
-            printf("load_avg=%ld kB\n", mem_total);
-            printf("load_avg=%ld kB\n", mem_free);
+            printf("%s\n", response);
             continue;
         } 
         else if(strcmp(buffer, "quit") == 0)

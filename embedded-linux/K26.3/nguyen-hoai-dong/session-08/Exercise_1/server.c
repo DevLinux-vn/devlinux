@@ -148,25 +148,23 @@ int main(void)
             if(strcmp(buffer, "cpu") == 0)
             {
                 float cpu_value = get_cpu();
-                return_value = send(client_fd, &cpu_value, sizeof(cpu_value), 0);
+                char response[BUFFER_SIZE];
+                snprintf(response, sizeof(response), "load_avg=%0.2f", cpu_value);
+                return_value = send(client_fd, response, strlen(response), 0);
                 if (return_value == -1)
                 {
                     printf("[ERROR] send error\n");
                     return 1;
-                }   
+                }  
                 printf("[Daemon] [CMD] cpu\n");
             }
             else if (strcmp(buffer, "mem") == 0)
             {
                 unsigned long mem_total = get_memtotal();
-                unsigned long mem_free = get_memfree();
-                return_value = send(client_fd, &mem_total, sizeof(mem_total), 0);
-                if (return_value == -1)
-                {
-                    printf("[ERROR] send error\n");
-                    return 1;
-                }
-                return_value = send(client_fd, &mem_free, sizeof(mem_total), 0);
+                unsigned long mem_free = get_memfree();                
+                char response[BUFFER_SIZE];
+                snprintf(response, sizeof(response), "mem_total=%lu kB mem_free=%lu kB", mem_total, mem_free);
+                return_value = send(client_fd, response, strlen(response), 0);
                 if (return_value == -1)
                 {
                     printf("[ERROR] send error\n");
@@ -189,7 +187,7 @@ int main(void)
                 }
                 printf("[Daemon] [ERROR] unknown CMD\n");
             }
-        }
+        }   
         close(client_fd);
         printf("[Daemon] Client disconnected. Waiting for next client...\n");
         
