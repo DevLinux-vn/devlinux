@@ -42,7 +42,7 @@ int main(void)
         Employee emp;
         printf("Nhập thông tin nhân viên %d: \n", i + 1);
         printf("Phòng (IT=0, HR=1, SALES=2): ");
-        scanf("%d", &emp.department);
+        scanf("%d", (int *)&emp.department);
 
         while (getchar() != '\n')
             ;

@@ -11,6 +11,8 @@ typedef struct{
     int id;
 }Book;
 
+// Nhập thông tin sách qua con trỏ
+// Input: con trỏ đến struct Book
 void input(Book *b){
     printf("Nhập tiêu đề: ");
     fgets(b->title, sizeof(b->title), stdin);
@@ -31,6 +33,7 @@ void input(Book *b){
     getchar();
 }
 
+// In thông tin sách
 void print(Book b){
     printf("\"%s\", ", b.title);
     printf("tác giả: %s, ", b.author);
@@ -38,6 +41,7 @@ void print(Book b){
     printf("trang: %d\n", b.pages);
 }
 
+// Tính giá trung bình của sách
 float average(Book arr[], int n){
     float sum = 0;
 
@@ -64,7 +68,7 @@ int main(void){
     printf("Giá trung bình: %.2f\n", avg);
 
     //in sách đắt nhất
-    int max_price = book_arr[0].price;
+    float max_price = book_arr[0].price;
     int max_index = 0;
     for (int i = 1; i<MAX_BOOK_NUM; i++){
         if(book_arr[i].price > max_price){

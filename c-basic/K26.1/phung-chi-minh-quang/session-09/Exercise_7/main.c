@@ -28,23 +28,28 @@ int main(void)
         printf("Học sinh %d:\n", i + 1);
 
         printf("ID=");
-        scanf("%d", &ptr->id);
-        while (getchar() != '\n')
-            ;
+        if (scanf("%d", &ptr->id) != 1)
+        {
+            printf("Lỗi: Dữ liệu nhập sai\n");
+            return 1;
+        }
+        while (getchar() != '\n');
 
         printf("Tên=");
         fgets(ptr->name, sizeof(ptr->name), stdin);
         ptr->name[strlen(ptr->name) - 1] = '\0';
 
         printf("GPA=");
-        scanf("%f", &ptr->gpa);
-
-
+        if (scanf("%f", &ptr->gpa) != 1)
+        {
+            printf("Lỗi: Dữ liệu nhập sai\n");
+            return 1;
+        }
         sum += ptr->gpa;
         ptr++;
     }
 
-    //In thông tin 3 học sinh
+    // In thông tin 3 học sinh
     for (int i = 0; i < 3; i++)
     {
         printf("Học sinh %d: ", i + 1);
