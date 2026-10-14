@@ -1,4 +1,6 @@
 all: main
+dirs:
+	mkdir -p obj lib
 
 main: lib/libmathutils.a
 	gcc app/main.c -Iinclude -Llib -lmathutils -o main
