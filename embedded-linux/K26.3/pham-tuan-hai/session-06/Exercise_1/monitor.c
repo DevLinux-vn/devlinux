@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
 
 volatile sig_atomic_t shutdown_flag=0;
 
@@ -12,10 +13,10 @@ void signal_receive(int signum) {
 int main() {
   setbuf(stdout, NULL);
   
-  //Dang ky ham voi he thong khi kill
+  //'Register signal handler for SIGTERM'.
   struct sigaction sa;
   memset(&sa, 0, sizeof(sa));
-  sa.sa)handler = signal_receive;
+  sa.sa_handler = signal_receive;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
   sigaction(SIGTERM, &sa, NULL);
