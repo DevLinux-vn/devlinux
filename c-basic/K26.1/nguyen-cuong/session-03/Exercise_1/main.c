@@ -13,7 +13,7 @@ int main(){
         printf("Số %d là số chẵn\n", a);
     }
     else{
-        printf("Số %d là số lẻ\n", a)
+        printf("Số %d là số lẻ\n", a);
     }
 
     return 0;   

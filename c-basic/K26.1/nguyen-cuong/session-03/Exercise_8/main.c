@@ -12,7 +12,7 @@ int main(){
     }
     
     printf("Nhập vào 1 toán tử (+, -, *, /): ");
-    if(scanf("%c", &toan_tu) != 1){
+    if(scanf(" %c", &toan_tu) != 1){
         printf("Nhập toán tử lỗi\n");
         return 1;
     }

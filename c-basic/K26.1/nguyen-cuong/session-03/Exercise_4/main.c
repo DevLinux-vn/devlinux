@@ -11,7 +11,7 @@ int main(){
     }
 
     if(age >= 18){
-        printf("Bạn đủ điêuf kiện thi bằng lái xe máy!\n");
+        printf("Bạn đủ điều kiện thi bằng lái xe máy!\n");
     }
     else{
         printf("Bạn không đủ điều kiện!\n");
