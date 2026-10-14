@@ -3,19 +3,28 @@
 #include <stdlib.h>
 #include <signal.h>
 
+volatile sig_atomic_t shutdown_flag=0;
+
 void signal_receive(int signum) {
-  printf("Service shutting down...\n");
-  exit(0);
+  shutdown_flag = 1;
 }
 
 int main() {
   setbuf(stdout, NULL);
   
   //Dang ky ham voi he thong khi kill
-  signal(SIGTERM, signal_receive);
+  struct sigaction sa;
+  memset(&sa, 0, sizeof(sa));
+  sa.sa)handler = signal_receive;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sigaction(SIGTERM, &sa, NULL);
   
-  while(1) {
+  while(!shutdown_flag) {
     printf("Daily warning!\n");
     sleep(1);
   }
+  
+  printf("Service shutting down...\n");
+  return 0;
 }
