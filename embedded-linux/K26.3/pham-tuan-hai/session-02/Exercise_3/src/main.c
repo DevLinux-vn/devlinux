@@ -40,7 +40,7 @@ int main() {
 	}
 
 	printf("================================");
-	printf("SUCCESS!");
+	printf("SUCCESS!\n");
 
 	return 0;
 }

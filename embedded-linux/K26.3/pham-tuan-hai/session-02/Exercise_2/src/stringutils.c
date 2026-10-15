@@ -3,9 +3,10 @@
 void str_to_upper(char *s){
 	if (s == NULL) return;
 
+  #define UPPER_OFFSET ('a' - 'A')
 	for(int i = 0; s[i] !='\0'; i++){
 		if(s[i] >= 'a' && s[i] <= 'z'){
-			s[i]-=32;
+			s[i]-=UPPER_OFFSET;
 		}
 	}
 }
