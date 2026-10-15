@@ -1,0 +1,82 @@
+=================================================
+STEP 1 - Build Logger Service
+=================================================
+
+$ make
+
+gcc -Wall -Wextra -std=c99 -O2 logger.c -o logger
+
+
+=================================================
+STEP 2 - Full Journal Logs
+=================================================
+
+$ journalctl -u logger
+
+<6> INFO log 1
+<4> WARNING log 1
+<3> ERROR log 1
+...
+<6> INFO log 15
+<4> WARNING log 15
+<3> ERROR log 15
+
+
+=================================================
+STEP 3 - Warning and Above
+=================================================
+
+$ journalctl -p warning
+
+<4> WARNING log 1
+<3> ERROR log 1
+...
+<4> WARNING log 15
+<3> ERROR log 15
+
+
+=================================================
+STEP 4 - Error and Above
+=================================================
+
+$ journalctl -p err
+
+<3> ERROR log 1
+...
+<3> ERROR log 15
+
+<3> Fatal error. Abort...
+
+
+=================================================
+STEP 5 - Last One Minute
+=================================================
+
+$ journalctl --since "1 minute ago"
+
+<6> INFO log 14
+<4> WARNING log 14
+<3> ERROR log 14
+
+<6> INFO log 15
+<4> WARNING log 15
+<3> ERROR log 15
+
+
+=================================================
+STEP 6 - Crash Point
+=================================================
+
+<3> Fatal error. Abort...
+
+Program terminated by abort()
+
+
+=================================================
+OBSERVATION
+=================================================
+
+1. Logs are redirected to systemd journal.
+2. INFO, WARNING and ERROR messages are recorded.
+3. Service terminates by abort().
+4. Crash information can be retrieved using journalctl.

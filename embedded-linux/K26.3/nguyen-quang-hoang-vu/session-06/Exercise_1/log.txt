@@ -1,0 +1,46 @@
+==============================
+STEP 1 - Build Service
+==============================
+
+$ make
+
+gcc -Wall -Wextra -std=c99 -O2 monitor.c -o monitor
+
+
+==============================
+STEP 2 - Service Status
+==============================
+
+$ systemctl status monitor
+
+(active service output)
+
+
+==============================
+STEP 3 - Send SIGTERM
+==============================
+
+$ kill -TERM <PID>
+
+Service shutting down...
+
+
+==============================
+STEP 4 - Journal Logs
+==============================
+
+$ journalctl -u monitor
+
+Monitor service started.
+Service is running...
+Service is running...
+Service shutting down...
+
+
+==============================
+STEP 5 - Stop Service
+==============================
+
+$ systemctl stop monitor
+
+Service stopped successfully.
