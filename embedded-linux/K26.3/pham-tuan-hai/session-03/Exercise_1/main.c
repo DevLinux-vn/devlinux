@@ -69,7 +69,7 @@ void add_student(int fd) {
 
     printf("Name: "); 
     if (scanf("%63s", s.name) == 1) {
-      while(getchar() != '\n')；
+      while(getchar() != '\n');
     }
 
     while (1) {

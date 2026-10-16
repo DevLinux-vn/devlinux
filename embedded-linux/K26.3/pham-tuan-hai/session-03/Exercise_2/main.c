@@ -13,8 +13,6 @@ typedef struct {
     double price;
 } Product;
 
-memset(&p, 0, sizeof(Product));
-
 static int write_full(int fd, const void *buf, size_t count) {
   size_t total_written = 0;
   const char *ptr = (const char *)buf;
@@ -64,7 +62,7 @@ void add_product(int fd) {
 	printf("Name: ");
   
   if (scanf("%63s", p.name) == 1) {
-    while(getchar() != '\n')；
+    while(getchar() != '\n');
   }
 	printf("Quantity: "); scanf("%d", &p.quantity);
 	printf("Price: "); scanf("%lf", &p.price);
