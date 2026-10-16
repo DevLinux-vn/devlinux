@@ -11,8 +11,6 @@ typedef struct {
 	float gpa;
 } Student;
 
-memset(&s, 0, sizeof(Student));
-
 static int write_full(int fd, const void *buf, size_t count) {
   size_t total_written = 0;
   const char *ptr = (const char *)buf;
@@ -56,6 +54,7 @@ static int read_full(int fd, void *buf, size_t count) {
 
 void add_student(int fd) {
     Student s;
+    memset(&s, 0, sizeof(Student));
     int status;
 
     while (1) {
@@ -69,7 +68,9 @@ void add_student(int fd) {
     }
 
     printf("Name: "); 
-    scanf("%s", s.name);
+    if (scanf("%63s", s.name) == 1) {
+      while(getchar() != '\n')；
+    }
 
     while (1) {
         printf("Age (1 - 80): ");
@@ -106,12 +107,12 @@ void add_student(int fd) {
 
 void list_students(int fd) {
 	Student s;
+  memset(&s, 0, sizeof(Student));
 
 	if (lseek(fd, 0, SEEK_SET) == (off_t)-1) {
     perror("lseek failed");
     return;
   }
-}
 
 	printf("=====DANH SACH SINH VIEN=====");
 
@@ -130,6 +131,7 @@ void find_student(int fd) {
 	scanf("%d", &target_id);
 
 	Student s;
+  memset(&s, 0, sizeof(Student));
 	int found = 0;
 
 	if (lseek(fd, 0, SEEK_SET) == (off_t)-1) {

@@ -58,9 +58,14 @@ static int read_full(int fd, void *buf, size_t count) {
 
 void add_product(int fd) {
 	Product p;
-
+  memset(&p, 0, sizeof(Product));
+  
 	printf("ID: "); scanf("%d", &p.id);
-	printf("Name: "); scanf("%s", p.name);
+	printf("Name: ");
+  
+  if (scanf("%63s", p.name) == 1) {
+    while(getchar() != '\n')；
+  }
 	printf("Quantity: "); scanf("%d", &p.quantity);
 	printf("Price: "); scanf("%lf", &p.price);
 
@@ -84,6 +89,7 @@ void show_product(int fd) {
 	int index;
 
 	Product p;
+  memset(&p, 0, sizeof(Product));
 	printf("Nhap index: \n"); scanf("%d", &index);
   if(index < 0) {
     printf("Error negative number");
@@ -113,6 +119,7 @@ void show_product(int fd) {
 void  update_quantity_by_index(int fd) {
 	int index, new_quantity;
 	Product p;
+  memset(&p, 0, sizeof(Product));
 
 	printf("Index: "); scanf("%d", &index);
   if(index < 0) {
@@ -155,6 +162,7 @@ void  update_quantity_by_index(int fd) {
 
 void list_products(int fd) {
 	Product p;
+  memset(&p, 0, sizeof(Product));
 
 	if(lseek(fd, 0, SEEK_SET) == (off_t)-1) {
     printf("lseek failed\n");
@@ -174,6 +182,7 @@ void list_products(int fd) {
 
 int main() {
 	Product p;
+  memset(&p, 0, sizeof(Product));
 
 	int fd = open("products.dat", O_RDWR | O_CREAT, 0666);
 	if (fd < 0) {
