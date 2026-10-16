@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#define ERRMSG_INVALID_ID "Loi: Yeu cau la so nguyen duong.\n"
 
 typedef struct {
 	int id;
@@ -63,7 +64,7 @@ void add_student(int fd) {
       if (status == 1 && s.id > 0) {
           break;
       }
-      printf("Loi: ID phai la so nguyen duong.\n");
+      printf(ERRMSG_INVALID_ID);
       while (getchar() != '\n'); 
   }
 
@@ -153,7 +154,7 @@ void find_student(int fd) {
     printf("Read failed\n");
   }
   
-	if(!found) { printf("Khong tim thay"); }
+	if(!found) { printf("Khong tim thay\n"); }
 
 	return;
 }

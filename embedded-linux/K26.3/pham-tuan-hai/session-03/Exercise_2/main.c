@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#define ERRMSG_INVALID_ID "Loi: Yeu cau la so nguyen duong.\n"
 
 typedef struct {
     int    id;
@@ -56,82 +57,83 @@ static int read_full(int fd, void *buf, size_t count) {
 
 void add_product(int fd) {
 	Product p;
-  memset(&p, 0, sizeof(Product));
+	memset(&p, 0, sizeof(Product));
   
 	printf("ID: "); scanf("%d", &p.id);
 	printf("Name: ");
   
-  if (scanf("%63s", p.name) == 1) {
-    while(getchar() != '\n');
-  }
+	if (scanf("%63s", p.name) == 1) {
+		while(getchar() != '\n');
+  	}
 	printf("Quantity: "); scanf("%d", &p.quantity);
 	printf("Price: "); scanf("%lf", &p.price);
 
 	if(lseek(fd, 0, SEEK_END) == (off_t)-1) {
-    perror("lseek failed");
-    return;    
-  }
+    		perror("lseek failed");
+		return;
+	}
 	if(write_full(fd, &p, sizeof(Product)) == -1) {
 		perror("Write failed\n");
-    return;
+		return;
 	}
   
-  if(fsync(fd) == -1) {
-    perror("fsync failed");
-  }
+	if(fsync(fd) == -1) {
+		perror("fsync failed");
+	}
   
-  printf("Adding success!\n");
+	printf("Adding success!\n");
 }
 
 void show_product(int fd) {
 	int index;
 
 	Product p;
-  memset(&p, 0, sizeof(Product));
+	memset(&p, 0, sizeof(Product));
 	printf("Nhap index: \n"); scanf("%d", &index);
-  if(index < 0) {
-    printf("Error negative number");
-    return;
-  }
+
+	if(index < 0) {
+		printf(ERRMSG_INVALID_ID);
+		return;
+	}
 
 	off_t offset = sizeof(Product) * (off_t)index;
 
 	if(lseek(fd, offset, SEEK_SET) == (off_t)-1) {
-    printf("lseek failed\n");
-    return;
-  }
+		printf("lseek failed\n");
+		return;
+	}
   
-  int status;
+	int status;
 	if ((status = read_full(fd, &p, sizeof(Product))) == 1) {
 		printf("[ID: %d | Name: %s | Quantity: %d | Price: %lf]\n", 
 			p.id, p.name, p.quantity, p.price);
   
 	}
   
-  if (status == -1){
+	if (status == -1){
 		printf("Read failed\n");
-    return;
+		return;
 	}
 }
 
 void  update_quantity_by_index(int fd) {
 	int index, new_quantity;
 	Product p;
-  memset(&p, 0, sizeof(Product));
+	memset(&p, 0, sizeof(Product));
 
 	printf("Index: "); scanf("%d", &index);
-  if(index < 0) {
-    printf("Index can not be negative\n");
-    return;
-  }
+	if(index < 0) {
+		printf(ERRMSG_INVALID_ID);
+		return;
+	}
 	printf("New quantity: "); scanf("%d", &new_quantity);
 
 	off_t offset = sizeof(Product) * (off_t)index;
 
 	if(lseek(fd, offset, SEEK_SET) == (off_t)-1) {
-    perror("lseek failed");
-    return;
-  }
+		perror("lseek failed");
+		return;
+	}
 
 	if (read_full(fd, &p, sizeof(Product)) != 1) {
 		printf("Khong ton tai Index!\n");
@@ -141,47 +143,46 @@ void  update_quantity_by_index(int fd) {
 	off_t field_offset = offset + offsetof(Product, quantity);
 
 	if(lseek(fd, field_offset, SEEK_SET) == (off_t)-1) {
-    printf("lseek failed\n");
-    return;
-  }
+		printf("lseek failed\n");
+		return;
+	}
 
 //Update sau khi tim thay
 	if(write_full(fd, &new_quantity, sizeof(int)) == -1) {
-    perror("Write failed");
-    return;
-  }
+		perror("Write failed");
+		return;
+	}
 
-  if(fsync(fd) == -1) {
-    perror("fsync failed");
-  }
-  
+	if(fsync(fd) == -1) {
+		perror("fsync failed");
+	}
 	printf("Success Replacing!\n");
 }
 
 void list_products(int fd) {
 	Product p;
-  memset(&p, 0, sizeof(Product));
+	memset(&p, 0, sizeof(Product));
 
 	if(lseek(fd, 0, SEEK_SET) == (off_t)-1) {
-    printf("lseek failed\n");
-    return;
-  }
+		printf("lseek failed\n");
+		return;
+	}
   
-  int status;
+	int status;
 	while((status = read_full(fd, &p, sizeof(Product))) == 1) {
 		printf("ID: %d | Name: %s | Quantity: %d | Price: %.2lf\n",
 		p.id, p.name, p.quantity, p.price);
 	}
   
-  if(status == -1) {
-    printf("Read failed\n");
-    return;
-  }
+	if(status == -1) {
+		printf("Read failed\n");
+		return;
+	}
 }
 
 int main() {
 	Product p;
-  memset(&p, 0, sizeof(Product));
+	memset(&p, 0, sizeof(Product));
 
 	int fd = open("products.dat", O_RDWR | O_CREAT, 0666);
 	if (fd < 0) {
@@ -201,7 +202,7 @@ int main() {
 		printf("Vui long nhap so: \n");
 		scanf("%d", &number);
     
-    while(getchar() != '\n');
+		while(getchar() != '\n');
     
 		switch (number) {
 			case 1:
@@ -213,22 +214,22 @@ int main() {
 			case 3:
 				update_quantity_by_index(fd);
 				break;
-      case 4:
-        list_products(fd);
-        break;
+			case 4:
+        			list_products(fd);
+				break;
 			case 5:
 				printf("Thoat chuong trinh!\n");
-          if (close(fd) == -1) {
-          perror("close failed");
-          return 1;
-        }
+          			if (close(fd) == -1) {
+          				perror("close failed");
+					return 1;
+				}
 				return 0;
 				break;
 			default:
 				printf("ERORR! Vui long nhap tu 1 -> 5\n");
 		}
-    printf("\nNhan Enter de tiep tuc...");
-    while(getchar() != '\n');
-    getchar();
+	printf("\nNhan Enter de tiep tuc...");
+	while(getchar() != '\n');
+	getchar();
 	}
 }

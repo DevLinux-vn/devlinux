@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
       perror("close failed");
       return 1;
     }
+    perror("close failed");
     return 1;
   }
   
