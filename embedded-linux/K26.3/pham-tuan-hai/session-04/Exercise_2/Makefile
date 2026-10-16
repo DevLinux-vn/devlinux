@@ -1,0 +1,14 @@
+CC = gcc
+CFLAGS = -Wall
+
+all: manager searcher
+
+manager: manager.c
+	$(CC) $(CFLAGS) manager.c -o manager
+searcher: searcher.c
+	$(CC) $(CFLAGS) searcher.c -o searcher
+
+clean:
+	rm -f manager searcher
+run:
+	./manager
