@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
   //Mo file system.log
   int fd = open("system.log", O_WRONLY | O_CREAT | O_APPEND, 0666);
   if (fd < 0) {
-    printf("Mo file that bai\n");
+    perror("Mo file that bai\n");
     return 1;
   }
   
@@ -74,15 +74,15 @@ int main(int argc, char *argv[]) {
   if(fcntl(fd, F_SETLKW, &fl) == -1) {
     perror("Loi khoa file");
     if (close(fd) == -1) {
-          perror("close failed");
-          return 1;
+      perror("close failed");
+      return 1;
     }
     return 1;
   }
   
   //Ghi file
   if(write_full(fd, log_buffer, len) == -1) {
-    printf("Write failed\n");
+    perror("Write failed\n");
     return 1;
   }
   

@@ -94,9 +94,9 @@ void show_product(int fd) {
     return;
   }
 
-	off_t off_set = sizeof(Product) * (off_t)index;
+	off_t offset = sizeof(Product) * (off_t)index;
 
-	if(lseek(fd, off_set, SEEK_SET) == (off_t)-1) {
+	if(lseek(fd, offset, SEEK_SET) == (off_t)-1) {
     printf("lseek failed\n");
     return;
   }
@@ -126,9 +126,9 @@ void  update_quantity_by_index(int fd) {
   }
 	printf("New quantity: "); scanf("%d", &new_quantity);
 
-	off_t off_set = sizeof(Product) * (off_t)index;
+	off_t offset = sizeof(Product) * (off_t)index;
 
-	if(lseek(fd, off_set, SEEK_SET) == (off_t)-1) {
+	if(lseek(fd, offset, SEEK_SET) == (off_t)-1) {
     perror("lseek failed");
     return;
   }
@@ -138,7 +138,7 @@ void  update_quantity_by_index(int fd) {
 		return;
 	}
 
-	off_t field_offset = off_set + offsetof(Product, quantity);
+	off_t field_offset = offset + offsetof(Product, quantity);
 
 	if(lseek(fd, field_offset, SEEK_SET) == (off_t)-1) {
     printf("lseek failed\n");
@@ -172,6 +172,7 @@ void list_products(int fd) {
 		printf("ID: %d | Name: %s | Quantity: %d | Price: %.2lf\n",
 		p.id, p.name, p.quantity, p.price);
 	}
+  
   if(status == -1) {
     printf("Read failed\n");
     return;

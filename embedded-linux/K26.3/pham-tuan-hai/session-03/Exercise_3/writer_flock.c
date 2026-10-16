@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
   }
   
   if(write_full(fd, log_buffer, len) == -1) {
-    printf("write failed\n");
+    perror("write failed\n");
   }
   
   if(fsync(fd) == -1) {
