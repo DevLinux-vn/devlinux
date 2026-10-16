@@ -13,6 +13,24 @@ Best used when          Simple local file locking   Network FS or byte-range loc
 #include <fcntl.h>
 #include <sys/file.h>
 #include <time.h>
+#include <errno.h>
+
+static int write_full(int fd, const void *buf, size_t count) {
+  size_t total_written = 0;
+  const char *ptr = (const char *)buf;
+  
+  while (total_written < count) {
+    ssize_t written = write(fd, ptr + total_written,
+                              count - total_written);
+    if (written < 0) {
+      if(errno == EINTR) continue;
+      
+      return -1;
+    }
+    total_written += (size_t)written;
+  }
+  return 0;
+}
 
 int main(int argc, char *argv[]) {
   // Kiem tra chuoi dau vao
@@ -34,6 +52,10 @@ int main(int argc, char *argv[]) {
   char log_buffer[512];
   int len = snprintf(log_buffer, sizeof(log_buffer), "[PID:%d] [%s] [INFO] %s\n", pid, time_str, argv[1]);
   
+  if(len < 0 || len >= (int)sizeof(log_buffer)) {
+    fprintf(stderr, "Log message formatting error or truncated\n");
+    return 1;
+  }
   //Mo file system.log
   int fd = open("system.log", O_WRONLY | O_APPEND | O_CREAT, 0666);
   if(fd < 0) {
@@ -43,14 +65,26 @@ int main(int argc, char *argv[]) {
   
   //Khoa file bang flock
   if (flock(fd, LOCK_EX) == -1) {
-    close(fd);
+    if (close(fd) == -1) {
+      perror("close failed");
+      return 1;
+    }
     return 1;
   }
   
-  write(fd, log_buffer, len);
+  if(write_full(fd, log_buffer, len) == -1) {
+    printf("write failed\n");
+  }
+  
+  if(fsync(fd) == -1) {
+    perror("fsync failed\n");
+  }
   
   flock(fd, LOCK_UN);
   
-  close(fd);
+  if (close(fd) == -1) {
+    perror("close failed");
+    return 1;
+  }
   return 0;
 }

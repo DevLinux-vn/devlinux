@@ -1,6 +1,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 
 typedef struct {
 	int id;
@@ -9,6 +11,48 @@ typedef struct {
 	float gpa;
 } Student;
 
+memset(&s, 0, sizeof(Student));
+
+static int write_full(int fd, const void *buf, size_t count) {
+  size_t total_written = 0;
+  const char *ptr = (const char *)buf;
+  
+  while (total_written < count) {
+    ssize_t written = write(fd, ptr + total_written,
+                              count - total_written);
+    if (written < 0) {
+      if(errno == EINTR) continue;
+      
+      return -1;
+    }
+    total_written += (size_t)written;
+  }
+  return 0;
+}
+
+//Read success: 1
+//Read fail (error): -1
+//End of file (success): 0;
+static int read_full(int fd, void *buf, size_t count) {
+  size_t total_read = 0;
+  char *ptr = (char *)buf;
+  
+  while(total_read < count) {
+    ssize_t n = read(fd, ptr + total_read, count - total_read);
+    
+    if(n < 0) {
+      if(errno == EINTR) continue;
+      
+      return -1;
+    }
+    if (n == 0) {
+      if (total_read == 0) return 0;
+      return -1;
+    }
+    total_read += (size_t)n;
+  }
+  return 1;
+}
 
 void add_student(int fd) {
     Student s;
@@ -47,24 +91,37 @@ void add_student(int fd) {
         while (getchar() != '\n'); 
     }
 
-    lseek(fd, 0, SEEK_END);
-    ssize_t bytes_written = write(fd, &s, sizeof(Student));
-    if (bytes_written == sizeof(Student)) {
-        printf("Adding success!\n");
+    if (lseek(fd, 0, SEEK_END) == (off_t)-1) {
+    perror("lseek failed");
+    return;
+}
+    if(write_full(fd, &s, sizeof(Student)) == -1) {
+      perror("Write failed");
+      return;
     }
+    
+    printf("Adding success!\n");
+    
 }
 
 void list_students(int fd) {
 	Student s;
 
-	lseek(fd, 0, SEEK_SET);
+	if (lseek(fd, 0, SEEK_SET) == (off_t)-1) {
+    perror("lseek failed");
+    return;
+  }
+}
 
 	printf("=====DANH SACH SINH VIEN=====");
 
-	while(read(fd, &s, sizeof(Student)) == sizeof(Student)){ 
-		printf("ID: %d | Name: %s | Age: %d | GPA: %.2f\n",
-			s.id, s.name, s.age, s.gpa);
-	}
+	int status;
+  while ((status = read_full(fd, &s, sizeof(Student))) == 1) {
+      printf("ID: %d | Name: %s | Age: %d | GPA: %.2f\n", s.id, s.name, s.age, s.gpa);
+  }
+  if (status == -1) {
+      printf("Read failed\n");
+  }
 }
 
 void find_student(int fd) {
@@ -75,15 +132,24 @@ void find_student(int fd) {
 	Student s;
 	int found = 0;
 
-	lseek(fd, 0, SEEK_SET);
-
-	while(read(fd, &s, sizeof(Student)) == sizeof(Student)){
+	if (lseek(fd, 0, SEEK_SET) == (off_t)-1) {
+    perror("lseek failed");
+    return;
+}
+  
+  int status;
+	while((status = read_full(fd, &s, sizeof(Student))) == 1){
 		if (s.id == target_id) {
 			found = 1;
-			printf("FOUND: ID: %d | Name: %s | Age: %d | GPA: %.2f\n", s.id, s.name, s.age, s.gpa);
+			printf("FOUND: ID: %d | Name: %s | Age: %d | GPA: %.2f\n", s.id, s.name, s.age, 
+                                                                              s.gpa);
+      break;
 		}
+    if (status == -1) {
+      printf("Read failed\n");
+    }
 	}
-	if(found != 1) { printf("Khong tim thay"); }
+	if(!found) { printf("Khong tim thay"); }
 
 	return;
 }
@@ -118,7 +184,10 @@ int main() {
 				break;
 			case 4:
 				printf("Thoat chuong trinh!");
-			        close(fd);
+        if (close(fd) == -1) {
+          perror("close failed");
+          return 1;
+        }
 				return 0;
 				break;
 			default:
