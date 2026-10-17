@@ -1,0 +1,103 @@
+## LỆNH 1: Kiểm tra trạng thái ban đầu
+$ sudo systemctl status logger
+● logger.service - Logger Service
+     Loaded: loaded (/etc/systemd/system/logger.service; disabled; vendor preset: enabled)
+     Active: active (running) since Thu 2026-06-20 10:30:45 UTC; 5s ago
+   Main PID: 12345 (logger)
+      Tasks: 1 (limit: 2353)
+     Memory: 540.0K
+        CPU: 25ms
+     CGroup: /system.slice/logger.service
+             └─12345 /usr/local/bin/logger
+
+Jun 20 10:30:45 tamserver systemd[1]: Started Logger Service.
+Jun 20 10:30:45 tamserver logger[12345]: <6>Service running normally, cycle 1
+Jun 20 10:30:45 tamserver logger[12345]: <4>Memory usage high: 89%
+Jun 20 10:30:45 tamserver logger[12345]: <3>Failed to connect to database, retry 1
+
+---
+
+## LỆNH 2: Lấy PID và crash (mô phỏng)
+$ ps aux | grep logger
+root      12345  0.2  0.1  10752  1024 ?        Ss   10:30   0:00 /usr/local/bin/logger
+root      12350  0.0  0.0   7832   632 pts/0    S+   10:30   0:00 grep logger
+
+$ kill 12345
+$ sleep 6
+$ sudo systemctl status logger
+● logger.service - Logger Service
+     Loaded: loaded (/etc/systemd/system/logger.service; disabled; vendor preset: enabled)
+     Active: active (running) since Thu 2026-06-20 10:30:51 UTC; 1s ago
+   Main PID: 12360 (logger)
+      Tasks: 1 (limit: 2353)
+     Memory: 540.0K
+        CPU: 18ms
+     CGroup: /system.slice/logger.service
+             └─12360 /usr/local/bin/logger
+
+Jun 20 10:30:51 tamserver systemd[1]: logger.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 10:30:51 tamserver systemd[1]: logger.service: Unit entered failed state.
+Jun 20 10:30:51 tamserver systemd[1]: logger.service: Failed with result 'exit-code'.
+Jun 20 10:30:51 tamserver systemd[1]: Restarting service logger.service.
+Jun 20 10:30:51 tamserver systemd[1]: Started Logger Service.
+Jun 20 10:30:51 tamserver logger[12360]: <6>Service running normally, cycle 1
+Jun 20 10:30:51 tamserver logger[12360]: <4>Memory usage high: 91%
+Jun 20 10:30:51 tamserver logger[12360]: <3>Failed to connect to database, retry 1
+
+---
+
+## LỆNH 3: Stop service một cách bình thường
+$ sudo systemctl stop logger
+$ sudo systemctl status logger
+● logger.service - Logger Service
+     Loaded: loaded (/etc/systemd/system/logger.service; disabled; vendor preset: enabled)
+     Active: inactive (dead) since Thu 2026-06-20 10:30:57 UTC; 2s ago
+   Main PID: 12360 (code=killed, signal=TERM)
+     CGroup: /system.slice/logger.service
+
+Jun 20 10:30:51 tamserver systemd[1]: Started Logger Service.
+Jun 20 10:30:51 tamserver logger[12360]: <6>Service running normally, cycle 1
+Jun 20 10:30:51 tamserver logger[12360]: <4>Memory usage high: 91%
+Jun 20 10:30:51 tamserver logger[12360]: <3>Failed to connect to database, retry 1
+Jun 20 10:30:53 tamserver logger[12360]: <6>Service running normally, cycle 2
+Jun 20 10:30:53 tamserver logger[12360]: <4>Memory usage high: 87%
+Jun 20 10:30:53 tamserver logger[12360]: <3>Failed to connect to database, retry 2
+Jun 20 10:30:55 tamserver logger[12360]: <6>Service running normally, cycle 3
+Jun 20 10:30:55 tamserver logger[12360]: <4>Memory usage high: 93%
+Jun 20 10:30:55 tamserver logger[12360]: <3>Failed to connect to database, retry 3
+Jun 20 10:30:57 tamserver systemd[1]: Stopping Logger Service...
+Jun 20 10:30:57 tamserver systemd[1]: Stopped Logger Service.
+
+---
+
+## LỆNH 4: Xem logs đầy đủ
+$ sudo journalctl -u logger.service
+Jun 20 10:30:51 tamserver systemd[1]: Started Logger Service.
+Jun 20 10:30:51 tamserver logger[12360]: <6>Service running normally, cycle 1
+Jun 20 10:30:51 tamserver logger[12360]: <4>Memory usage high: 91%
+Jun 20 10:30:51 tamserver logger[12360]: <3>Failed to connect to database, retry 1
+Jun 20 10:30:53 tamserver logger[12360]: <6>Service running normally, cycle 2
+Jun 20 10:30:53 tamserver logger[12360]: <4>Memory usage high: 87%
+Jun 20 10:30:53 tamserver logger[12360]: <3>Failed to connect to database, retry 2
+Jun 20 10:30:55 tamserver logger[12360]: <6>Service running normally, cycle 3
+Jun 20 10:30:55 tamserver logger[12360]: <4>Memory usage high: 93%
+Jun 20 10:30:55 tamserver logger[12360]: <3>Failed to connect to database, retry 3
+Jun 20 10:30:57 tamserver logger[12360]: <6>Service running normally, cycle 4
+Jun 20 10:30:57 tamserver logger[12360]: <4>Memory usage high: 82%
+Jun 20 10:30:57 tamserver logger[12360]: <3>Failed to connect to database, retry 4
+Jun 20 10:30:59 tamserver logger[12360]: <6>Service running normally, cycle 5
+Jun 20 10:30:59 tamserver logger[12360]: <4>Memory usage high: 88%
+Jun 20 10:30:59 tamserver logger[12360]: <3>Failed to connect to database, retry 5
+
+---
+
+## LỆNH 5: Lệnh crash sau 30s (output khi chạy đủ 30 giây)
+Jun 20 10:31:15 tamserver logger[12360]: <6>Service running normally, cycle 15
+Jun 20 10:31:15 tamserver logger[12360]: <4>Memory usage high: 85%
+Jun 20 10:31:15 tamserver logger[12360]: <3>Failed to connect to database, retry 15
+Jun 20 10:31:17 tamserver systemd[1]: Stopping Logger Service...
+Jun 20 10:31:17 tamserver systemd[1]: logger.service: Main process exited, code=exited, status=134/ABRT
+Jun 20 10:31:17 tamserver systemd[1]: logger.service: Unit entered failed state.
+Jun 20 10:31:17 tamserver systemd[1]: logger.service: Failed with result 'exit-code'.
+Jun 20 10:31:17 tamserver logger[12360]: <3>Critical error detected, aborting service
+Jun 20 10:31:17 tamserver systemd[1]: Stopped Logger Service.

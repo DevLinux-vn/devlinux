@@ -1,0 +1,13 @@
+[Unit]
+Description=Logger Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/logger
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=logger
+
+[Install]
+WantedBy=multi-user.target
