@@ -1,0 +1,12 @@
+[Unit]
+Description=Logger Service — severity-level demo
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/logger_demo
+Restart=no
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
