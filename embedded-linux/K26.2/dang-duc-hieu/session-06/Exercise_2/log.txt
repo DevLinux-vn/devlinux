@@ -1,0 +1,372 @@
+=== 1. Full service log ===
+Sep 07 23:34:10 errorsegment systemd[1]: Started Logger Background Service.
+Sep 07 23:34:12 errorsegment logger[71114]: Service running normally, cycle 1804289383
+Sep 07 23:34:12 errorsegment logger[71114]: Memory usage high: 81%
+Sep 07 23:34:12 errorsegment logger[71114]: Failed to connect to database, retry 1804289383
+Sep 07 23:34:14 errorsegment logger[71114]: Service running normally, cycle 1681692777
+Sep 07 23:34:14 errorsegment logger[71114]: Memory usage high: 90%
+Sep 07 23:34:14 errorsegment logger[71114]: Failed to connect to database, retry 1681692777
+Sep 07 23:34:16 errorsegment logger[71114]: Service running normally, cycle 1957747793
+Sep 07 23:34:16 errorsegment logger[71114]: Memory usage high: 90%
+Sep 07 23:34:16 errorsegment logger[71114]: Failed to connect to database, retry 1957747793
+Sep 07 23:34:18 errorsegment logger[71114]: Service running normally, cycle 719885386
+Sep 07 23:34:18 errorsegment logger[71114]: Memory usage high: 92%
+Sep 07 23:34:18 errorsegment logger[71114]: Failed to connect to database, retry 719885386
+Sep 07 23:34:20 errorsegment logger[71114]: Service running normally, cycle 596516649
+Sep 07 23:34:20 errorsegment logger[71114]: Memory usage high: 81%
+Sep 07 23:34:20 errorsegment logger[71114]: Failed to connect to database, retry 596516649
+Sep 07 23:34:22 errorsegment logger[71114]: Service running normally, cycle 1025202362
+Sep 07 23:34:22 errorsegment logger[71114]: Memory usage high: 87%
+Sep 07 23:34:22 errorsegment logger[71114]: Failed to connect to database, retry 1025202362
+Sep 07 23:34:24 errorsegment logger[71114]: Service running normally, cycle 783368690
+Sep 07 23:34:24 errorsegment logger[71114]: Memory usage high: 84%
+Sep 07 23:34:24 errorsegment logger[71114]: Failed to connect to database, retry 783368690
+Sep 07 23:34:26 errorsegment logger[71114]: Service running normally, cycle 2044897763
+Sep 07 23:34:26 errorsegment logger[71114]: Memory usage high: 81%
+Sep 07 23:34:26 errorsegment logger[71114]: Failed to connect to database, retry 2044897763
+Sep 07 23:34:28 errorsegment logger[71114]: Service running normally, cycle 1365180540
+Sep 07 23:34:28 errorsegment logger[71114]: Memory usage high: 86%
+Sep 07 23:34:28 errorsegment logger[71114]: Failed to connect to database, retry 1365180540
+Sep 07 23:34:30 errorsegment logger[71114]: Service running normally, cycle 304089172
+Sep 07 23:34:30 errorsegment logger[71114]: Memory usage high: 81%
+Sep 07 23:34:30 errorsegment logger[71114]: Failed to connect to database, retry 304089172
+Sep 07 23:34:32 errorsegment logger[71114]: Service running normally, cycle 35005211
+Sep 07 23:34:32 errorsegment logger[71114]: Memory usage high: 88%
+Sep 07 23:34:32 errorsegment logger[71114]: Failed to connect to database, retry 35005211
+Sep 07 23:34:34 errorsegment logger[71114]: Service running normally, cycle 294702567
+Sep 07 23:34:34 errorsegment logger[71114]: Memory usage high: 89%
+Sep 07 23:34:34 errorsegment logger[71114]: Failed to connect to database, retry 294702567
+Sep 07 23:34:36 errorsegment logger[71114]: Service running normally, cycle 336465782
+Sep 07 23:34:36 errorsegment logger[71114]: Memory usage high: 85%
+Sep 07 23:34:36 errorsegment logger[71114]: Failed to connect to database, retry 336465782
+Sep 07 23:34:38 errorsegment logger[71114]: Service running normally, cycle 278722862
+Sep 07 23:34:38 errorsegment logger[71114]: Memory usage high: 93%
+Sep 07 23:34:38 errorsegment logger[71114]: Failed to connect to database, retry 278722862
+Sep 07 23:34:40 errorsegment logger[71114]: Service running normally, cycle 2145174067
+Sep 07 23:34:40 errorsegment logger[71114]: Memory usage high: 90%
+Sep 07 23:34:40 errorsegment logger[71114]: Failed to connect to database, retry 2145174067
+Sep 07 23:34:40 errorsegment systemd-coredump[71491]: Process 71114 (logger) of user 0 dumped core.
+                                                      
+                                                      Stack trace of thread 71114:
+                                                      #0  0x00007fa9cca9981c n/a (libc.so.6 + 0x9981c)
+                                                      #1  0x00007fa9cca3e150 raise (libc.so.6 + 0x3e150)
+                                                      #2  0x00007fa9cca2567d abort (libc.so.6 + 0x2567d)
+                                                      #3  0x0000564c6e501267 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x1267)
+                                                      #4  0x00007fa9cca27741 n/a (libc.so.6 + 0x27741)
+                                                      #5  0x00007fa9cca27879 __libc_start_main (libc.so.6 + 0x27879)
+                                                      #6  0x0000564c6e5010a5 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x10a5)
+                                                      ELF object binary architecture: AMD x86-64
+Sep 07 23:34:40 errorsegment systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Sep 07 23:34:40 errorsegment systemd[1]: logger.service: Failed with result 'core-dump'.
+Sep 07 23:39:11 errorsegment systemd[1]: Started Logger Background Service.
+Sep 07 23:39:13 errorsegment logger[74722]: Service running normally, cycle 1804289383
+Sep 07 23:39:13 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:13 errorsegment logger[74722]: Failed to connect to database, retry 1804289383
+Sep 07 23:39:15 errorsegment logger[74722]: Service running normally, cycle 1681692777
+Sep 07 23:39:15 errorsegment logger[74722]: Memory usage high: 90%
+Sep 07 23:39:15 errorsegment logger[74722]: Failed to connect to database, retry 1681692777
+Sep 07 23:39:17 errorsegment logger[74722]: Service running normally, cycle 1957747793
+Sep 07 23:39:17 errorsegment logger[74722]: Memory usage high: 90%
+Sep 07 23:39:17 errorsegment logger[74722]: Failed to connect to database, retry 1957747793
+Sep 07 23:39:19 errorsegment logger[74722]: Service running normally, cycle 719885386
+Sep 07 23:39:19 errorsegment logger[74722]: Memory usage high: 92%
+Sep 07 23:39:19 errorsegment logger[74722]: Failed to connect to database, retry 719885386
+Sep 07 23:39:21 errorsegment logger[74722]: Service running normally, cycle 596516649
+Sep 07 23:39:21 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:21 errorsegment logger[74722]: Failed to connect to database, retry 596516649
+Sep 07 23:39:23 errorsegment logger[74722]: Service running normally, cycle 1025202362
+Sep 07 23:39:23 errorsegment logger[74722]: Memory usage high: 87%
+Sep 07 23:39:23 errorsegment logger[74722]: Failed to connect to database, retry 1025202362
+Sep 07 23:39:25 errorsegment logger[74722]: Service running normally, cycle 783368690
+Sep 07 23:39:25 errorsegment logger[74722]: Memory usage high: 84%
+Sep 07 23:39:25 errorsegment logger[74722]: Failed to connect to database, retry 783368690
+Sep 07 23:39:27 errorsegment logger[74722]: Service running normally, cycle 2044897763
+Sep 07 23:39:27 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:27 errorsegment logger[74722]: Failed to connect to database, retry 2044897763
+Sep 07 23:39:29 errorsegment logger[74722]: Service running normally, cycle 1365180540
+Sep 07 23:39:29 errorsegment logger[74722]: Memory usage high: 86%
+Sep 07 23:39:29 errorsegment logger[74722]: Failed to connect to database, retry 1365180540
+Sep 07 23:39:31 errorsegment logger[74722]: Service running normally, cycle 304089172
+Sep 07 23:39:31 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:31 errorsegment logger[74722]: Failed to connect to database, retry 304089172
+Sep 07 23:39:33 errorsegment logger[74722]: Service running normally, cycle 35005211
+Sep 07 23:39:33 errorsegment logger[74722]: Memory usage high: 88%
+Sep 07 23:39:33 errorsegment logger[74722]: Failed to connect to database, retry 35005211
+Sep 07 23:39:35 errorsegment logger[74722]: Service running normally, cycle 294702567
+Sep 07 23:39:35 errorsegment logger[74722]: Memory usage high: 89%
+Sep 07 23:39:35 errorsegment logger[74722]: Failed to connect to database, retry 294702567
+Sep 07 23:39:37 errorsegment logger[74722]: Service running normally, cycle 336465782
+Sep 07 23:39:37 errorsegment logger[74722]: Memory usage high: 85%
+Sep 07 23:39:37 errorsegment logger[74722]: Failed to connect to database, retry 336465782
+Sep 07 23:39:39 errorsegment logger[74722]: Service running normally, cycle 278722862
+Sep 07 23:39:39 errorsegment logger[74722]: Memory usage high: 93%
+Sep 07 23:39:39 errorsegment logger[74722]: Failed to connect to database, retry 278722862
+Sep 07 23:39:41 errorsegment logger[74722]: Service running normally, cycle 2145174067
+Sep 07 23:39:41 errorsegment logger[74722]: Memory usage high: 90%
+Sep 07 23:39:41 errorsegment logger[74722]: Failed to connect to database, retry 2145174067
+Sep 07 23:39:41 errorsegment systemd-coredump[75130]: Process 74722 (logger) of user 0 dumped core.
+                                                      
+                                                      Stack trace of thread 74722:
+                                                      #0  0x00007fa2bde9981c n/a (libc.so.6 + 0x9981c)
+                                                      #1  0x00007fa2bde3e150 raise (libc.so.6 + 0x3e150)
+                                                      #2  0x00007fa2bde2567d abort (libc.so.6 + 0x2567d)
+                                                      #3  0x000056442d22f267 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x1267)
+                                                      #4  0x00007fa2bde27741 n/a (libc.so.6 + 0x27741)
+                                                      #5  0x00007fa2bde27879 __libc_start_main (libc.so.6 + 0x27879)
+                                                      #6  0x000056442d22f0a5 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x10a5)
+                                                      ELF object binary architecture: AMD x86-64
+Sep 07 23:39:41 errorsegment systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Sep 07 23:39:41 errorsegment systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 2. Warning level and above ===
+Sep 07 23:34:12 errorsegment logger[71114]: Memory usage high: 81%
+Sep 07 23:34:12 errorsegment logger[71114]: Failed to connect to database, retry 1804289383
+Sep 07 23:34:14 errorsegment logger[71114]: Memory usage high: 90%
+Sep 07 23:34:14 errorsegment logger[71114]: Failed to connect to database, retry 1681692777
+Sep 07 23:34:16 errorsegment logger[71114]: Memory usage high: 90%
+Sep 07 23:34:16 errorsegment logger[71114]: Failed to connect to database, retry 1957747793
+Sep 07 23:34:18 errorsegment logger[71114]: Memory usage high: 92%
+Sep 07 23:34:18 errorsegment logger[71114]: Failed to connect to database, retry 719885386
+Sep 07 23:34:20 errorsegment logger[71114]: Memory usage high: 81%
+Sep 07 23:34:20 errorsegment logger[71114]: Failed to connect to database, retry 596516649
+Sep 07 23:34:22 errorsegment logger[71114]: Memory usage high: 87%
+Sep 07 23:34:22 errorsegment logger[71114]: Failed to connect to database, retry 1025202362
+Sep 07 23:34:24 errorsegment logger[71114]: Memory usage high: 84%
+Sep 07 23:34:24 errorsegment logger[71114]: Failed to connect to database, retry 783368690
+Sep 07 23:34:26 errorsegment logger[71114]: Memory usage high: 81%
+Sep 07 23:34:26 errorsegment logger[71114]: Failed to connect to database, retry 2044897763
+Sep 07 23:34:28 errorsegment logger[71114]: Memory usage high: 86%
+Sep 07 23:34:28 errorsegment logger[71114]: Failed to connect to database, retry 1365180540
+Sep 07 23:34:30 errorsegment logger[71114]: Memory usage high: 81%
+Sep 07 23:34:30 errorsegment logger[71114]: Failed to connect to database, retry 304089172
+Sep 07 23:34:32 errorsegment logger[71114]: Memory usage high: 88%
+Sep 07 23:34:32 errorsegment logger[71114]: Failed to connect to database, retry 35005211
+Sep 07 23:34:34 errorsegment logger[71114]: Memory usage high: 89%
+Sep 07 23:34:34 errorsegment logger[71114]: Failed to connect to database, retry 294702567
+Sep 07 23:34:36 errorsegment logger[71114]: Memory usage high: 85%
+Sep 07 23:34:36 errorsegment logger[71114]: Failed to connect to database, retry 336465782
+Sep 07 23:34:38 errorsegment logger[71114]: Memory usage high: 93%
+Sep 07 23:34:38 errorsegment logger[71114]: Failed to connect to database, retry 278722862
+Sep 07 23:34:40 errorsegment logger[71114]: Memory usage high: 90%
+Sep 07 23:34:40 errorsegment logger[71114]: Failed to connect to database, retry 2145174067
+Sep 07 23:34:40 errorsegment systemd-coredump[71491]: Process 71114 (logger) of user 0 dumped core.
+                                                      
+                                                      Stack trace of thread 71114:
+                                                      #0  0x00007fa9cca9981c n/a (libc.so.6 + 0x9981c)
+                                                      #1  0x00007fa9cca3e150 raise (libc.so.6 + 0x3e150)
+                                                      #2  0x00007fa9cca2567d abort (libc.so.6 + 0x2567d)
+                                                      #3  0x0000564c6e501267 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x1267)
+                                                      #4  0x00007fa9cca27741 n/a (libc.so.6 + 0x27741)
+                                                      #5  0x00007fa9cca27879 __libc_start_main (libc.so.6 + 0x27879)
+                                                      #6  0x0000564c6e5010a5 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x10a5)
+                                                      ELF object binary architecture: AMD x86-64
+Sep 07 23:34:40 errorsegment systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Sep 07 23:34:40 errorsegment systemd[1]: logger.service: Failed with result 'core-dump'.
+Sep 07 23:39:13 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:13 errorsegment logger[74722]: Failed to connect to database, retry 1804289383
+Sep 07 23:39:15 errorsegment logger[74722]: Memory usage high: 90%
+Sep 07 23:39:15 errorsegment logger[74722]: Failed to connect to database, retry 1681692777
+Sep 07 23:39:17 errorsegment logger[74722]: Memory usage high: 90%
+Sep 07 23:39:17 errorsegment logger[74722]: Failed to connect to database, retry 1957747793
+Sep 07 23:39:19 errorsegment logger[74722]: Memory usage high: 92%
+Sep 07 23:39:19 errorsegment logger[74722]: Failed to connect to database, retry 719885386
+Sep 07 23:39:21 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:21 errorsegment logger[74722]: Failed to connect to database, retry 596516649
+Sep 07 23:39:23 errorsegment logger[74722]: Memory usage high: 87%
+Sep 07 23:39:23 errorsegment logger[74722]: Failed to connect to database, retry 1025202362
+Sep 07 23:39:25 errorsegment logger[74722]: Memory usage high: 84%
+Sep 07 23:39:25 errorsegment logger[74722]: Failed to connect to database, retry 783368690
+Sep 07 23:39:27 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:27 errorsegment logger[74722]: Failed to connect to database, retry 2044897763
+Sep 07 23:39:29 errorsegment logger[74722]: Memory usage high: 86%
+Sep 07 23:39:29 errorsegment logger[74722]: Failed to connect to database, retry 1365180540
+Sep 07 23:39:31 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:31 errorsegment logger[74722]: Failed to connect to database, retry 304089172
+Sep 07 23:39:33 errorsegment logger[74722]: Memory usage high: 88%
+Sep 07 23:39:33 errorsegment logger[74722]: Failed to connect to database, retry 35005211
+Sep 07 23:39:35 errorsegment logger[74722]: Memory usage high: 89%
+Sep 07 23:39:35 errorsegment logger[74722]: Failed to connect to database, retry 294702567
+Sep 07 23:39:37 errorsegment logger[74722]: Memory usage high: 85%
+Sep 07 23:39:37 errorsegment logger[74722]: Failed to connect to database, retry 336465782
+Sep 07 23:39:39 errorsegment logger[74722]: Memory usage high: 93%
+Sep 07 23:39:39 errorsegment logger[74722]: Failed to connect to database, retry 278722862
+Sep 07 23:39:41 errorsegment logger[74722]: Memory usage high: 90%
+Sep 07 23:39:41 errorsegment logger[74722]: Failed to connect to database, retry 2145174067
+Sep 07 23:39:41 errorsegment systemd-coredump[75130]: Process 74722 (logger) of user 0 dumped core.
+                                                      
+                                                      Stack trace of thread 74722:
+                                                      #0  0x00007fa2bde9981c n/a (libc.so.6 + 0x9981c)
+                                                      #1  0x00007fa2bde3e150 raise (libc.so.6 + 0x3e150)
+                                                      #2  0x00007fa2bde2567d abort (libc.so.6 + 0x2567d)
+                                                      #3  0x000056442d22f267 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x1267)
+                                                      #4  0x00007fa2bde27741 n/a (libc.so.6 + 0x27741)
+                                                      #5  0x00007fa2bde27879 __libc_start_main (libc.so.6 + 0x27879)
+                                                      #6  0x000056442d22f0a5 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x10a5)
+                                                      ELF object binary architecture: AMD x86-64
+Sep 07 23:39:41 errorsegment systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Sep 07 23:39:41 errorsegment systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 3. Error level and above ===
+Sep 07 23:34:12 errorsegment logger[71114]: Failed to connect to database, retry 1804289383
+Sep 07 23:34:14 errorsegment logger[71114]: Failed to connect to database, retry 1681692777
+Sep 07 23:34:16 errorsegment logger[71114]: Failed to connect to database, retry 1957747793
+Sep 07 23:34:18 errorsegment logger[71114]: Failed to connect to database, retry 719885386
+Sep 07 23:34:20 errorsegment logger[71114]: Failed to connect to database, retry 596516649
+Sep 07 23:34:22 errorsegment logger[71114]: Failed to connect to database, retry 1025202362
+Sep 07 23:34:24 errorsegment logger[71114]: Failed to connect to database, retry 783368690
+Sep 07 23:34:26 errorsegment logger[71114]: Failed to connect to database, retry 2044897763
+Sep 07 23:34:28 errorsegment logger[71114]: Failed to connect to database, retry 1365180540
+Sep 07 23:34:30 errorsegment logger[71114]: Failed to connect to database, retry 304089172
+Sep 07 23:34:32 errorsegment logger[71114]: Failed to connect to database, retry 35005211
+Sep 07 23:34:34 errorsegment logger[71114]: Failed to connect to database, retry 294702567
+Sep 07 23:34:36 errorsegment logger[71114]: Failed to connect to database, retry 336465782
+Sep 07 23:34:38 errorsegment logger[71114]: Failed to connect to database, retry 278722862
+Sep 07 23:34:40 errorsegment logger[71114]: Failed to connect to database, retry 2145174067
+Sep 07 23:34:40 errorsegment systemd-coredump[71491]: Process 71114 (logger) of user 0 dumped core.
+                                                      
+                                                      Stack trace of thread 71114:
+                                                      #0  0x00007fa9cca9981c n/a (libc.so.6 + 0x9981c)
+                                                      #1  0x00007fa9cca3e150 raise (libc.so.6 + 0x3e150)
+                                                      #2  0x00007fa9cca2567d abort (libc.so.6 + 0x2567d)
+                                                      #3  0x0000564c6e501267 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x1267)
+                                                      #4  0x00007fa9cca27741 n/a (libc.so.6 + 0x27741)
+                                                      #5  0x00007fa9cca27879 __libc_start_main (libc.so.6 + 0x27879)
+                                                      #6  0x0000564c6e5010a5 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x10a5)
+                                                      ELF object binary architecture: AMD x86-64
+Sep 07 23:39:13 errorsegment logger[74722]: Failed to connect to database, retry 1804289383
+Sep 07 23:39:15 errorsegment logger[74722]: Failed to connect to database, retry 1681692777
+Sep 07 23:39:17 errorsegment logger[74722]: Failed to connect to database, retry 1957747793
+Sep 07 23:39:19 errorsegment logger[74722]: Failed to connect to database, retry 719885386
+Sep 07 23:39:21 errorsegment logger[74722]: Failed to connect to database, retry 596516649
+Sep 07 23:39:23 errorsegment logger[74722]: Failed to connect to database, retry 1025202362
+Sep 07 23:39:25 errorsegment logger[74722]: Failed to connect to database, retry 783368690
+Sep 07 23:39:27 errorsegment logger[74722]: Failed to connect to database, retry 2044897763
+Sep 07 23:39:29 errorsegment logger[74722]: Failed to connect to database, retry 1365180540
+Sep 07 23:39:31 errorsegment logger[74722]: Failed to connect to database, retry 304089172
+Sep 07 23:39:33 errorsegment logger[74722]: Failed to connect to database, retry 35005211
+Sep 07 23:39:35 errorsegment logger[74722]: Failed to connect to database, retry 294702567
+Sep 07 23:39:37 errorsegment logger[74722]: Failed to connect to database, retry 336465782
+Sep 07 23:39:39 errorsegment logger[74722]: Failed to connect to database, retry 278722862
+Sep 07 23:39:41 errorsegment logger[74722]: Failed to connect to database, retry 2145174067
+Sep 07 23:39:41 errorsegment systemd-coredump[75130]: Process 74722 (logger) of user 0 dumped core.
+                                                      
+                                                      Stack trace of thread 74722:
+                                                      #0  0x00007fa2bde9981c n/a (libc.so.6 + 0x9981c)
+                                                      #1  0x00007fa2bde3e150 raise (libc.so.6 + 0x3e150)
+                                                      #2  0x00007fa2bde2567d abort (libc.so.6 + 0x2567d)
+                                                      #3  0x000056442d22f267 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x1267)
+                                                      #4  0x00007fa2bde27741 n/a (libc.so.6 + 0x27741)
+                                                      #5  0x00007fa2bde27879 __libc_start_main (libc.so.6 + 0x27879)
+                                                      #6  0x000056442d22f0a5 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x10a5)
+                                                      ELF object binary architecture: AMD x86-64
+=== 4. Log from the last 1 minute ===
+Sep 07 23:39:11 errorsegment systemd[1]: Started Logger Background Service.
+Sep 07 23:39:13 errorsegment logger[74722]: Service running normally, cycle 1804289383
+Sep 07 23:39:13 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:13 errorsegment logger[74722]: Failed to connect to database, retry 1804289383
+Sep 07 23:39:15 errorsegment logger[74722]: Service running normally, cycle 1681692777
+Sep 07 23:39:15 errorsegment logger[74722]: Memory usage high: 90%
+Sep 07 23:39:15 errorsegment logger[74722]: Failed to connect to database, retry 1681692777
+Sep 07 23:39:17 errorsegment logger[74722]: Service running normally, cycle 1957747793
+Sep 07 23:39:17 errorsegment logger[74722]: Memory usage high: 90%
+Sep 07 23:39:17 errorsegment logger[74722]: Failed to connect to database, retry 1957747793
+Sep 07 23:39:19 errorsegment logger[74722]: Service running normally, cycle 719885386
+Sep 07 23:39:19 errorsegment logger[74722]: Memory usage high: 92%
+Sep 07 23:39:19 errorsegment logger[74722]: Failed to connect to database, retry 719885386
+Sep 07 23:39:21 errorsegment logger[74722]: Service running normally, cycle 596516649
+Sep 07 23:39:21 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:21 errorsegment logger[74722]: Failed to connect to database, retry 596516649
+Sep 07 23:39:23 errorsegment logger[74722]: Service running normally, cycle 1025202362
+Sep 07 23:39:23 errorsegment logger[74722]: Memory usage high: 87%
+Sep 07 23:39:23 errorsegment logger[74722]: Failed to connect to database, retry 1025202362
+Sep 07 23:39:25 errorsegment logger[74722]: Service running normally, cycle 783368690
+Sep 07 23:39:25 errorsegment logger[74722]: Memory usage high: 84%
+Sep 07 23:39:25 errorsegment logger[74722]: Failed to connect to database, retry 783368690
+Sep 07 23:39:27 errorsegment logger[74722]: Service running normally, cycle 2044897763
+Sep 07 23:39:27 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:27 errorsegment logger[74722]: Failed to connect to database, retry 2044897763
+Sep 07 23:39:29 errorsegment logger[74722]: Service running normally, cycle 1365180540
+Sep 07 23:39:29 errorsegment logger[74722]: Memory usage high: 86%
+Sep 07 23:39:29 errorsegment logger[74722]: Failed to connect to database, retry 1365180540
+Sep 07 23:39:31 errorsegment logger[74722]: Service running normally, cycle 304089172
+Sep 07 23:39:31 errorsegment logger[74722]: Memory usage high: 81%
+Sep 07 23:39:31 errorsegment logger[74722]: Failed to connect to database, retry 304089172
+Sep 07 23:39:33 errorsegment logger[74722]: Service running normally, cycle 35005211
+Sep 07 23:39:33 errorsegment logger[74722]: Memory usage high: 88%
+Sep 07 23:39:33 errorsegment logger[74722]: Failed to connect to database, retry 35005211
+Sep 07 23:39:35 errorsegment logger[74722]: Service running normally, cycle 294702567
+Sep 07 23:39:35 errorsegment logger[74722]: Memory usage high: 89%
+Sep 07 23:39:35 errorsegment logger[74722]: Failed to connect to database, retry 294702567
+Sep 07 23:39:37 errorsegment logger[74722]: Service running normally, cycle 336465782
+Sep 07 23:39:37 errorsegment logger[74722]: Memory usage high: 85%
+Sep 07 23:39:37 errorsegment logger[74722]: Failed to connect to database, retry 336465782
+Sep 07 23:39:39 errorsegment logger[74722]: Service running normally, cycle 278722862
+Sep 07 23:39:39 errorsegment logger[74722]: Memory usage high: 93%
+Sep 07 23:39:39 errorsegment logger[74722]: Failed to connect to database, retry 278722862
+Sep 07 23:39:41 errorsegment logger[74722]: Service running normally, cycle 2145174067
+Sep 07 23:39:41 errorsegment logger[74722]: Memory usage high: 90%
+Sep 07 23:39:41 errorsegment logger[74722]: Failed to connect to database, retry 2145174067
+Sep 07 23:39:41 errorsegment systemd-coredump[75130]: Process 74722 (logger) of user 0 dumped core.
+                                                      
+                                                      Stack trace of thread 74722:
+                                                      #0  0x00007fa2bde9981c n/a (libc.so.6 + 0x9981c)
+                                                      #1  0x00007fa2bde3e150 raise (libc.so.6 + 0x3e150)
+                                                      #2  0x00007fa2bde2567d abort (libc.so.6 + 0x2567d)
+                                                      #3  0x000056442d22f267 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x1267)
+                                                      #4  0x00007fa2bde27741 n/a (libc.so.6 + 0x27741)
+                                                      #5  0x00007fa2bde27879 __libc_start_main (libc.so.6 + 0x27879)
+                                                      #6  0x000056442d22f0a5 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x10a5)
+                                                      ELF object binary architecture: AMD x86-64
+Sep 07 23:39:41 errorsegment systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Sep 07 23:39:41 errorsegment systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 5. Crash point ===
+Sep 07 23:34:12 errorsegment logger[71114]: Failed to connect to database, retry 1804289383
+Sep 07 23:34:14 errorsegment logger[71114]: Failed to connect to database, retry 1681692777
+Sep 07 23:34:16 errorsegment logger[71114]: Failed to connect to database, retry 1957747793
+Sep 07 23:34:18 errorsegment logger[71114]: Failed to connect to database, retry 719885386
+Sep 07 23:34:20 errorsegment logger[71114]: Failed to connect to database, retry 596516649
+Sep 07 23:34:22 errorsegment logger[71114]: Failed to connect to database, retry 1025202362
+Sep 07 23:34:24 errorsegment logger[71114]: Failed to connect to database, retry 783368690
+Sep 07 23:34:26 errorsegment logger[71114]: Failed to connect to database, retry 2044897763
+Sep 07 23:34:28 errorsegment logger[71114]: Failed to connect to database, retry 1365180540
+Sep 07 23:34:30 errorsegment logger[71114]: Failed to connect to database, retry 304089172
+Sep 07 23:34:32 errorsegment logger[71114]: Failed to connect to database, retry 35005211
+Sep 07 23:34:34 errorsegment logger[71114]: Failed to connect to database, retry 294702567
+Sep 07 23:34:36 errorsegment logger[71114]: Failed to connect to database, retry 336465782
+Sep 07 23:34:38 errorsegment logger[71114]: Failed to connect to database, retry 278722862
+Sep 07 23:34:40 errorsegment logger[71114]: Failed to connect to database, retry 2145174067
+Sep 07 23:34:40 errorsegment systemd-coredump[71491]: Process 71114 (logger) of user 0 dumped core.
+                                                      
+                                                      Stack trace of thread 71114:
+                                                      #0  0x00007fa9cca9981c n/a (libc.so.6 + 0x9981c)
+                                                      #1  0x00007fa9cca3e150 raise (libc.so.6 + 0x3e150)
+                                                      #2  0x00007fa9cca2567d abort (libc.so.6 + 0x2567d)
+                                                      #3  0x0000564c6e501267 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x1267)
+                                                      #4  0x00007fa9cca27741 n/a (libc.so.6 + 0x27741)
+                                                      #5  0x00007fa9cca27879 __libc_start_main (libc.so.6 + 0x27879)
+                                                      #6  0x0000564c6e5010a5 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x10a5)
+                                                      ELF object binary architecture: AMD x86-64
+Sep 07 23:39:13 errorsegment logger[74722]: Failed to connect to database, retry 1804289383
+Sep 07 23:39:15 errorsegment logger[74722]: Failed to connect to database, retry 1681692777
+Sep 07 23:39:17 errorsegment logger[74722]: Failed to connect to database, retry 1957747793
+Sep 07 23:39:19 errorsegment logger[74722]: Failed to connect to database, retry 719885386
+Sep 07 23:39:21 errorsegment logger[74722]: Failed to connect to database, retry 596516649
+Sep 07 23:39:23 errorsegment logger[74722]: Failed to connect to database, retry 1025202362
+Sep 07 23:39:25 errorsegment logger[74722]: Failed to connect to database, retry 783368690
+Sep 07 23:39:27 errorsegment logger[74722]: Failed to connect to database, retry 2044897763
+Sep 07 23:39:29 errorsegment logger[74722]: Failed to connect to database, retry 1365180540
+Sep 07 23:39:31 errorsegment logger[74722]: Failed to connect to database, retry 304089172
+Sep 07 23:39:33 errorsegment logger[74722]: Failed to connect to database, retry 35005211
+Sep 07 23:39:35 errorsegment logger[74722]: Failed to connect to database, retry 294702567
+Sep 07 23:39:37 errorsegment logger[74722]: Failed to connect to database, retry 336465782
+Sep 07 23:39:39 errorsegment logger[74722]: Failed to connect to database, retry 278722862
+Sep 07 23:39:41 errorsegment logger[74722]: Failed to connect to database, retry 2145174067
+Sep 07 23:39:41 errorsegment systemd-coredump[75130]: Process 74722 (logger) of user 0 dumped core.
+                                                      
+                                                      Stack trace of thread 74722:
+                                                      #0  0x00007fa2bde9981c n/a (libc.so.6 + 0x9981c)
+                                                      #1  0x00007fa2bde3e150 raise (libc.so.6 + 0x3e150)
+                                                      #2  0x00007fa2bde2567d abort (libc.so.6 + 0x2567d)
+                                                      #3  0x000056442d22f267 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x1267)
+                                                      #4  0x00007fa2bde27741 n/a (libc.so.6 + 0x27741)
+                                                      #5  0x00007fa2bde27879 __libc_start_main (libc.so.6 + 0x27879)
+                                                      #6  0x000056442d22f0a5 n/a (/home/hieu/Desktop/devlinux/embedded-linux/K26.2/dang-duc-hieu/session-06/Exercise_2/logger + 0x10a5)
+                                                      ELF object binary architecture: AMD x86-64
