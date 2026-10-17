@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../esp"
+		}
+	],
+	"settings": {
+		"clang-format.style": "file",
+		"files.associations": {
+			"*.h": "c"
+		}
+	}
+}
