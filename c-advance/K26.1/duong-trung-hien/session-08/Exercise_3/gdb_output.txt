@@ -1,0 +1,25 @@
+(gdb) run
+Starting program: /home/hien/devlinux/c-advance/K26.1/duong-trung-hien/session-08/Exercise_3/deb/debug 
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) n
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+Successfully parsed packet of length: 200
+
+Program received signal SIGSEGV, Segmentation fault.
+0x00005555555551d5 in parse_packet (raw_data=0x7fffffffd88b "_\347\252\363\351\263ؐ_") at main.c:26
+26      }
+(gdb) bt
+#0  0x00005555555551d5 in parse_packet (raw_data=0x7fffffffd88b "_\347\252\363\351\263ؐ_") at main.c:26
+#1  0xf7ffd00000005555 in ?? ()
+#2  0x1bb1aae700007fff in ?? ()
+#3  0xe9f3aae75f90c8c9 in ?? ()
+#4  0x000000005f90d8b3 in ?? ()
+#5  0x0000000000007fff in ?? ()
+#6  0x0000000000000000 in ?? ()
+(gdb) print pkt.length
+$1 = 200 '\310'
