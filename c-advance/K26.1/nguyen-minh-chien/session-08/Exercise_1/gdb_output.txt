@@ -1,0 +1,11 @@
+Breakpoint 1 at 0x1400014dc: file main.c, line 12.
+Starting program: E:\vscode\session8ex1\main.exe 
+[New Thread 3932.0x730]
+
+Thread 1 hit Breakpoint 1, main () at main.c:12
+12	    if (strcmp(password, "secret") == 0) {
+$1 = "AAAAAAAA"
+$2 = 65
+Warning: 'set logging off', an alias for the command 'set logging enabled', is deprecated.
+Use 'set logging enabled off'.
+

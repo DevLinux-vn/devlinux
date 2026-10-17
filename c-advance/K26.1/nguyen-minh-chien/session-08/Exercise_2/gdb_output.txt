@@ -1,0 +1,13 @@
+Breakpoint 1 at 0x1400014ed: file main.c, line 9.
+Starting program: E:\vscode\session8ex2\main.exe 
+[New Thread 20336.0x4dbc]
+
+Thread 1 hit Breakpoint 1, log_device_status (device_name=0x7ff622724012 "Sensor_%x_%x_%x_%x") at main.c:9
+9	    printf("\n");
+0x5ffdd0:	0x00000000	0x00000000	0x22724012	0x00007ff6
+Continuing.
+[Thread 20336.0x4dbc exited with code 0]
+[Inferior 1 (process 20336) exited normally]
+Warning: 'set logging off', an alias for the command 'set logging enabled', is deprecated.
+Use 'set logging enabled off'.
+

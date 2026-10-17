@@ -1,0 +1,12 @@
+Starting program: E:\vscode\session8ex3\main.exe 
+[New Thread 18200.0x1fa0]
+
+Thread 1 received signal SIGSEGV, Segmentation fault.
+0x0000000000000000 in ?? ()
+#0  0x0000000000000000 in ?? ()
+#1  0x0000000000000000 in ?? ()
+#1  0x0000000000000000 in ?? ()
+No symbol "pkt" in current context.
+Warning: 'set logging off', an alias for the command 'set logging enabled', is deprecated.
+Use 'set logging enabled off'.
+
