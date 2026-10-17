@@ -1,0 +1,12 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c11
+
+TARGET = student_app
+
+all: $(TARGET)
+
+$(TARGET): main.c
+	$(CC) $(CFLAGS) main.c -o $(TARGET)
+
+clean:
+	rm -f $(TARGET) students.dat
