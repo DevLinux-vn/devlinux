@@ -1,0 +1,24 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    fragment@0 {
+        target-path = "/";
+        __overlay__ {
+            led_node: led-blink {
+                compatible = "phuctai,led-blink";
+
+                /*
+                 * GPIO specification:
+                 * Uses GPIO18 from &gpio controller.
+                 * Flag 0 corresponds to GPIO_ACTIVE_HIGH:
+                 * Logic 1 (HIGH) outputs 3.3V to turn ON the LED circuit.
+                 */
+                gpios = <&gpio 18 0>;
+
+                label = "led-blink";
+                status = "okay";
+            };
+        };
+    };
+};
