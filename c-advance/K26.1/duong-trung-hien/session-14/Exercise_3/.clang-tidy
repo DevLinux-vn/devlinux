@@ -1,0 +1,12 @@
+Checks: >
+  -*,
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  misc-*,
+  -bugprone-easily-swappable-parameters
+WarningsAsErrors: >
+  bugprone-null-dereference,
+  cert-err34-c,
+  clang-analyzer-core.*
+HeaderFilterRegex: 'inc/.*\.h$'
