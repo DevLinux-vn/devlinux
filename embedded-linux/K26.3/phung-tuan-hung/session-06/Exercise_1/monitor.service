@@ -1,0 +1,18 @@
+[Unit]
+Description=Monitor background service
+# Max 3 start attempts within 30 seconds
+StartLimitIntervalSec=30
+StartLimitBurst=3
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/monitor
+# Restart even when the process exits after SIGTERM (kill <PID>),
+# but NOT when stopped with "systemctl stop".
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+
+[Install]
+# Start automatically on boot
+WantedBy=multi-user.target

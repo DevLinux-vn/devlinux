@@ -1,0 +1,13 @@
+[Unit]
+Description=Logger service (severity levels + crash after 30s)
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/logger_demo
+StandardOutput=journal
+StandardError=journal
+# Do not restart so the crash is preserved for analysis
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
