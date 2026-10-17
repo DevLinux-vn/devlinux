@@ -1,0 +1,131 @@
+=== 1. Full service log ===
+Thg 10 07 13:04:10 an-computer systemd[1]: Started Session 06 Exercise 2 Logger Service.
+Thg 10 07 13:04:10 an-computer logger[16088]: Service running normally, cycle 1
+Thg 10 07 13:04:10 an-computer logger[16088]: Memory usage high: 93%
+Thg 10 07 13:04:10 an-computer logger[16088]: Failed to connect to database, retry 1
+Thg 10 07 13:04:12 an-computer logger[16088]: Service running normally, cycle 2
+Thg 10 07 13:04:12 an-computer logger[16088]: Memory usage high: 81%
+Thg 10 07 13:04:12 an-computer logger[16088]: Failed to connect to database, retry 2
+Thg 10 07 13:04:14 an-computer logger[16088]: Service running normally, cycle 3
+Thg 10 07 13:04:14 an-computer logger[16088]: Memory usage high: 92%
+Thg 10 07 13:04:14 an-computer logger[16088]: Failed to connect to database, retry 3
+Thg 10 07 13:04:16 an-computer logger[16088]: Service running normally, cycle 4
+Thg 10 07 13:04:16 an-computer logger[16088]: Memory usage high: 90%
+Thg 10 07 13:04:16 an-computer logger[16088]: Failed to connect to database, retry 4
+Thg 10 07 13:04:18 an-computer logger[16088]: Service running normally, cycle 5
+Thg 10 07 13:04:18 an-computer logger[16088]: Memory usage high: 88%
+Thg 10 07 13:04:18 an-computer logger[16088]: Failed to connect to database, retry 5
+Thg 10 07 13:04:20 an-computer logger[16088]: Service running normally, cycle 6
+Thg 10 07 13:04:20 an-computer logger[16088]: Memory usage high: 90%
+Thg 10 07 13:04:20 an-computer logger[16088]: Failed to connect to database, retry 6
+Thg 10 07 13:04:22 an-computer logger[16088]: Service running normally, cycle 7
+Thg 10 07 13:04:22 an-computer logger[16088]: Memory usage high: 81%
+Thg 10 07 13:04:22 an-computer logger[16088]: Failed to connect to database, retry 7
+Thg 10 07 13:04:24 an-computer logger[16088]: Service running normally, cycle 8
+Thg 10 07 13:04:24 an-computer logger[16088]: Memory usage high: 92%
+Thg 10 07 13:04:24 an-computer logger[16088]: Failed to connect to database, retry 8
+Thg 10 07 13:04:26 an-computer logger[16088]: Service running normally, cycle 9
+Thg 10 07 13:04:26 an-computer logger[16088]: Memory usage high: 89%
+Thg 10 07 13:04:26 an-computer logger[16088]: Failed to connect to database, retry 9
+Thg 10 07 13:04:28 an-computer logger[16088]: Service running normally, cycle 10
+Thg 10 07 13:04:28 an-computer logger[16088]: Memory usage high: 81%
+Thg 10 07 13:04:28 an-computer logger[16088]: Failed to connect to database, retry 10
+Thg 10 07 13:04:30 an-computer logger[16088]: Service running normally, cycle 11
+Thg 10 07 13:04:30 an-computer logger[16088]: Memory usage high: 82%
+Thg 10 07 13:04:30 an-computer logger[16088]: Failed to connect to database, retry 11
+Thg 10 07 13:04:32 an-computer logger[16088]: Service running normally, cycle 12
+Thg 10 07 13:04:32 an-computer logger[16088]: Memory usage high: 87%
+Thg 10 07 13:04:32 an-computer logger[16088]: Failed to connect to database, retry 12
+
+=== 2. Warning level and above ===
+Thg 10 07 13:04:10 an-computer logger[16088]: Memory usage high: 93%
+Thg 10 07 13:04:10 an-computer logger[16088]: Failed to connect to database, retry 1
+Thg 10 07 13:04:12 an-computer logger[16088]: Memory usage high: 81%
+Thg 10 07 13:04:12 an-computer logger[16088]: Failed to connect to database, retry 2
+Thg 10 07 13:04:14 an-computer logger[16088]: Memory usage high: 92%
+Thg 10 07 13:04:14 an-computer logger[16088]: Failed to connect to database, retry 3
+Thg 10 07 13:04:16 an-computer logger[16088]: Memory usage high: 90%
+Thg 10 07 13:04:16 an-computer logger[16088]: Failed to connect to database, retry 4
+Thg 10 07 13:04:18 an-computer logger[16088]: Memory usage high: 88%
+Thg 10 07 13:04:18 an-computer logger[16088]: Failed to connect to database, retry 5
+Thg 10 07 13:04:20 an-computer logger[16088]: Memory usage high: 90%
+Thg 10 07 13:04:20 an-computer logger[16088]: Failed to connect to database, retry 6
+Thg 10 07 13:04:22 an-computer logger[16088]: Memory usage high: 81%
+Thg 10 07 13:04:22 an-computer logger[16088]: Failed to connect to database, retry 7
+Thg 10 07 13:04:24 an-computer logger[16088]: Memory usage high: 92%
+Thg 10 07 13:04:24 an-computer logger[16088]: Failed to connect to database, retry 8
+Thg 10 07 13:04:26 an-computer logger[16088]: Memory usage high: 89%
+Thg 10 07 13:04:26 an-computer logger[16088]: Failed to connect to database, retry 9
+Thg 10 07 13:04:28 an-computer logger[16088]: Memory usage high: 81%
+Thg 10 07 13:04:28 an-computer logger[16088]: Failed to connect to database, retry 10
+Thg 10 07 13:04:30 an-computer logger[16088]: Memory usage high: 82%
+Thg 10 07 13:04:30 an-computer logger[16088]: Failed to connect to database, retry 11
+Thg 10 07 13:04:32 an-computer logger[16088]: Memory usage high: 87%
+Thg 10 07 13:04:32 an-computer logger[16088]: Failed to connect to database, retry 12
+
+=== 3. Error level and above ===
+Thg 10 07 13:04:10 an-computer logger[16088]: Failed to connect to database, retry 1
+Thg 10 07 13:04:12 an-computer logger[16088]: Failed to connect to database, retry 2
+Thg 10 07 13:04:14 an-computer logger[16088]: Failed to connect to database, retry 3
+Thg 10 07 13:04:16 an-computer logger[16088]: Failed to connect to database, retry 4
+Thg 10 07 13:04:18 an-computer logger[16088]: Failed to connect to database, retry 5
+Thg 10 07 13:04:20 an-computer logger[16088]: Failed to connect to database, retry 6
+Thg 10 07 13:04:22 an-computer logger[16088]: Failed to connect to database, retry 7
+Thg 10 07 13:04:24 an-computer logger[16088]: Failed to connect to database, retry 8
+Thg 10 07 13:04:26 an-computer logger[16088]: Failed to connect to database, retry 9
+Thg 10 07 13:04:28 an-computer logger[16088]: Failed to connect to database, retry 10
+Thg 10 07 13:04:30 an-computer logger[16088]: Failed to connect to database, retry 11
+Thg 10 07 13:04:32 an-computer logger[16088]: Failed to connect to database, retry 12
+
+=== 4. Log from the last 1 minute ===
+Thg 10 07 13:04:10 an-computer systemd[1]: Started Session 06 Exercise 2 Logger Service.
+Thg 10 07 13:04:10 an-computer logger[16088]: Service running normally, cycle 1
+Thg 10 07 13:04:10 an-computer logger[16088]: Memory usage high: 93%
+Thg 10 07 13:04:10 an-computer logger[16088]: Failed to connect to database, retry 1
+Thg 10 07 13:04:12 an-computer logger[16088]: Service running normally, cycle 2
+Thg 10 07 13:04:12 an-computer logger[16088]: Memory usage high: 81%
+Thg 10 07 13:04:12 an-computer logger[16088]: Failed to connect to database, retry 2
+Thg 10 07 13:04:14 an-computer logger[16088]: Service running normally, cycle 3
+Thg 10 07 13:04:14 an-computer logger[16088]: Memory usage high: 92%
+Thg 10 07 13:04:14 an-computer logger[16088]: Failed to connect to database, retry 3
+Thg 10 07 13:04:16 an-computer logger[16088]: Service running normally, cycle 4
+Thg 10 07 13:04:16 an-computer logger[16088]: Memory usage high: 90%
+Thg 10 07 13:04:16 an-computer logger[16088]: Failed to connect to database, retry 4
+Thg 10 07 13:04:18 an-computer logger[16088]: Service running normally, cycle 5
+Thg 10 07 13:04:18 an-computer logger[16088]: Memory usage high: 88%
+Thg 10 07 13:04:18 an-computer logger[16088]: Failed to connect to database, retry 5
+Thg 10 07 13:04:20 an-computer logger[16088]: Service running normally, cycle 6
+Thg 10 07 13:04:20 an-computer logger[16088]: Memory usage high: 90%
+Thg 10 07 13:04:20 an-computer logger[16088]: Failed to connect to database, retry 6
+Thg 10 07 13:04:22 an-computer logger[16088]: Service running normally, cycle 7
+Thg 10 07 13:04:22 an-computer logger[16088]: Memory usage high: 81%
+Thg 10 07 13:04:22 an-computer logger[16088]: Failed to connect to database, retry 7
+Thg 10 07 13:04:24 an-computer logger[16088]: Service running normally, cycle 8
+Thg 10 07 13:04:24 an-computer logger[16088]: Memory usage high: 92%
+Thg 10 07 13:04:24 an-computer logger[16088]: Failed to connect to database, retry 8
+Thg 10 07 13:04:26 an-computer logger[16088]: Service running normally, cycle 9
+Thg 10 07 13:04:26 an-computer logger[16088]: Memory usage high: 89%
+Thg 10 07 13:04:26 an-computer logger[16088]: Failed to connect to database, retry 9
+Thg 10 07 13:04:28 an-computer logger[16088]: Service running normally, cycle 10
+Thg 10 07 13:04:28 an-computer logger[16088]: Memory usage high: 81%
+Thg 10 07 13:04:28 an-computer logger[16088]: Failed to connect to database, retry 10
+Thg 10 07 13:04:30 an-computer logger[16088]: Service running normally, cycle 11
+Thg 10 07 13:04:30 an-computer logger[16088]: Memory usage high: 82%
+Thg 10 07 13:04:30 an-computer logger[16088]: Failed to connect to database, retry 11
+Thg 10 07 13:04:32 an-computer logger[16088]: Service running normally, cycle 12
+Thg 10 07 13:04:32 an-computer logger[16088]: Memory usage high: 87%
+Thg 10 07 13:04:32 an-computer logger[16088]: Failed to connect to database, retry 12
+
+=== 5. Crash point ===
+Thg 10 07 13:04:10 an-computer logger[16088]: Failed to connect to database, retry 1
+Thg 10 07 13:04:12 an-computer logger[16088]: Failed to connect to database, retry 2
+Thg 10 07 13:04:14 an-computer logger[16088]: Failed to connect to database, retry 3
+Thg 10 07 13:04:16 an-computer logger[16088]: Failed to connect to database, retry 4
+Thg 10 07 13:04:18 an-computer logger[16088]: Failed to connect to database, retry 5
+Thg 10 07 13:04:20 an-computer logger[16088]: Failed to connect to database, retry 6
+Thg 10 07 13:04:22 an-computer logger[16088]: Failed to connect to database, retry 7
+Thg 10 07 13:04:24 an-computer logger[16088]: Failed to connect to database, retry 8
+Thg 10 07 13:04:26 an-computer logger[16088]: Failed to connect to database, retry 9
+Thg 10 07 13:04:28 an-computer logger[16088]: Failed to connect to database, retry 10
+Thg 10 07 13:04:30 an-computer logger[16088]: Failed to connect to database, retry 11
+Thg 10 07 13:04:32 an-computer logger[16088]: Failed to connect to database, retry 12

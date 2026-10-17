@@ -1,0 +1,17 @@
+[Unit]
+Description=Session 06 Exercise 1 Monitor Service
+# Restart limits: maximum 3 times within 30 seconds[cite: 9]
+StartLimitIntervalSec=30
+StartLimitBurst=3
+
+[Service]
+# Absolute path to the executable
+ExecStart=/home/an/devlinux/embedded-linux/K26.3/thien-an/session-06/Exercise_1/monitor
+
+# Automatically restart the service on crash after 5 seconds[cite: 9]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+# Start automatically on boot[cite: 9]
+WantedBy=multi-user.target
