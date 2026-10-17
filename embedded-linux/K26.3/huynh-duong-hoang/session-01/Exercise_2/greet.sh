@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+	echo "Usage: $0 <name> <age>"
+	exit 1
+fi
+NAME="$1"
+AGE="$2"
+
+echo "Hello, my name is $NAME and i am $AGE years old."
+echo "Total argument received: $#"
