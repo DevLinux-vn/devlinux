@@ -1,0 +1,120 @@
+=== 1. Full service log ===
+Thg 6 21 20:53:27 chuong-ubuntu systemd[1]: Started Logger Severity Level Test Service.
+Thg 6 21 20:53:27 chuong-ubuntu logger[18055]: Service running normally, cycle 1
+Thg 6 21 20:53:27 chuong-ubuntu logger[18055]: Memory usage high: 93%
+Thg 6 21 20:53:27 chuong-ubuntu logger[18055]: Failed to connect to database, retry 1
+Thg 6 21 20:53:29 chuong-ubuntu logger[18055]: Service running normally, cycle 2
+Thg 6 21 20:53:29 chuong-ubuntu logger[18055]: Memory usage high: 81%
+Thg 6 21 20:53:29 chuong-ubuntu logger[18055]: Failed to connect to database, retry 2
+Thg 6 21 20:53:31 chuong-ubuntu logger[18055]: Service running normally, cycle 3
+Thg 6 21 20:53:31 chuong-ubuntu logger[18055]: Memory usage high: 92%
+Thg 6 21 20:53:31 chuong-ubuntu logger[18055]: Failed to connect to database, retry 3
+Thg 6 21 20:53:33 chuong-ubuntu logger[18055]: Service running normally, cycle 4
+Thg 6 21 20:53:33 chuong-ubuntu logger[18055]: Memory usage high: 90%
+Thg 6 21 20:53:33 chuong-ubuntu logger[18055]: Failed to connect to database, retry 4
+Thg 6 21 20:53:35 chuong-ubuntu logger[18055]: Service running normally, cycle 5
+Thg 6 21 20:53:35 chuong-ubuntu logger[18055]: Memory usage high: 88%
+Thg 6 21 20:53:35 chuong-ubuntu logger[18055]: Failed to connect to database, retry 5
+Thg 6 21 20:53:37 chuong-ubuntu logger[18055]: Service running normally, cycle 6
+Thg 6 21 20:53:37 chuong-ubuntu logger[18055]: Memory usage high: 90%
+Thg 6 21 20:53:37 chuong-ubuntu logger[18055]: Failed to connect to database, retry 6
+Thg 6 21 20:53:39 chuong-ubuntu logger[18055]: Service running normally, cycle 7
+Thg 6 21 20:53:39 chuong-ubuntu logger[18055]: Memory usage high: 81%
+Thg 6 21 20:53:39 chuong-ubuntu logger[18055]: Failed to connect to database, retry 7
+Thg 6 21 20:53:41 chuong-ubuntu logger[18055]: Service running normally, cycle 8
+Thg 6 21 20:53:41 chuong-ubuntu logger[18055]: Memory usage high: 92%
+Thg 6 21 20:53:41 chuong-ubuntu logger[18055]: Failed to connect to database, retry 8
+Thg 6 21 20:53:43 chuong-ubuntu logger[18055]: Service running normally, cycle 9
+Thg 6 21 20:53:43 chuong-ubuntu logger[18055]: Memory usage high: 89%
+Thg 6 21 20:53:43 chuong-ubuntu logger[18055]: Failed to connect to database, retry 9
+Thg 6 21 20:53:45 chuong-ubuntu logger[18055]: Service running normally, cycle 10
+Thg 6 21 20:53:45 chuong-ubuntu logger[18055]: Memory usage high: 81%
+Thg 6 21 20:53:45 chuong-ubuntu logger[18055]: Failed to connect to database, retry 10
+Thg 6 21 20:53:47 chuong-ubuntu logger[18055]: Service running normally, cycle 11
+Thg 6 21 20:53:47 chuong-ubuntu logger[18055]: Memory usage high: 82%
+Thg 6 21 20:53:47 chuong-ubuntu logger[18055]: Failed to connect to database, retry 11
+Thg 6 21 20:53:49 chuong-ubuntu logger[18055]: Service running normally, cycle 12
+Thg 6 21 20:53:49 chuong-ubuntu logger[18055]: Memory usage high: 87%
+Thg 6 21 20:53:49 chuong-ubuntu logger[18055]: Failed to connect to database, retry 12
+Thg 6 21 20:53:51 chuong-ubuntu logger[18055]: Service running normally, cycle 13
+Thg 6 21 20:53:51 chuong-ubuntu logger[18055]: Memory usage high: 85%
+Thg 6 21 20:53:51 chuong-ubuntu logger[18055]: Failed to connect to database, retry 13
+Thg 6 21 20:53:53 chuong-ubuntu logger[18055]: Service running normally, cycle 14
+Thg 6 21 20:53:53 chuong-ubuntu logger[18055]: Memory usage high: 84%
+Thg 6 21 20:53:53 chuong-ubuntu logger[18055]: Failed to connect to database, retry 14
+Thg 6 21 20:53:55 chuong-ubuntu logger[18055]: Service running normally, cycle 15
+Thg 6 21 20:53:55 chuong-ubuntu logger[18055]: Memory usage high: 88%
+Thg 6 21 20:53:55 chuong-ubuntu logger[18055]: Failed to connect to database, retry 15
+Thg 6 21 20:53:57 chuong-ubuntu logger[18055]: Critical error encountered! Simulating a crash now...
+Thg 6 21 20:53:57 chuong-ubuntu systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 21 20:53:57 chuong-ubuntu systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 2. Warning level and above ===
+Thg 6 21 20:53:27 chuong-ubuntu logger[18055]: Memory usage high: 93%
+Thg 6 21 20:53:27 chuong-ubuntu logger[18055]: Failed to connect to database, retry 1
+Thg 6 21 20:53:29 chuong-ubuntu logger[18055]: Memory usage high: 81%
+Thg 6 21 20:53:29 chuong-ubuntu logger[18055]: Failed to connect to database, retry 2
+Thg 6 21 20:53:31 chuong-ubuntu logger[18055]: Memory usage high: 92%
+Thg 6 21 20:53:31 chuong-ubuntu logger[18055]: Failed to connect to database, retry 3
+Thg 6 21 20:53:33 chuong-ubuntu logger[18055]: Memory usage high: 90%
+Thg 6 21 20:53:33 chuong-ubuntu logger[18055]: Failed to connect to database, retry 4
+Thg 6 21 20:53:35 chuong-ubuntu logger[18055]: Memory usage high: 88%
+Thg 6 21 20:53:35 chuong-ubuntu logger[18055]: Failed to connect to database, retry 5
+Thg 6 21 20:53:37 chuong-ubuntu logger[18055]: Memory usage high: 90%
+Thg 6 21 20:53:37 chuong-ubuntu logger[18055]: Failed to connect to database, retry 6
+Thg 6 21 20:53:39 chuong-ubuntu logger[18055]: Memory usage high: 81%
+Thg 6 21 20:53:39 chuong-ubuntu logger[18055]: Failed to connect to database, retry 7
+Thg 6 21 20:53:41 chuong-ubuntu logger[18055]: Memory usage high: 92%
+Thg 6 21 20:53:41 chuong-ubuntu logger[18055]: Failed to connect to database, retry 8
+Thg 6 21 20:53:43 chuong-ubuntu logger[18055]: Memory usage high: 89%
+Thg 6 21 20:53:43 chuong-ubuntu logger[18055]: Failed to connect to database, retry 9
+Thg 6 21 20:53:45 chuong-ubuntu logger[18055]: Memory usage high: 81%
+Thg 6 21 20:53:45 chuong-ubuntu logger[18055]: Failed to connect to database, retry 10
+Thg 6 21 20:53:47 chuong-ubuntu logger[18055]: Memory usage high: 82%
+Thg 6 21 20:53:47 chuong-ubuntu logger[18055]: Failed to connect to database, retry 11
+Thg 6 21 20:53:49 chuong-ubuntu logger[18055]: Memory usage high: 87%
+Thg 6 21 20:53:49 chuong-ubuntu logger[18055]: Failed to connect to database, retry 12
+Thg 6 21 20:53:51 chuong-ubuntu logger[18055]: Memory usage high: 85%
+Thg 6 21 20:53:51 chuong-ubuntu logger[18055]: Failed to connect to database, retry 13
+Thg 6 21 20:53:53 chuong-ubuntu logger[18055]: Memory usage high: 84%
+Thg 6 21 20:53:53 chuong-ubuntu logger[18055]: Failed to connect to database, retry 14
+Thg 6 21 20:53:55 chuong-ubuntu logger[18055]: Memory usage high: 88%
+Thg 6 21 20:53:55 chuong-ubuntu logger[18055]: Failed to connect to database, retry 15
+Thg 6 21 20:53:57 chuong-ubuntu logger[18055]: Critical error encountered! Simulating a crash now...
+Thg 6 21 20:53:57 chuong-ubuntu systemd[1]: logger.service: Main process exited, code=dumped, status=6/ABRT
+Thg 6 21 20:53:57 chuong-ubuntu systemd[1]: logger.service: Failed with result 'core-dump'.
+=== 3. Error level and above ===
+Thg 6 21 20:53:27 chuong-ubuntu logger[18055]: Failed to connect to database, retry 1
+Thg 6 21 20:53:29 chuong-ubuntu logger[18055]: Failed to connect to database, retry 2
+Thg 6 21 20:53:31 chuong-ubuntu logger[18055]: Failed to connect to database, retry 3
+Thg 6 21 20:53:33 chuong-ubuntu logger[18055]: Failed to connect to database, retry 4
+Thg 6 21 20:53:35 chuong-ubuntu logger[18055]: Failed to connect to database, retry 5
+Thg 6 21 20:53:37 chuong-ubuntu logger[18055]: Failed to connect to database, retry 6
+Thg 6 21 20:53:39 chuong-ubuntu logger[18055]: Failed to connect to database, retry 7
+Thg 6 21 20:53:41 chuong-ubuntu logger[18055]: Failed to connect to database, retry 8
+Thg 6 21 20:53:43 chuong-ubuntu logger[18055]: Failed to connect to database, retry 9
+Thg 6 21 20:53:45 chuong-ubuntu logger[18055]: Failed to connect to database, retry 10
+Thg 6 21 20:53:47 chuong-ubuntu logger[18055]: Failed to connect to database, retry 11
+Thg 6 21 20:53:49 chuong-ubuntu logger[18055]: Failed to connect to database, retry 12
+Thg 6 21 20:53:51 chuong-ubuntu logger[18055]: Failed to connect to database, retry 13
+Thg 6 21 20:53:53 chuong-ubuntu logger[18055]: Failed to connect to database, retry 14
+Thg 6 21 20:53:55 chuong-ubuntu logger[18055]: Failed to connect to database, retry 15
+Thg 6 21 20:53:57 chuong-ubuntu logger[18055]: Critical error encountered! Simulating a crash now...
+=== 4. Log from the last 1 minute ===
+-- No entries --
+=== 5. Crash point ===
+Thg 6 21 20:53:27 chuong-ubuntu logger[18055]: Failed to connect to database, retry 1
+Thg 6 21 20:53:29 chuong-ubuntu logger[18055]: Failed to connect to database, retry 2
+Thg 6 21 20:53:31 chuong-ubuntu logger[18055]: Failed to connect to database, retry 3
+Thg 6 21 20:53:33 chuong-ubuntu logger[18055]: Failed to connect to database, retry 4
+Thg 6 21 20:53:35 chuong-ubuntu logger[18055]: Failed to connect to database, retry 5
+Thg 6 21 20:53:37 chuong-ubuntu logger[18055]: Failed to connect to database, retry 6
+Thg 6 21 20:53:39 chuong-ubuntu logger[18055]: Failed to connect to database, retry 7
+Thg 6 21 20:53:41 chuong-ubuntu logger[18055]: Failed to connect to database, retry 8
+Thg 6 21 20:53:43 chuong-ubuntu logger[18055]: Failed to connect to database, retry 9
+Thg 6 21 20:53:45 chuong-ubuntu logger[18055]: Failed to connect to database, retry 10
+Thg 6 21 20:53:47 chuong-ubuntu logger[18055]: Failed to connect to database, retry 11
+Thg 6 21 20:53:49 chuong-ubuntu logger[18055]: Failed to connect to database, retry 12
+Thg 6 21 20:53:51 chuong-ubuntu logger[18055]: Failed to connect to database, retry 13
+Thg 6 21 20:53:53 chuong-ubuntu logger[18055]: Failed to connect to database, retry 14
+Thg 6 21 20:53:55 chuong-ubuntu logger[18055]: Failed to connect to database, retry 15
+Thg 6 21 20:53:57 chuong-ubuntu logger[18055]: Critical error encountered! Simulating a crash now...

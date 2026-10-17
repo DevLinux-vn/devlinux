@@ -1,0 +1,17 @@
+[Unit]
+Description=Logger Severity Level Test Service
+After=multi-user.target
+
+[Service]
+# Đường dẫn tới file thực thi sau khi biên dịch
+ExecStart=/usr/local/bin/logger
+
+# Định hướng cả đầu ra tiêu chuẩn và đầu ra báo lỗi về hệ thống journal
+StandardOutput=journal
+StandardError=journal
+
+# KHÔNG cấu hình tự động restart (Mặc định Restart=no)
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
