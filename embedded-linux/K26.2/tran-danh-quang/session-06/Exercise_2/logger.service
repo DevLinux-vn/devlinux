@@ -1,0 +1,16 @@
+[Unit]
+Description=Logger Service
+After=network.target
+
+[Service]
+Type=simple
+# Note: Create user with: useradd -r -s /bin/false logger
+User=logger
+Group=logger
+ExecStart=/usr/local/bin/logger
+StandardOutput=journal
+StandardError=journal
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

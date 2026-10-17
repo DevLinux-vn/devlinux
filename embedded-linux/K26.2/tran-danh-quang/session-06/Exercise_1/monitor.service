@@ -1,0 +1,17 @@
+[Unit]
+Description=Monitor Service
+After=network.target
+StartLimitIntervalSec=30
+StartLimitBurst=3
+
+[Service]
+Type=simple
+# Note: Create user with: useradd -r -s /bin/false monitor
+User=monitor
+Group=monitor
+ExecStart=/usr/local/bin/monitor
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
