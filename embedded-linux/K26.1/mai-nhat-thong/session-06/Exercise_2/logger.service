@@ -1,0 +1,17 @@
+[Unit]
+Description=Automated Diagnostic Logger Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/logger
+
+# Standard streams redirection layout contract
+StandardOutput=journal
+StandardError=journal
+
+# Explicit instruction requirement: Do NOT restart after crash for post-mortem analysis
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
