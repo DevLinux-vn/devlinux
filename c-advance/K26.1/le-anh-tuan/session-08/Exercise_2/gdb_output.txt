@@ -1,0 +1,20 @@
+Breakpoint 1, log_device_status (device_name=0x555555556008 "Sensor_%x_%x_%x_%x")
+    at main.c:31
+
+status_message = "Device online: Sensor_%x_%x_%x_%x", '\000' <repeats ...>
+
+0x7fffffffdde0: "Device online: Sensor_%x_%x_%x_%x"
+
+rdi            0x7fffffffdde0
+rsi            0x1
+rdx            0x1
+rcx            0x7ffff7...
+r8             0x...
+r9             0x...
+rsp            0x7fffffffddc0
+
+0x7fffffffddc0: 0x0000555555558008  0x00007fffffffde80
+0x7fffffffddd0: 0x0000000000000000  0x00005555555551ea
+...
+
+Device online: Sensor_1_1_XXXXXXXX_XXXXXXXX

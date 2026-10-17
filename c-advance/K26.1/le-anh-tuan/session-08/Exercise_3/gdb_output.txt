@@ -1,0 +1,20 @@
+GNU gdb ...
+
+(gdb) run
+Starting program: .../vulnerable
+
+Program received signal SIGSEGV, Segmentation fault.
+...
+
+(gdb) bt
+#0  ...
+#1  ... in parse_packet (raw_data=...) at vulnerable.c:32
+#2  ... in main () at vulnerable.c:54
+
+(gdb) frame 1
+#1  ... in parse_packet (raw_data=...) at vulnerable.c:32
+
+(gdb) print pkt.length
+$1 = 200
+
+(gdb) quit
