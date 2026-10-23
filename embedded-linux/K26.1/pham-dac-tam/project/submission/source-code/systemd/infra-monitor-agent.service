@@ -1,0 +1,15 @@
+[Unit]
+Description=Infrastructure Health Monitor Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/infra-monitor
+ExecStart=/opt/infra-monitor/bin/agent 127.0.0.1 9000
+Restart=always
+RestartSec=5
+User=infra-monitor
+
+[Install]
+WantedBy=multi-user.target
