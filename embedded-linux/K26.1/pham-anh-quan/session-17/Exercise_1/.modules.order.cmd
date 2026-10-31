@@ -1,0 +1,1 @@
+savedcmd_/home/quan/devlinux/embedded-linux/K26.1/pham-anh-quan/session-17/Exercise_1/modules.order := {   echo /home/quan/devlinux/embedded-linux/K26.1/pham-anh-quan/session-17/Exercise_1/main.o; :; } > /home/quan/devlinux/embedded-linux/K26.1/pham-anh-quan/session-17/Exercise_1/modules.order

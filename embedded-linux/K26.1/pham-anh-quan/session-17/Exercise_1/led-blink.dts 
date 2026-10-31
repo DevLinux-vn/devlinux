@@ -1,0 +1,22 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2835";
+
+    fragment@0 {
+        target = <&gpio>;
+        __overlay__ {
+            led_blink_node: led_blink_node {
+                compatible = "pham-anh-quan,led-blink";
+                led-gpios = <&gpio 17 0>;
+                label = "led-blink";
+            };
+        };
+    };
+};
+
+/* Định nghĩa dummy gpio node nếu target base tree chưa có phím &gpio */
+&gpio {
+    #gpio-cells = <2>;
+};
