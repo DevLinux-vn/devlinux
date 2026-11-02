@@ -1,0 +1,17 @@
+[Unit]
+Description=Simple Monitor Service
+After=network.target
+
+# Limit restart attempts
+StartLimitIntervalSec=30
+StartLimitBurst=3
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/monitor
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
