@@ -1,0 +1,16 @@
+(gdb) break main.c:23
+Breakpoint 1 at 0x1227: file main.c, line 23.
+(gdb) run
+Starting program: /home/jax/Repos/devlinux/c-advance/K26.1/dang-nguyen/session-08/Exercise_1/vulnerability
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+Enter admin password: AAAAAAAAAAAA
+Access Granted: Admin privileges unlocked.
+
+Breakpoint 1, main () at main.c:23
+23      }
+(gdb) print password
+$1 = "AAAAAAAA"
+(gdb) print is_admin
+$2 = 65
+(gdb)
