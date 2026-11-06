@@ -35,7 +35,5 @@ int main(void){
     //Thay đổi giá trị biến thông qua pptr
     **pptr = 20;
     printf("Giá trị sau thay đổi: %d\n", *ptr);
-
-
-
+    return 0;
 }
