@@ -1,7 +1,9 @@
 /* HEADER
  * Input: Button
  * Output: 7-Segment Display with Common Anode
+ * Method: Polling
  */
+
 #include <stdbool.h>
 #include <stdio.h>
 typedef unsigned int uint32_t;
