@@ -1,7 +1,7 @@
-/* HEADER
+/* Header
  * Input: Button
  * Output: 7-Segment Display with Common Anode
- * Method: Polling
+ * Method: Bare Metal + Polling
  */
 
 #include <stdbool.h>
