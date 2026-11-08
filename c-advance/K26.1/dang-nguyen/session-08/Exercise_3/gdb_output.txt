@@ -1,0 +1,19 @@
+(gdb) run
+Starting program: /home/jax/Repos/devlinux/c-advance/K26.1/dang-nguyen/session-08/Exercise_3/vulnerable
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+Successfully parsed packet of length: 200
+
+Program received signal SIGSEGV, Segmentation fault.
+0x00005555555551d3 in parse_packet (p_raw_data=0x7fffffffe17b "e\215%\242C\027T\274e") at main.c:39
+39      }
+(gdb) bt
+#0  0x00005555555551d3 in parse_packet (p_raw_data=0x7fffffffe17b "e\215%\242C\027T\274e") at main.c:39
+#1  0xf7ffd04000005555 in ?? ()
+#2  0xba0a258d00007fff in ?? ()
+#3  0x43a2258d65bc446d in ?? ()
+#4  0x0000000065bc5417 in ?? ()
+#5  0x0000000000007fff in ?? ()
+#6  0x0000000000000000 in ?? ()
+(gdb) print pkt.length
+$1 = 200 '\310'
