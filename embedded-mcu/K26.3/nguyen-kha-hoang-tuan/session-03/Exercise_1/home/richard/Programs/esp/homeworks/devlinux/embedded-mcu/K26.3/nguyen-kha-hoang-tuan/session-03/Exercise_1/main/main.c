@@ -1,4 +1,4 @@
-/* This is a simple ESP32-S3 program that implements button logic with
+/* This is a header comment for the ESP32-S3 Tick-Based Button Logic program.
  * single-click, double-click, and long-press detection using polling and
  * software delays. INPUT:  Button OUTPUT: 7-Segment Display with Common Anode
  * METHOD: Bare Metal and Polling
