@@ -1,7 +1,7 @@
 /* HEADER
- * INPUT:   Button
- * OUTPUT:  7-Segment Display with Common Anode
- * METHOD:  Bare Metal and Polling
+ * INPUT:  Button
+ * OUTPUT: 7-Segment Display with Common Anode
+ * METHOD: Bare Metal and Polling
  */
 
 #include <stdbool.h>
