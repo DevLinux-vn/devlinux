@@ -1,6 +1,6 @@
-/* HEADER
- * INPUT:  Button
- * OUTPUT: 7-Segment Display with Common Anode
+/* This is a simple ESP32-S3 program that implements button logic with
+ * single-click, double-click, and long-press detection using polling and
+ * software delays. INPUT:  Button OUTPUT: 7-Segment Display with Common Anode
  * METHOD: Bare Metal and Polling
  */
 
