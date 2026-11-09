@@ -5,4 +5,4 @@
 cmake_minimum_required(VERSION 3.16)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(/home/richard/Programs/esp/homeworks/devlinux/embedded-mcu/K26.3/nguyen-kha-hoang-tuan/session-03/Exercise_1)
+project(Excercise_1)

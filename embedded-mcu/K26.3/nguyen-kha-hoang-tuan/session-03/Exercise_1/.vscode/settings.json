@@ -23,6 +23,6 @@
   "clangd.arguments": [
     "--background-index",
     "--query-driver=**",
-    "--compile-commands-dir=/home/richard/Programs/esp/homeworks/devlinux/embedded-mcu/K26.3/nguyen-kha-hoang-tuan/session-03/Exercise_1/home/richard/Programs/esp/homeworks/devlinux/embedded-mcu/K26.3/nguyen-kha-hoang-tuan/session-03/Exercise_1/build"
+    "--compile-commands-dir=/home/richard/Programs/esp/homeworks/devlinux/embedded-mcu/K26.3/nguyen-kha-hoang-tuan/session-03/Excercise_1/build"
   ]
 }

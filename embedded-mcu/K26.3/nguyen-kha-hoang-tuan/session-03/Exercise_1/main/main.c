@@ -6,7 +6,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-typedef unsigned int uint32_t;
+// typedef unsigned int uint32_t;
 
 #define DR_REG_GPIO_BASE (0x60004000UL)
 #define DR_REG_IO_MUX_BASE (0x60009000UL)
