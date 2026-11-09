@@ -1,4 +1,4 @@
-// Mục tiêu: Điều khiển LED 7 đoạn (7 Segment LED - Common Anode)
+// Mục tiêu: Điều khiển LED 7 đoạn (Common Anode)
 // Dùng code lập trình thanh ghi (bare-metal/register level) để hiện thực
 
 #include <stdio.h>
@@ -6,7 +6,7 @@
 #include "freertos/FreeRTOS.h" //Cần để dùng hàm vTaskDelay của freeRTOS
 #include "freertos/task.h"
 #include "soc/gpio_num.h"
-// #include "driver/gpio.h" //Không dùng thư viện cấp cao của ESP-IDF
+// #include "driver/gpio.h"
 #include "esp_log.h" //Cần khi hàm ESP_LOGI
 
 #define GPIO_BASE_ADDR 0x60004000UL
@@ -39,15 +39,20 @@
 // function-like macro for IO_MUX_REG
 #define IO_MUX_GPIO_REG(n) (*(volatile uint32_t *)(IO_MUX_BASE_ADDR + 0x0004 + 4 * (n)))
 
-#define BUTTON_PIN GPIO_NUM_14
-#define REGISTER_WIDTH_BIT 32U
-#define BLINK_DELAY_MS 1000U
-
 // Bit positions in IO_MUX_GPIOx_REG
 #define IO_MUX_FUN_IE_POS (9U)   // Input enable of the pin. 1: Input enabled; 0: Input disabled
 #define IO_MUX_FUN_WPU_POS (8U)  // Pull-up enable of the pin. 1: Internal pull-up enabled; 0: Internal pull-up disabled
 #define IO_MUX_FUN_DRV_POS (10U) // Drive strength of the pin. 0: 5mA; 1: 10mA; 2: 20mA; 3: 40mA
 #define IO_MUX_MCU_SEL_POS (12U) // Select the function of the pin. 0: function 0; 1: function 1
+
+// Constants
+#define BUTTON_PIN GPIO_NUM_14
+#define REGISTER_WIDTH_BIT 32U
+#define BLINK_DELAY_MS 1000U
+#define DEBOUNCE_DELAY_MS 25U
+#define LONG_PRESS_THRESHOLD_MS 800U
+#define LONG_PRESS_INCREMENT_MS 500U
+#define DOUBLE_CLICK_THRESHOLD_MS 350U
 
 // Value for 7 segment display (Common Anode) to show digits 0-9. O: LED segment on; 1: LED segment off
 const uint8_t segment_map[10] = {
@@ -184,12 +189,12 @@ void led_7seg_display_number(uint8_t number)
     }
 }
 
-// Hàm kiểm tra nút bấm với cơ chế chống dội-debounce
+// Hàm kiểm tra nút bấm với cơ chế chống dội
 uint8_t button_is_pressed(uint32_t pin)
 {
     if (gpio_read(pin) == 0) // Phát hiện mức LOW (được bấm)
     {
-        vTaskDelay(pdMS_TO_TICKS(10)); // Debounce delay
+        vTaskDelay(pdMS_TO_TICKS(DEBOUNCE_DELAY_MS)); // Debounce delay
         if (gpio_read(pin) == 0)
         {
             return 1; // Xác nhận bấm thật
@@ -203,7 +208,7 @@ void wait_for_button_release(uint32_t pin)
 {
     while (gpio_read(pin) == 0)
     {
-        vTaskDelay(pdMS_TO_TICKS(5));
+        vTaskDelay(pdMS_TO_TICKS(DEBOUNCE_DELAY_MS));
     }
 }
 
@@ -211,88 +216,90 @@ uint8_t button_is_released(uint32_t pin)
 {
     if (gpio_read(pin) == 1) // Phát hiện mức HIGH (được nhả)
     {
-        vTaskDelay(pdMS_TO_TICKS(10)); // Debounce delay
+        vTaskDelay(pdMS_TO_TICKS(DEBOUNCE_DELAY_MS)); // Debounce delay
         if (gpio_read(pin) == 1)
         {
             return 1; // Xác nhận nhả thật
         }
     }
-    return 0;   
+    return 0;
 }
 
 void app_main(void)
 {
-    // Initialize GPIO pins for 7-segment display
+    // Init GPIO pins for 7-segment display
     for (int i = 0; i < 8; i++)
     {
         gpio_init_output_pin(segment_pins[i]);
     }
+    // Init GPIO pin for button input
+    gpio_init_input_pin(BUTTON_PIN);
 
-    // Initialize for button input pin
-    gpio_init_input_pin(BUTTON_PIN); // init as internal pull-up input
-
-    uint8_t current_num = 0;
-
-    // Display number 0 at the beginning
-    led_7seg_display_number(current_num);
+    uint8_t current_number = 0;
+    // Display the initial number on the 7-segment display
+    led_7seg_display_number(current_number);
 
     while (1)
     {
         if (button_is_pressed(BUTTON_PIN))
         {
+            // Start checking for long-press window
+            TickType_t start_time = xTaskGetTickCount();
+            uint8_t long_press_detected = 0;
 
-            //====== Check for LONG PRESS (more than 500ms) ======
-            TickType_t press_start_time = xTaskGetTickCount();
-            uint8_t long_pressed = 0;
-            const TickType_t time_out_long_press = pdMS_TO_TICKS(500); // 500ms timeout for long press
-            while (gpio_read(BUTTON_PIN) == 0 && (!button_is_released(BUTTON_PIN))) // While button is still pressed
+            while (gpio_read(BUTTON_PIN) == 0) // While button is still pressed
             {
-                TickType_t current_time = xTaskGetTickCount();
+                vTaskDelay(pdMS_TO_TICKS(10)); // Polling delay
 
-                if (current_time - press_start_time >= time_out_long_press)
+                // Check if the button has been pressed for more than LONG_PRESS_THRESHOLD_MS
+                if ((xTaskGetTickCount() - start_time) >= pdMS_TO_TICKS(LONG_PRESS_THRESHOLD_MS)) // Long press detected after 800ms
                 {
-                    long_pressed = 1;
-                    current_num = (current_num + 1) % 10;
-                    led_7seg_display_number(current_num);
-
-                    press_start_time = current_time;
+                    long_press_detected = 1;
+                    break; // Exit the loop if long press is detected
                 }
             }
 
-            //====== Check for SINGE CLICK or DOUBLE CLICK =======
-            if(!long_pressed)//If not in LONG PRESS mode, check for SINGLE CLICK or DOUBLE CLICK
+            if (long_press_detected)
             {
-                // Wait for button release after FIRST CLICK
-                wait_for_button_release(BUTTON_PIN); 
-
-                // Check for DOUBLE CLICK (two clicks within 500ms)
-                TickType_t start_time = xTaskGetTickCount();
-                uint8_t double_clicked = 0;
-                const TickType_t time_out_double_click = pdMS_TO_TICKS(500); // 500ms timeout for DOUBLE CLICK
-                while (xTaskGetTickCount() - start_time < time_out_double_click)
+                start_time = xTaskGetTickCount();                                     // Reset start time
+                while (gpio_read(BUTTON_PIN) == 0 || !button_is_released(BUTTON_PIN)) // While button is still pressed in long-press mode
+                {
+                    // Check if the button has been pressed for more than LONG_PRESS_INCREMENT_MS
+                    if ((xTaskGetTickCount() - start_time) >= pdMS_TO_TICKS(LONG_PRESS_INCREMENT_MS)) // Increment every 500ms in long-press mode
+                    {
+                        current_number = (current_number + 1) % 10; // Increment and wrap around 0~9
+                        led_7seg_display_number(current_number);    // Update display
+                        start_time = xTaskGetTickCount();           // Reset start time for next increment
+                    }
+                    vTaskDelay(pdMS_TO_TICKS(10)); // Polling delay
+                }
+            }
+            else
+            {
+                // Not in LONG-PRESS mode, button was released before 800ms
+                // So we checking for SINGLE-CLICK or DOUBLE-CLICK
+                start_time = xTaskGetTickCount(); // Reset start time
+                while (xTaskGetTickCount() - start_time <= pdMS_TO_TICKS(DOUBLE_CLICK_THRESHOLD_MS))
                 {
                     if (button_is_pressed(BUTTON_PIN))
                     {
-                        double_clicked = 1;
-                        break;
+                        // Detected a second press within 350ms, so it's a DOUBLE-CLICK
+                        current_number = (current_number == 0) ? 9 : (current_number - 1); // Decrement and wrap around 0~9
+                        led_7seg_display_number(current_number);                           // Update display
+                        break;                                                             // Exit the loop after handling double-click
                     }
-                    vTaskDelay(pdMS_TO_TICKS(10)); // Check every 10ms
+                    vTaskDelay(pdMS_TO_TICKS(10)); // Polling delay
                 }
 
-                if (double_clicked) // DOUBLE CLICK detected
+                if (xTaskGetTickCount() - start_time > pdMS_TO_TICKS(DOUBLE_CLICK_THRESHOLD_MS))
                 {
-                    current_num = (current_num == 0) ? 9 : current_num - 1;
-                    wait_for_button_release(BUTTON_PIN); // Wait for button release after DOUBLE CLICK
+                    // No second press detected within 350ms, so it's a SINGLE-CLICK
+                    current_number = (current_number + 1) % 10; // Increment and wrap around 0~9
+                    led_7seg_display_number(current_number);    // Update display
                 }
-                else // SINGLE CLICK detected
-                {
-                    current_num = (current_num + 1) % 10;
-                }
-                led_7seg_display_number(current_num); // Update display
+
+                wait_for_button_release(BUTTON_PIN); // Wait for button release to avoid multiple detections
             }
         }
-
-        // Scan button state at a reasonable frequency
-        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
