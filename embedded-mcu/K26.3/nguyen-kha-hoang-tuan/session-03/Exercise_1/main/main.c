@@ -1,6 +1,5 @@
 /*
  * Target: ESP32-S3 DevKitC-1 (Bare-Metal Register Access & Polling Only)
- *
  * Display Configuration: COMMON ANODE 7-Segment Display
  *   - Common pin is connected to 3V3.
  *   - Individual segments (a-g, dp) are connected to GPIOs via 220-330 Ohm resistors.
