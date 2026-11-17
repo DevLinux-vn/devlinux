@@ -1,5 +1,4 @@
 /*
- * File: main.c
  * Target: ESP32-S3 DevKitC-1 (Bare-Metal Register Access & Polling Only)
  *
  * Display Configuration: COMMON ANODE 7-Segment Display
