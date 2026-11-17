@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 // ============================================================================
-// 1. 7-SEGMENT DISPLAY USING ESP-IDF GPIO DRIVER API
+// 1. This is 7-SEGMENT DISPLAY USING ESP-IDF GPIO DRIVER API
 // ============================================================================
 
 const uint32_t LED_SEG_PINS[8] = {4U, 5U, 6U, 7U, 15U, 16U, 17U, 18U};
