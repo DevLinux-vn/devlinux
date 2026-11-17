@@ -1,0 +1,15 @@
+(gdb) break main.c:9
+Breakpoint 1 at 0x11ce: file main.c, line 9.
+(gdb) run
+Starting program: /home/jax/Repos/devlinux/c-advance/K26.1/dang-nguyen/session-08/Exercise_2/vulnerable
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Breakpoint 1, log_device_status (p_device_name=0x555555556016 "Sensor_%x_%x_%x_%x") at main.c:9
+9           (void)snprintf(status_message, sizeof(status_message), "Device online: %s", p_device_name);
+(gdb) next
+13          printf(status_message);
+(gdb) x/4x $sp
+0x7fffffffe100: 0x00000002      0x00000000      0x55556016      0x00005555
+(gdb) info locals
+status_message = "Device online: Sensor_%x_%x_%x_%x", '\000' <repeats 15 times>, "\r\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000\001\000\000\000\000\000\000\000@@UUUU\000\000<(\376\367\377\177\000\000\360\006\000\000\000\000\000\000Y\345\377\377\377\177\000\000\000\020\374\367\377\177\000\000\000\000\000\001\001\001\000"
