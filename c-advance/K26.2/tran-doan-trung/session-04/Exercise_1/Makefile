@@ -1,0 +1,26 @@
+CC ?= gcc
+CFLAGS ?= -Wall -Wextra -pedantic -Werror -std=c99 -g
+
+TARGET = exercise_1
+SRCS = main.c console_display.c dummy_display.c
+OBJS = $(SRCS:.c=.o)
+
+.PHONY: all clean run check
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+check:
+	cppcheck --enable=all --suppress=missingIncludeSystem --inconclusive --std=c99 $(SRCS)
+	clang-tidy $(SRCS) -checks='clang-analyzer-*,cert-*,bugprone-*,-bugprone-easily-swappable-parameters' -- $(CFLAGS)
+
+run: $(TARGET)
+	./$(TARGET)
+
+clean:
+	rm -f $(OBJS) $(TARGET)
