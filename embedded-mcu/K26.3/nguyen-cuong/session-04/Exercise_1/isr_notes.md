@@ -1,0 +1,18 @@
+# Session 04 — Ghi chú về ISR
+
+## 1. Vì sao biến trạng thái nút dùng chung phải là `volatile`?
+
+`isr_pressed`, `isr_press_us` và `isr_release_us` bị ISR thay đổi ngoài luồng chạy bình thường của `app_main()`. Trình biên dịch không thấy lệnh gọi nào tới ISR nên coi biến chỉ do vòng lặp chính quản lý. Nó được phép nạp giá trị vào thanh ghi một lần rồi dùng lại mãi, hoặc gộp và xóa các lần đọc "thừa". Khi đó vòng lặp chính đọc lại giá trị cũ đã lưu tạm: nó không thấy lần nhấn hay lần thả, một lần nhấn giữ không dừng khi thả tay, còn vòng chờ kiểu `while (!isr_pressed) {}` có thể bị biên dịch thành vòng lặp vô hạn. `volatile` buộc mỗi lần truy cập trong mã nguồn đều đọc hoặc ghi thật vào RAM. Tuy vậy `volatile` không làm thao tác trở thành nguyên tử: một `int64_t` trên Xtensa 32 bit cần hai lệnh, và ba biến phải khớp nhau. Vì thế cả ISR lẫn `button_snapshot()` đều truy cập chúng trong `portENTER_CRITICAL[_ISR](&button_lock)`.
+
+## 2. Vì sao ISR chỉ nên lưu trạng thái và timestamp?
+
+Trong lúc ISR chạy, các ngắt cùng mức hoặc thấp hơn trên lõi đó bị chặn và không task nào được chạy. Mọi micro giây trong ISR đều làm tăng độ trễ của các ngắt khác (timer, UART, Wi-Fi) và của các task. Đọc mức chân và gọi `esp_timer_get_time()` mất cỡ micro giây, có thời gian cố định và không bao giờ chờ. Logging thì chậm: một dòng 40 ký tự ở 115200 baud mất khoảng $3.5\ \text{ms}$. `ESP_LOGx` còn dùng khóa và driver UART nên có thể phải chờ. Delay và giải mã cử chỉ cũng không có thời gian xác định. Các việc này đặt trong `app_main()`, nơi được phép chờ và bị lập lịch như mọi task. `vTaskDelay()` không hợp lệ trong ISR vì nó chặn *task đang gọi*, đưa task đó sang trạng thái Blocked rồi gọi bộ lập lịch. ISR không phải task, không có ngữ cảnh để chặn, và không được "ngủ" khi đang giữ CPU ở mức ngắt. FreeRTOS chỉ cho phép gọi các hàm có đuôi `...FromISR()` trong ISR. Trên ESP-IDF, gọi `vTaskDelay()` từ ISR sẽ vi phạm assert hoặc làm hệ thống treo.
+
+## 3. So sánh polling và ngắt
+
+Giả định thời gian: ESP32-S3 chạy $240\ \text{MHz}$, `CONFIG_FREERTOS_HZ=100` nên `vTaskDelay(pdMS_TO_TICKS(10))` bằng một tick $10\ \text{ms}$; chống dội $25\ \text{ms}$, cửa sổ double-click $350\ \text{ms}$; độ trễ vào ISR qua GPIO ISR service khoảng vài $\mu\text{s}$.
+
+- **Độ trễ phát hiện cạnh:** ngắt ghi timestamp chỉ vài $\mu\text{s}$ sau cạnh. Polling chỉ thấy cạnh ở lần đọc kế tiếp, trễ $0$–$10\ \text{ms}$.
+- **Thời gian tới khi LED đổi:** gần như giống nhau ở cả hai cách, vì việc giải mã vẫn nằm trong vòng lặp $10\ \text{ms}$ và phải chờ chống dội. Một lần nhấn được công nhận sau khoảng $25$–$35\ \text{ms}$. Single click chỉ hiện ra sau khi hết cửa sổ $350\ \text{ms}$ tính từ lúc thả, cộng tối đa một tick. Ưu điểm thật của ngắt là timestamp chính xác: thời gian nhấn giữ và cửa sổ double-click được đo theo thời điểm cạnh, không bị lệch theo nhịp vòng lặp.
+- **CPU khi rảnh:** trong bài này cả hai đều thức dậy $100$ lần mỗi giây và mỗi lần chỉ tốn vài $\mu\text{s}$, tức dưới $0.1\%$ CPU, nên gần như ngang nhau. Bản dùng ngắt còn tốn thêm hàng chục ngắt mỗi lần nút dội. Ngắt chỉ tiết kiệm CPU hoặc điện năng rõ rệt khi task chính *chặn hẳn* để chờ sự kiện (semaphore hoặc notification từ ISR) thay vì thức dậy định kỳ.
+- **Độ khó cài đặt:** polling đơn giản hơn: chỉ một luồng thực thi và không có dữ liệu dùng chung. Bản dùng ngắt phải xử lý `IRAM_ATTR`, các quy tắc trong ISR, `volatile` cộng critical section để có snapshot nhất quán, và chống dội trên các cạnh đã lưu. Ngoài ra trạng thái đã lưu chỉ giữ cạnh gần nhất, không phải lịch sử sự kiện, nên vòng lặp phải đủ ngắn để không bỏ sót một cặp nhấn–thả.
