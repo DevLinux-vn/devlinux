@@ -105,7 +105,6 @@ int main(void)
     print_memory_map();
     return 0;
 }
-
 /*
  * Memory verification
  *
