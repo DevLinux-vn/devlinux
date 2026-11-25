@@ -25,6 +25,7 @@
 #define SET_COLUMN_RANGE 0x21
 #define SET_PAGE_RANGE 0x22
 #define TRANSFER_SIZE 32
+#define DATA_PAYLOAD_SIZE (TRANSFER_SIZE - 1)
 #define STATUS_SIZE 256
 #define TEXT_PREFIX "TEXT "
 #define MAX_COMMAND (sizeof(TEXT_PREFIX) - 1 + SSD1306_TEXT_MAX + 1)
@@ -36,6 +37,7 @@ struct ssd1306_device {
 	struct i2c_client *client;
 	struct mutex lock;
 	u8 framebuffer[SSD1306_BITMAP_SIZE];
+	/* Last committed text; failed requests do not change it. */
 	char last_text[SSD1306_TEXT_MAX + 1];
 	bool ready;
 	bool display_on;
@@ -57,12 +59,14 @@ static int ssd1306_error(int error, const char *operation)
 }
 
 /* Caller serializes complete command/frame transactions with display->lock. */
-static int ssd1306_send(struct ssd1306_device *display, const u8 *data, size_t size)
+static int ssd1306_send(struct ssd1306_device *display,
+			const u8 *data, size_t size)
 {
 	int ret = i2c_master_send(display->client, data, size);
 
 	if (ret != size) {
-		pr_err("[ssd1306] I2C write failed: result=%d expected=%zu\n", ret, size);
+		pr_err("[ssd1306] I2C write failed: result=%d expected=%zu\n",
+		       ret, size);
 		return ret == -ENXIO || ret == -ENODEV ? -ENODEV : -EIO;
 	}
 	return 0;
@@ -87,7 +91,7 @@ static int ssd1306_flush(struct ssd1306_device *display, const u8 *frame)
 	int ret;
 	int i;
 
-	/* Every frame resets the address window, including after failed writes. */
+	/* Reset the address window, including after failed writes. */
 	for (i = 0; i < ARRAY_SIZE(address); i++) {
 		ret = ssd1306_command(display, address[i]);
 		if (ret)
@@ -95,8 +99,9 @@ static int ssd1306_flush(struct ssd1306_device *display, const u8 *frame)
 	}
 	packet[0] = DATA_PREFIX;
 	for (offset = 0; offset < SSD1306_BITMAP_SIZE; offset += length) {
-		/* 32-byte wire limit includes the control byte: 31 payload bytes. */
-		length = min_t(size_t, TRANSFER_SIZE - 1, SSD1306_BITMAP_SIZE - offset);
+		/* The wire limit includes one control byte. */
+		length = min_t(size_t, DATA_PAYLOAD_SIZE,
+			       SSD1306_BITMAP_SIZE - offset);
 		memcpy(packet + 1, frame + offset, length);
 		ret = ssd1306_send(display, packet, length + 1);
 		if (ret)
@@ -106,7 +111,7 @@ static int ssd1306_flush(struct ssd1306_device *display, const u8 *frame)
 	display->synced = true;
 	return 0;
 failed:
-	/* Hardware may contain a partial frame; do not pretend rollback occurred. */
+	/* Hardware may contain a partial frame; no hardware rollback. */
 	display->synced = false;
 	return ret;
 }
@@ -115,6 +120,7 @@ static int ssd1306_render(u8 *frame, const char *text)
 {
 	unsigned int page = 0;
 	unsigned int column = 0;
+	unsigned int offset;
 	unsigned int i;
 	unsigned char ch;
 
@@ -129,14 +135,19 @@ static int ssd1306_render(u8 *frame, const char *text)
 			column = 0;
 		}
 		if (page >= SSD1306_PAGES || !ssd1306_font_supported(ch))
-			return ssd1306_error(-EINVAL, "text bounds/character validation");
-		/* Transparent foreground overlay; zero glyph bits preserve bitmap. */
+			return ssd1306_error(-EINVAL,
+				     "text bounds/character validation");
+		/* OR foreground; zero glyph bits preserve the bitmap. */
+		offset = page * SSD1306_WIDTH;
+		offset += column * SSD1306_CELL_WIDTH;
 		for (i = 0; i < SSD1306_FONT_WIDTH; i++)
-			frame[page * SSD1306_WIDTH + column * SSD1306_CELL_WIDTH + i] |=
-				ssd1306_font[ch - SSD1306_FONT_FIRST][i];
+			frame[offset + i] |=
+				ssd1306_font[SSD1306_FONT_INDEX(ch)][i];
 		column++;
 	}
-	return page < SSD1306_PAGES ? 0 : ssd1306_error(-EINVAL, "text row validation");
+	if (page >= SSD1306_PAGES)
+		return ssd1306_error(-EINVAL, "text row validation");
+	return 0;
 }
 
 static int ssd1306_initialize(struct ssd1306_device *display)
@@ -163,24 +174,26 @@ static int ssd1306_initialize(struct ssd1306_device *display)
 		return ret;
 	display->display_on = true;
 	display->power_known = true;
-	pr_info("[ssd1306] I2C device initialized at address 0x3c; display cleared\n");
+	pr_info("[ssd1306] I2C device initialized at 0x3c; cleared\n");
 	return 0;
 }
 
 static void ssd1306_device_release(struct device *device)
 {
-	struct ssd1306_device *display = container_of(device, struct ssd1306_device, device);
+	struct ssd1306_device *display = container_of(device,
+					struct ssd1306_device, device);
 
 	kfree(display);
 }
 
 static int ssd1306_open(struct inode *inode, struct file *file)
 {
-	struct ssd1306_device *display = container_of(inode->i_cdev, struct ssd1306_device, cdev);
+	struct ssd1306_device *display = container_of(inode->i_cdev,
+					struct ssd1306_device, cdev);
 	struct ssd1306_file *context;
 	int ret;
 
-	/* The cdev parent already pins display while this callback is entering. */
+	/* The cdev parent pins display while this callback is entering. */
 	context = kzalloc(sizeof(*context), GFP_KERNEL);
 	if (!context)
 		return ssd1306_error(-ENOMEM, "open allocation");
@@ -221,7 +234,8 @@ static int ssd1306_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
-static ssize_t ssd1306_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+static ssize_t ssd1306_read(struct file *file, char __user *buf,
+			    size_t count, loff_t *ppos)
 {
 	struct ssd1306_file *context = file->private_data;
 	struct ssd1306_device *display = context->display;
@@ -239,14 +253,21 @@ static ssize_t ssd1306_read(struct file *file, char __user *buf, size_t count, l
 		ret = -ENODEV;
 		goto out_display;
 	}
-	if (!*ppos)
-		context->status_len = scnprintf(context->status, sizeof(context->status),
+	if (!*ppos) {
+		const char *power = "UNKNOWN";
+
+		if (display->power_known)
+			power = display->display_on ? "ON" : "OFF";
+		context->status_len = scnprintf(context->status,
+			sizeof(context->status),
 			"Status: %s, Last text: %s, Synced: %s\n",
-			display->power_known ? (display->display_on ? "ON" : "OFF") : "UNKNOWN",
-			display->last_text, display->synced ? "yes" : "no");
+			power, display->last_text,
+			display->synced ? "yes" : "no");
+	}
 	mutex_unlock(&display->lock);
-	/* Snapshot stays stable over partial reads. Removal never waits on usercopy. */
-	ret = simple_read_from_buffer(buf, count, ppos, context->status, context->status_len);
+	/* Stable partial reads; removal does not wait on usercopy. */
+	ret = simple_read_from_buffer(buf, count, ppos, context->status,
+				      context->status_len);
 	goto out_context;
 out_display:
 	mutex_unlock(&display->lock);
@@ -255,7 +276,8 @@ out_context:
 	return ret < 0 ? ssd1306_error(ret, "read") : ret;
 }
 
-static ssize_t ssd1306_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
+static ssize_t ssd1306_write(struct file *file, const char __user *buf,
+			     size_t count, loff_t *ppos)
 {
 	struct ssd1306_file *context = file->private_data;
 	struct ssd1306_device *display = context->display;
@@ -280,7 +302,8 @@ static ssize_t ssd1306_write(struct file *file, const char __user *buf, size_t c
 		text = command + sizeof(TEXT_PREFIX) - 1;
 		if (!*text || strlen(text) > SSD1306_TEXT_MAX)
 			return ssd1306_error(-EINVAL, "text length validation");
-	} else if (strcmp(command, "CLEAR") && strcmp(command, "ON") && strcmp(command, "OFF")) {
+	} else if (strcmp(command, "CLEAR") && strcmp(command, "ON") &&
+		   strcmp(command, "OFF")) {
 		pr_err("[ssd1306] Invalid command\n");
 		return -EINVAL;
 	}
@@ -303,6 +326,7 @@ static ssize_t ssd1306_write(struct file *file, const char __user *buf, size_t c
 		} else {
 			memset(frame, 0, sizeof(frame));
 		}
+		/* Keep last_text and software frame intact on failure. */
 		ret = ssd1306_flush(display, frame);
 		if (ret)
 			goto out_display;
@@ -311,7 +335,8 @@ static ssize_t ssd1306_write(struct file *file, const char __user *buf, size_t c
 		else
 			display->last_text[0] = '\0';
 		if (text)
-			pr_info("[ssd1306] Text rendered: %*pE\n", (int)strlen(text), text);
+			pr_info("[ssd1306] Text rendered: %*pE\n",
+				(int)strlen(text), text);
 		else
 			pr_info("[ssd1306] Display cleared\n");
 	} else {
@@ -335,7 +360,8 @@ out_context:
 	return ret < 0 ? ssd1306_error(ret, "write") : ret;
 }
 
-static long ssd1306_ioctl(struct file *file, unsigned int command, unsigned long arg)
+static long ssd1306_ioctl(struct file *file, unsigned int command,
+			  unsigned long arg)
 {
 	struct ssd1306_file *context = file->private_data;
 	struct ssd1306_device *display = context->display;
@@ -343,10 +369,12 @@ static long ssd1306_ioctl(struct file *file, unsigned int command, unsigned long
 	int ret;
 
 	if (!(file->f_mode & FMODE_WRITE))
-		return ssd1306_error(-EBADF, "bitmap upload requires a writable fd");
+		return ssd1306_error(-EBADF,
+				     "bitmap upload requires a writable fd");
 	if (command != SSD1306_IOC_UPLOAD_BITMAP) {
 		pr_err("[ssd1306] Invalid bitmap ioctl: %#x\n", command);
-		return _IOC_TYPE(command) == SSD1306_IOC_MAGIC ? -EINVAL : -ENOTTY;
+		return _IOC_TYPE(command) == SSD1306_IOC_MAGIC ?
+			-EINVAL : -ENOTTY;
 	}
 	bitmap = memdup_user((void __user *)arg, sizeof(*bitmap));
 	if (IS_ERR(bitmap))
@@ -365,7 +393,8 @@ static long ssd1306_ioctl(struct file *file, unsigned int command, unsigned long
 	if (!ret) {
 		display->last_text[0] = '\0';
 		file->f_pos = 0;
-		pr_info("[ssd1306] Bitmap uploaded: %u bytes\n", SSD1306_BITMAP_SIZE);
+		pr_info("[ssd1306] Bitmap uploaded: %u bytes\n",
+			SSD1306_BITMAP_SIZE);
 	}
 out_display:
 	mutex_unlock(&display->lock);
@@ -394,8 +423,9 @@ static int ssd1306_probe(struct i2c_client *client)
 	dev_t number;
 	int ret;
 
-	if (client->addr != SSD1306_I2C_ADDR || !i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-		pr_err("[ssd1306] Expected I2C address 0x3c and raw I2C adapter\n");
+	if (client->addr != SSD1306_I2C_ADDR ||
+	    !i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+		pr_err("[ssd1306] Need address 0x3c and raw I2C adapter\n");
 		return -ENODEV;
 	}
 	display = kzalloc(sizeof(*display), GFP_KERNEL);
@@ -445,8 +475,9 @@ err_region:
 	unregister_chrdev_region(number, 1);
 err_power:
 	if (ssd1306_command(display, DISPLAY_OFF))
-		pr_err("[ssd1306] Could not turn display off during probe rollback\n");
+		pr_err("[ssd1306] Display OFF failed during probe rollback\n");
 err_device:
+	/* All device_initialize error paths drop the initial ref here. */
 	put_device(&display->device);
 	pr_err("[ssd1306] Probe failed: %d\n", ret);
 	return ret;
@@ -458,6 +489,7 @@ static void ssd1306_remove(struct i2c_client *client)
 	struct ssd1306_device *display = i2c_get_clientdata(client);
 	dev_t number = display->device.devt;
 
+	/* Same lock as write/ioctl: finish pending I2C before detach. */
 	mutex_lock(&display->lock);
 	display->ready = false;
 	if (ssd1306_command(display, DISPLAY_OFF))
@@ -497,4 +529,4 @@ module_i2c_driver(ssd1306_driver);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Tran Danh Quang");
-MODULE_DESCRIPTION("SSD1306 I2C display with text and bitmap character interface");
+MODULE_DESCRIPTION("SSD1306 I2C text and bitmap character driver");

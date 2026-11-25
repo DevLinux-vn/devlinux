@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -26,15 +27,23 @@ static void request_stop(int signal_number)
 
 static int load_bitmap(const char *path, struct ssd1306_bitmap *bitmap)
 {
+	struct stat info;
 	size_t offset = 0;
 	ssize_t count;
 	unsigned char extra;
 	int saved_errno;
 	int result = -1;
-	int fd = open(path, O_RDONLY | O_CLOEXEC);
+	int fd = open(path, O_RDONLY | O_CLOEXEC | O_NONBLOCK);
 
 	if (fd < 0)
 		return -1;
+	/* Reject streams before reading: a bitmap is a finite regular file. */
+	if (fstat(fd, &info) < 0)
+		goto out;
+	if (!S_ISREG(info.st_mode) || info.st_size != sizeof(bitmap->pixels)) {
+		errno = EINVAL;
+		goto out;
+	}
 	while (offset < sizeof(bitmap->pixels)) {
 		count = read(fd, bitmap->pixels + offset, sizeof(bitmap->pixels) - offset);
 		if (count < 0 && errno == EINTR && !stop_requested)

@@ -34,7 +34,8 @@ Chuyển `border.bin` sang board và chạy:
 sudo ./app/ssd1306_app --bitmap border.bin
 ```
 
-App kiểm tra file đủ 1024 byte và không có byte dư **trước khi mở thiết bị**.
+App yêu cầu file thường đủ 1024 byte và không có byte dư **trước khi mở thiết bị**.
+FIFO, thư mục và device file bị từ chối; app không chờ dữ liệu từ stream.
 Demo CLEAR → upload file → chồng lần lượt ba chuỗi text demo tại góc trái trên →
 ON → đợi 3 giây → OFF → status. Không có `--bitmap`, app tự tạo bitmap viền.
 
