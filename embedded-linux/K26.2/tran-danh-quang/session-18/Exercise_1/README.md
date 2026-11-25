@@ -21,21 +21,22 @@ Trong shell đã nạp environment của Yocto SDK:
 ```bash
 # KDIR phải là kernel build tree đã chuẩn bị, đúng config/Module.symvers của board.
 # Ví dụ bên dưới dành cho image ARM 32-bit; chọn ARCH theo image thực tế.
-make -C driver KDIR=/path/to/prepared/kernel-build ARCH=arm CC="$CC"
-make -C app
+make KDIR=/path/to/prepared/kernel-build ARCH=arm CC="$CC"
 ```
 
 Kbuild nhận `ARCH`, `CROSS_COMPILE`, `CC` từ SDK hoặc tham số make. Makefile app
 giữ nguyên `CC` được SDK export, kể cả tham số sysroot; nếu dùng toolchain riêng:
 
 ```bash
-make -C driver KDIR=/path/to/prepared/kernel-build ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
-make -C app CROSS_COMPILE=arm-linux-gnueabihf-
+make KDIR=/path/to/prepared/kernel-build ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
 ```
 
-Không có SDK, `make -C app` build native để kiểm tra ứng dụng. Driver không mặc
-định dùng kernel đang chạy; phải truyền `KDIR`. Module build trên x86-64 chỉ là
-kiểm tra biên dịch, không dùng module đó trên Raspberry Pi.
+Makefile tại gốc `Exercise_1/` điều phối hai Makefile con. Khi truyền `KDIR`,
+`make` build cả module và app; `make -j2` hỗ trợ build song song. Không có SDK hoặc
+kernel build tree, `make` chỉ build app native và thông báo module chưa được build.
+Có thể chọn riêng `make app` hoặc `make driver KDIR=/path/to/kernel-build`.
+Driver không mặc định dùng kernel đang chạy. Module build trên x86-64 chỉ là kiểm
+tra biên dịch, không dùng module đó trên Raspberry Pi.
 
 ## Khai báo thiết bị và chạy trên board
 
@@ -109,8 +110,7 @@ trong Design Hints. Thêm ioctl upload để đáp ứng tiêu đề, output bit
 ## Dọn build
 
 ```bash
-make -C driver clean
-make -C app clean
+make clean
 ```
 
 ## Tài liệu API
