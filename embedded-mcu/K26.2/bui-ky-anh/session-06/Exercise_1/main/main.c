@@ -34,8 +34,7 @@
 #define CMD_RAMWR     (0x2CU)
 #define CMD_MADCTL    (0x36U)
 #define CMD_COLMOD    (0x3AU)
-#define CHUNK_BYTES   (LCD_H_RES *2 *sizeof(uint16_t))
-
+#define CHUNK_BYTES (LCD_H_RES * sizeof(uint16_t))
 /* Các bit MADCTL — kết hợp chúng để có hướng hiển thị mong muốn */
 #define MADCTL_MY     (0x80U) /* Thứ tự địa chỉ hàng */
 #define MADCTL_MX     (0x40U) /* Thứ tự địa chỉ cột */
@@ -109,15 +108,14 @@ esp_err_t st7796_init(){
     .max_transfer_sz = CHUNK_BYTES, /* Phải >= kích thước khối truyền */
 };
 
-    esp_err_t ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO){
+    esp_err_t ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO)
         if (ret != ESP_OK) {
              ESP_LOGE(TAG, "spi_bus_initialize failed: %s", esp_err_to_name(ret));
             return ret;
         }
-    }
+    
     ESP_ERROR_CHECK(gpio_set_level(PIN_BK_LIGHT, 1));
-    st7796_send_cmd(CMD_INVON);
-st7796_send_cmd(CMD_DISPON);
+   
 //config device
     spi_device_interface_config_t devcfg = {
     .clock_speed_hz = LCD_CLK_HZ,
@@ -131,7 +129,8 @@ st7796_send_cmd(CMD_DISPON);
         ESP_LOGE(TAG, "spi_bus_add_device failed: %s", esp_err_to_name(ret));
         return ret;
     }
-    
+     st7796_send_cmd(CMD_INVON);
+st7796_send_cmd(CMD_DISPON);
     //Hardware reset
     if(PIN_RST >= 0){
         gpio_set_level(PIN_RST, 0);
@@ -153,8 +152,7 @@ st7796_send_cmd(CMD_DISPON);
     uint8_t madctl = 0x20 | 0x80 | 0x40 | 0x08;
     st7796_send_data(&madctl, 1);
 
-    st7796_send_cmd(CMD_DISPON);
-    vTaskDelay(pdMS_TO_TICKS(10));
+   
 
     st7796_send_cmd(0x13); // Normal display ON
     vTaskDelay(pdMS_TO_TICKS(10));
