@@ -69,36 +69,3 @@ thấy kết quả của lần trước. Cả kiểm tra `INT_MAX` và phép tă
 critical section, trả `-EOVERFLOW` nếu tăng sẽ tràn; `dec` tại 0 giữ nguyên 0.
 Read cũng dùng mutex để lấy dữ liệu nhất quán trong một lần gọi. Mutex phù
 hợp với file operations ở process context, nơi thao tác usercopy có thể ngủ.
-
-## Ghi chú phạm vi và lựa chọn
-
-- Cả ba Exercise là `[review-only]`; sản phẩm theo đúng tên file trong đề,
-  không kèm Makefile và không yêu cầu nạp module. Chữ ký `void module_exit`
-  là bắt buộc theo API kernel, dù quy tắc chung của workspace ưu tiên hàm
-  trả trạng thái.
-- Session không chỉ định kernel, kiến trúc, kernel build tree hay toolchain.
-  Linux upstream 6.1 và 6.4 được dùng để đối chiếu API, không được suy ra là
-  môi trường đích của lớp. `class_create()` dùng hai tham số trước 6.4 và một
-  tham số từ 6.4; kernel vendor có backport cần đối chiếu header riêng.
-- Counter nhận đúng một lệnh hoàn chỉnh mỗi write, không phân biệt hoa/thường,
-  cho phép một LF cuối để tương thích `echo`; từ chối tiền tố như `incXYZ`,
-  NUL nhúng và lệnh không hợp lệ với `-EINVAL`. Write 0 byte là no-op.
-- Reverse nhận tối đa 255 **byte**, đảo byte (không giải mã Unicode), giữ cả
-  newline/NUL; write quá dài trả `-EMSGSIZE`, không cắt ngầm. Write 0 byte
-  không xóa dữ liệu. Đây là cách diễn giải theo buffer `char[256]` của đề.
-- `.owner = THIS_MODULE` giữ module khi còn file đang mở/thao tác. Cờ ready
-  từ chối open trước khi khởi tạo hoàn tất; đường lỗi thu hồi đúng những tài
-  nguyên đã tạo, theo thứ tự ngược. Normal unload không chạy khi còn module
-  users; không hỗ trợ forced unload. Không có công việc bất đồng bộ/timer.
-- Không đọc lại driver mẫu hoặc lời giải session khác; câu trả lời dựa trên
-  đề session này, hai driver tự viết và nguồn Linux chính thức bên dưới.
-
-## Nguồn đối chiếu
-
-- [Linux 6.1: class_create(owner, name)](https://raw.githubusercontent.com/torvalds/linux/v6.1/include/linux/device/class.h)
-- [Linux 6.4: class_create(name)](https://github.com/torvalds/linux/blob/v6.4/include/linux/device/class.h)
-- [Linux 6.1 Kernel API: cdev và device numbers](https://docs.kernel.org/6.1/core-api/kernel-api.html)
-- [Linux 6.1: user-space memory access](https://docs.kernel.org/6.1/core-api/mm-api.html#user-space-memory-access)
-- [Linux: escaped buffers trong printk](https://docs.kernel.org/core-api/printk-formats.html#raw-buffer-as-an-escaped-string)
-- [Linux 6.1: simple_read_from_buffer()](https://github.com/torvalds/linux/blob/v6.1/fs/libfs.c)
-- [Linux 6.1: cdev publication và module references](https://github.com/torvalds/linux/blob/v6.1/fs/char_dev.c)
