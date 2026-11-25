@@ -1,0 +1,24 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+
+/*
+ * Example wiring for a board exposing &gpio with BCM GPIO numbering:
+ * GPIO17 -> current-limiting resistor -> LED anode; LED cathode -> GND.
+ * ACTIVE_HIGH makes logical 1 illuminate the LED and logical 0 turn it off.
+ * This assumes that pin is available; adapt the controller/pin to the board.
+ */
+/ {
+	fragment@0 {
+		target-path = "/";
+		__overlay__ {
+			led_blink {
+				compatible = "tran-danh-quang,led-blink";
+				gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;
+				label = "led-blink";
+				status = "okay";
+			};
+		};
+	};
+};
