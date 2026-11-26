@@ -1,3 +1,4 @@
+/* _DEFAULT_SOURCE: needed for signal() and _exit() on glibc */
 #define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,18 +46,29 @@ void handle_sigusr1(int sig) {
   WRITE_STR("\n");
 }
 
+void setup_signal_handlers(struct sigaction *sa, int signum, void (*handler)(int)) {
+    sa->sa_handler = handler;
+    sigemptyset(&sa->sa_mask);
+    sa->sa_flags = SA_RESTART;
+    sigaction(signum, sa, NULL);
+}
+
 int main() {
   // Register signal handlers
-  signal(SIGINT, handle_sigint);
-  signal(SIGTERM, handle_sigterm);
-  signal(SIGUSR1, handle_sigusr1);
-
+  struct sigaction sa_int, sa_term, sa_usr1;
+  setup_signal_handlers(&sa_int, SIGINT, handle_sigint);
+  setup_signal_handlers(&sa_term, SIGTERM, handle_sigterm);
+  setup_signal_handlers(&sa_usr1, SIGUSR1, handle_sigusr1);
   printf("[INFO] Main process running...(pid = %d)\n", getpid());
 
   while (1) {
     int num = random_number();
     reading_count++;
     printf("[INFO] Sensor reading #%d: temperature=%d\n", reading_count, num);
-    sleep(1);
+
+    unsigned int remaining = 1;
+    while (remaining > 0) {
+      remaining = sleep(remaining); // retry if interrupted by a signal handler
+    }
   }
 }
