@@ -52,10 +52,10 @@ void st7796_send_cmd(uint8_t cmd){
     memset(&t, 0, sizeof(t));
     t.length = 8;
     t.tx_buffer = &cmd;
-    spi_device_polling_transmit(&s_spi, &t);
+    ESP_ERROR_CHECK(spi_device_polling_transmit(s_spi, &t));
 }
 
-void st7796_send_data(const uint8_t* data, uint8_t len){
+void st7796_send_data(const uint8_t* data, size_t len){
     if (len ==0) return;
     if (PIN_RS >= 0 ){
         gpio_set_level(PIN_RS, 1);
@@ -64,7 +64,7 @@ void st7796_send_data(const uint8_t* data, uint8_t len){
     memset(&t, 0, sizeof(t));
     t.length = len*8;
     t.tx_buffer = data;
-    spi_device_polling_transmit(s_spi, &t);
+    ESP_ERROR_CHECK(spi_device_polling_transmit(s_spi, &t));
 }
 
 
@@ -79,10 +79,10 @@ esp_err_t st7796_init(){
                 PIN_RST,
                 PIN_BK_LIGHT);
     gpio_config_t ioconf = {
-        .mode = GPIO_MODE_OUTPUT;
-        .pull_up_en = GPIO_PULLUP_DISABLE;
-        .pull_down_en = GPIO_PULLDOWN_DISABLE;
-        .intr_type = GPIO_INTR_DISABLE;
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,
     };
     uint64_t pin_mask = 0;
     if(PIN_RS>=0)
@@ -107,7 +107,7 @@ esp_err_t st7796_init(){
     .max_transfer_sz = CHUNK_BYTES, /* Phải >= kích thước khối truyền */
 };
 
-    esp_err_t ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO)
+    esp_err_t ret = spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
         if (ret != ESP_OK) {
              ESP_LOGE(TAG, "spi_bus_initialize failed: %s", esp_err_to_name(ret));
             return ret;
@@ -128,8 +128,7 @@ esp_err_t st7796_init(){
         ESP_LOGE(TAG, "spi_bus_add_device failed: %s", esp_err_to_name(ret));
         return ret;
     }
-     st7796_send_cmd(CMD_INVON);
-st7796_send_cmd(CMD_DISPON);
+    
     //Hardware reset
     if(PIN_RST >= 0){
         gpio_set_level(PIN_RST, 0);
@@ -151,7 +150,9 @@ st7796_send_cmd(CMD_DISPON);
     uint8_t madctl = 0x20 | 0x80 | 0x40 | 0x08;
     st7796_send_data(&madctl, 1);
 
-   
+   st7796_send_cmd(CMD_INVON);
+st7796_send_cmd(CMD_DISPON);
+vTaskDelay(pdMS_TO_TICKS(50));
 
     st7796_send_cmd(0x13); // Normal display ON
     vTaskDelay(pdMS_TO_TICKS(10));
@@ -193,7 +194,7 @@ void st7796_fill_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t c
     
     uint16_t color_be = (color >> 8) | (color << 8);
 
-    static uint16_t line_buffer[480];
+    static uint16_t line_buffer[LCD_H_RES];
 
     for(int i = 0; i < w; i++){
 
