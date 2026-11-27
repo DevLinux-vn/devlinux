@@ -19,7 +19,6 @@
 #define PIN_RS        GPIO_NUM_9
 #define PIN_RST       GPIO_NUM_14
 #define PIN_BK_LIGHT  GPIO_NUM_2
-
 #define LCD_H_RES     (480U) /* Hướng ngang: chiều rộng */
 #define LCD_V_RES     (320U) /* Hướng ngang: chiều cao */
 #define LCD_CLK_HZ    (20 * 1000 * 1000)
