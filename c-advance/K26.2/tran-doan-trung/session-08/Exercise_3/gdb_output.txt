@@ -1,0 +1,43 @@
+trtrung1209@lap-hp15s:/mnt/Data/WORKSPACES/01_PROJECTS/2026_DevLinux/devlinux/c-advance/K26.2/tran-doan-trung/session-08/Exercise_3$ gdb ./main 
+GNU gdb (Ubuntu 17.1-2ubuntu1) 17.1
+Copyright (C) 2025 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./main...
+(gdb) break main.c:23
+Breakpoint 1 at 0x1192: file main.c, line 23.
+(gdb) run
+Starting program: /mnt/Data/WORKSPACES/01_PROJECTS/2026_DevLinux/devlinux/c-advance/K26.2/tran-doan-trung/session-08/Exercise_3/main 
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) y
+Debuginfod has been enabled.
+To make this setting permanent, add 'set debuginfod enabled on' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Breakpoint 1, parse_packet (raw_data=0x7fffffffd2cb "\252\310\001\002\003\200\323\377\377\377\177") at main.c:23
+23          memcpy(pkt.payload, &raw_data[2], pkt.length);
+(gdb) bt
+#0  parse_packet (raw_data=0x7fffffffd2cb "\252\310\001\002\003\200\323\377\377\377\177") at main.c:23
+#1  0x00005555555551f9 in main () at main.c:31
+(gdb) print pkt.length
+$1 = 200 '\310'
+(gdb) continue
+Continuing.
+Successfully parsed packet of length: 200
+
+Program received signal SIGSEGV, Segmentation fault.
+0x0000000100007fff in ?? ()
